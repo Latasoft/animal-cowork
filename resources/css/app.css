@@ -1,11 +1,79 @@
 @import 'tailwindcss';
 
 @source '../views';
+@source '../js/**/*.{js,ts,jsx,tsx}';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
 @theme {
+    /* Tipografía */
     --font-sans:
-        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
-        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
-        'Noto Color Emoji';
+        'Montserrat', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji',
+        'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    /* Identidad Animal Co-work */
+    --color-instinct: #6aae3b;
+    --color-instinct-dark: #568f2f;
+    --color-instinct-light: #eef7e8;
+
+    --color-deep-blue: #0d1b3d;
+    --color-deep-blue-light: #162b5c;
+
+    --color-energy-blue: #114dff;
+    --color-energy-blue-dark: #0b38c5;
+
+    --color-surface: #ffffff;
+    --color-background: #f7f9f5;
+    --color-muted: #667085;
+    --color-border: #e2e8dc;
+
+    /* Sombras */
+    --shadow-card: 0 18px 50px -24px rgb(13 27 61 / 0.24);
+
+    /* Radios */
+    --radius-card: 1.5rem;
+    --radius-button: 9999px;
+}
+
+@layer base {
+    *,
+    ::before,
+    ::after {
+        border-color: var(--color-border);
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        min-width: 320px;
+        margin: 0;
+        background: var(--color-background);
+        color: var(--color-deep-blue);
+        font-family: var(--font-sans);
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    button,
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button {
+        cursor: pointer;
+    }
+
+    img,
+    svg {
+        display: block;
+    }
+}
+
+@layer utilities {
+    .text-balance {
+        text-wrap: balance;
+    }
 }
