@@ -46,74 +46,64 @@ export function Header() {
     }
 
     return (
-        <header className="sticky top-0 z-50 border-b border-deep-blue/8 bg-white/90 backdrop-blur-xl">
+        <header className="sticky top-0 z-50 border-b border-deep-blue/8 bg-white/95 backdrop-blur-xl">
             <Container>
-                <div className="flex min-h-20 items-center justify-between gap-6">
+                <div className="flex min-h-24 items-center justify-between gap-5">
                     <a
                         href="#inicio"
-                        className="group flex shrink-0 items-center gap-3"
                         aria-label="Animal Co-work, ir al inicio"
                         onClick={closeMenu}
+                        className="shrink-0 transition duration-300 hover:opacity-90"
                     >
-                        <span className="flex size-11 items-center justify-center rounded-2xl bg-deep-blue transition-transform duration-200 group-hover:-rotate-3">
-                            <svg
-                                viewBox="0 0 32 32"
-                                className="size-6 text-instinct"
-                                fill="none"
-                                aria-hidden="true"
-                            >
-                                <path
-                                    d="M7 23.5 12.2 9l3.8 8.2L19.8 9 25 23.5"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                />
-                                <path
-                                    d="M10 21h12"
-                                    stroke="currentColor"
-                                    strokeWidth="3"
-                                    strokeLinecap="round"
-                                />
-                            </svg>
-                        </span>
-
-                        <span className="leading-none">
-                            <span className="block text-base font-extrabold tracking-[-0.035em] text-deep-blue">
-                                ANIMAL
-                            </span>
-
-                            <span className="mt-1 block text-[0.65rem] font-bold tracking-[0.2em] text-instinct-dark">
-                                CO-WORK
-                            </span>
-                        </span>
+                        <img
+                            src="/images/Logo/Logo.jpg"
+                            alt="Animal Co-work"
+                            className="h-14 w-auto object-contain transition duration-300 lg:h-16"
+                        />
                     </a>
 
                     <nav
-                        className="hidden items-center gap-7 lg:flex"
+                        className="hidden items-center gap-6 xl:flex"
                         aria-label="Navegación principal"
                     >
                         {navigation.map((item) => (
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="relative py-2 text-sm font-semibold text-deep-blue/70 transition-colors hover:text-deep-blue"
+                                className="
+                                        group
+                                        relative
+                                        py-5
+                                        text-lg
+                                        font-semibold
+                                        text-deep-blue
+                                        transition-colors
+                                        duration-300
+                                        after:absolute
+                                        after:bottom-0
+                                        after:left-0
+                                        after:h-[3px]
+                                        after:w-0
+                                        after:bg-amarillo
+                                        after:transition-all
+                                        after:duration-300
+                                        hover:after:w-full
+                                        "
                             >
                                 {item.label}
                             </a>
                         ))}
                     </nav>
 
-                    <div className="hidden shrink-0 lg:block">
+                    <div className="hidden shrink-0 xl:block">
                         <ButtonLink href="#planes">
-                            Contratar ahora
-                            <ArrowIcon />
+                            Quiero mi oficina virtual
                         </ButtonLink>
                     </div>
 
                     <button
                         type="button"
-                        className="inline-flex size-12 items-center justify-center rounded-full border border-deep-blue/10 bg-white text-deep-blue transition hover:bg-instinct-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instinct lg:hidden"
+                        className="inline-flex size-12 items-center justify-center rounded-full border border-deep-blue/10 bg-white text-deep-blue transition hover:border-amarillo/40 hover:bg-amarillo-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amarillo xl:hidden"
                         aria-label={
                             isMenuOpen
                                 ? 'Cerrar menú de navegación'
@@ -131,7 +121,7 @@ export function Header() {
             <div
                 id="mobile-navigation"
                 className={[
-                    'fixed inset-x-0 top-20 h-[calc(100dvh-5rem)] bg-white transition duration-300 lg:hidden',
+                    'fixed inset-x-0 top-24 h-[calc(100dvh-6rem)] bg-white transition-all duration-300 xl:hidden',
                     isMenuOpen
                         ? 'visible translate-y-0 opacity-100'
                         : 'invisible -translate-y-3 opacity-0',
@@ -146,7 +136,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="border-b border-deep-blue/8 py-5 text-lg font-bold text-deep-blue transition-colors hover:text-instinct-dark"
+                                className="border-b border-deep-blue/8 py-5 text-lg font-bold text-deep-blue transition-colors duration-200 hover:text-instinct-dark"
                                 onClick={closeMenu}
                             >
                                 {item.label}
@@ -154,11 +144,17 @@ export function Header() {
                         ))}
                     </nav>
 
-                    <div className="mt-auto space-y-4 pb-8">
-                        <p className="text-sm leading-6 text-muted">
-                            Contrata tu oficina virtual de forma rápida, segura
-                            y completamente online.
-                        </p>
+                    <div className="mt-auto space-y-5 pb-8">
+                        <div className="rounded-2xl bg-instinct-light p-5">
+                            <p className="text-sm font-bold text-deep-blue">
+                                Contratación rápida y completamente online
+                            </p>
+
+                            <p className="mt-2 text-sm leading-6 text-muted">
+                                Obtén tu dirección tributaria y firma tu contrato
+                                de manera segura.
+                            </p>
+                        </div>
 
                         <ButtonLink
                             href="#planes"
@@ -166,7 +162,6 @@ export function Header() {
                             onClick={closeMenu}
                         >
                             Quiero mi oficina virtual
-                            <ArrowIcon />
                         </ButtonLink>
                     </div>
                 </Container>
@@ -210,20 +205,3 @@ function CloseIcon() {
     );
 }
 
-function ArrowIcon() {
-    return (
-        <svg
-            viewBox="0 0 24 24"
-            className="size-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-        >
-            <path d="M5 12h14" />
-            <path d="m13 6 6 6-6 6" />
-        </svg>
-    );
-}

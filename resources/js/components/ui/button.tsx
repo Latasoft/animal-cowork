@@ -25,26 +25,44 @@ type ButtonLinkProps = SharedButtonProps &
     >;
 
 const variants: Record<ButtonVariant, string> = {
-    primary:
-        'bg-instinct text-white hover:bg-instinct-dark focus-visible:outline-instinct',
+primary:
+    `
+    bg-amarillo
+    text-black
+    shadow-lg
+    shadow-amarillo/20
+    hover:-translate-y-0.5
+    hover:bg-amarillo-dark
+    hover:shadow-xl
+    hover:shadow-amarillo/30
+    focus-visible:outline-amarillo
+    `,
     secondary:
         'bg-deep-blue text-white hover:bg-deep-blue-light focus-visible:outline-deep-blue',
     outline:
-        'border border-deep-blue/20 bg-transparent text-deep-blue hover:border-instinct hover:bg-instinct-light focus-visible:outline-instinct',
+        'border border-deep-blue/20 bg-transparent text-deep-blue hover:border-amarillo hover:bg-amarillo-light focus-visible:outline-amarillo',
 };
 
 function getButtonClasses(
     variant: ButtonVariant,
     className: string,
 ): string {
-    return [
-        'inline-flex min-h-12 items-center justify-center gap-2 rounded-button px-6 py-3',
-        'text-sm font-bold transition duration-200',
-        'focus-visible:outline-2 focus-visible:outline-offset-2',
-        'disabled:pointer-events-none disabled:opacity-50',
-        variants[variant],
-        className,
-    ].join(' ');
+return [
+    'inline-flex h-12 items-center justify-center gap-2',
+    'rounded-xl',
+    'px-7',
+    'text-[15px]',
+    'font-semibold',
+    'tracking-[-0.01em]',
+    'transition-all duration-300',
+    'active:scale-[0.98]',
+    'focus-visible:outline-2',
+    'focus-visible:outline-offset-2',
+    'disabled:pointer-events-none',
+    'disabled:opacity-50',
+    variants[variant],
+    className,
+].join(' ');
 }
 
 export function Button({
