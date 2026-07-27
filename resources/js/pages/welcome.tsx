@@ -1,8 +1,10 @@
 import { Head } from '@inertiajs/react';
 import { HeroSection } from '@/components/sections/hero-section';
+import { PlansSection } from '@/components/sections/plans-section';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
 import { heroContent } from '@/data/home';
+import { plans } from '@/data/plans';
 import { PublicLayout } from '@/layouts/public-layout';
 
 export default function Welcome() {
@@ -17,19 +19,12 @@ export default function Welcome() {
 
             <PublicLayout>
                 <HeroSection content={heroContent} />
+                <PlansSection plans={plans} />
 
                 <Section id="beneficios" className="scroll-mt-24 bg-white">
                     <Container>
                         <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
                             Beneficios
-                        </h2>
-                    </Container>
-                </Section>
-
-                <Section id="planes" className="scroll-mt-24 bg-instinct-light">
-                    <Container>
-                        <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
-                            Planes
                         </h2>
                     </Container>
                 </Section>
@@ -50,7 +45,10 @@ export default function Welcome() {
                     </Container>
                 </Section>
 
-                <Section id="contacto" className="scroll-mt-24 bg-deep-blue text-white">
+                <Section
+                    id="contacto"
+                    className="scroll-mt-24 bg-deep-blue text-white"
+                >
                     <Container>
                         <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
                             Contacto

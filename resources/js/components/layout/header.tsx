@@ -70,25 +70,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="
-                                        group
-                                        relative
-                                        py-5
-                                        text-lg
-                                        font-semibold
-                                        text-deep-blue
-                                        transition-colors
-                                        duration-300
-                                        after:absolute
-                                        after:bottom-0
-                                        after:left-0
-                                        after:h-[3px]
-                                        after:w-0
-                                        after:bg-amarillo
-                                        after:transition-all
-                                        after:duration-300
-                                        hover:after:w-full
-                                        "
+                                className="group relative py-5 text-lg font-semibold text-deep-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-amarillo after:transition-all after:duration-300 hover:after:w-full"
                             >
                                 {item.label}
                             </a>
@@ -151,8 +133,8 @@ export function Header() {
                             </p>
 
                             <p className="mt-2 text-sm leading-6 text-muted">
-                                Obtén tu dirección tributaria y firma tu contrato
-                                de manera segura.
+                                Obtén tu dirección tributaria y firma tu
+                                contrato de manera segura.
                             </p>
                         </div>
 
@@ -204,4 +186,3 @@ function CloseIcon() {
         </svg>
     );
 }
-
