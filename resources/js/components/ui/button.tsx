@@ -3,8 +3,9 @@ import type {
     ButtonHTMLAttributes,
     ReactNode,
 } from 'react';
+import { ArrowRight } from 'lucide-react';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline';
+type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'btnArrow';
 
 type SharedButtonProps = {
     children: ReactNode;
@@ -25,44 +26,63 @@ type ButtonLinkProps = SharedButtonProps &
     >;
 
 const variants: Record<ButtonVariant, string> = {
-primary:
-    `
-    bg-amarillo
-    text-black
-    shadow-lg
-    shadow-amarillo/20
-    hover:-translate-y-0.5
-    hover:bg-amarillo-dark
-    hover:shadow-xl
-    hover:shadow-amarillo/30
-    focus-visible:outline-amarillo
+    primary: `
+        bg-instinct
+        text-white
+        hover:bg-instinct-dark
+        focus-visible:outline-instinct
     `,
-    secondary:
-        'bg-deep-blue text-white hover:bg-deep-blue-light focus-visible:outline-deep-blue',
-    outline:
-        'border border-deep-blue/20 bg-transparent text-deep-blue hover:border-amarillo hover:bg-amarillo-light focus-visible:outline-amarillo',
+
+    secondary: `
+        border
+        border-deep-blue
+        bg-white
+        text-deep-blue
+        hover:bg-deep-blue
+        hover:text-white
+        focus-visible:outline-deep-blue
+    `,
+
+    outline: `
+        border
+        border-deep-blue
+        bg-transparent
+        text-deep-blue
+        hover:border-instinct
+        hover:bg-instinct-light
+        focus-visible:outline-instinct
+    `,
+
+    btnArrow: `
+        justify-between
+        bg-instinct
+        text-white
+        hover:bg-instinct-dark
+        focus-visible:outline-instinct
+        group
+    `,
 };
 
 function getButtonClasses(
     variant: ButtonVariant,
     className: string,
 ): string {
-return [
-    'inline-flex h-12 items-center justify-center gap-2',
-    'rounded-xl',
-    'px-7',
-    'text-[15px]',
-    'font-semibold',
-    'tracking-[-0.01em]',
-    'transition-all duration-300',
-    'active:scale-[0.98]',
-    'focus-visible:outline-2',
-    'focus-visible:outline-offset-2',
-    'disabled:pointer-events-none',
-    'disabled:opacity-50',
-    variants[variant],
-    className,
-].join(' ');
+    return [
+        'inline-flex h-12 items-center gap-3',
+        'rounded-md',
+        'px-5',
+        'text-[12px]',
+        'font-semibold',
+        'tracking-[-0.01em]',
+        'transition-all duration-300',
+        'active:scale-[0.98]',
+        'focus-visible:outline-2',
+        'focus-visible:outline-offset-2',
+        'disabled:pointer-events-none',
+        'disabled:opacity-50',
+        variants[variant],
+        className,
+    ].join(' ');
 }
 
 export function Button({
@@ -95,6 +115,46 @@ export function ButtonLink({
             {...props}
         >
             {children}
+        </a>
+    );
+}
+
+export function ButtonSecondary({
+    children,
+    className = '',
+    variant = 'secondary',
+    ...props
+}: ButtonLinkProps) {
+    return (
+        <a
+            className={getButtonClasses(variant, className)}
+            {...props}
+        >
+            {children}
+        </a>
+    );
+}
+
+export function ButtonArrow({
+    children,
+    className = '',
+    variant = 'btnArrow',
+    ...props
+}: ButtonLinkProps) {
+    return (
+        <a
+            className={getButtonClasses(variant, className)}
+            {...props}
+        >
+            <span>{children}</span>
+
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-deep-blue text-white transition-transform duration-300 group-hover:translate-x-1">
+                <ArrowRight
+                    className="size-4"
+                    strokeWidth={2.5}
+                    aria-hidden="true"
+                />
+            </span>
         </a>
     );
 }

@@ -9,23 +9,27 @@ interface NavigationItem {
 
 const navigation: NavigationItem[] = [
     {
-        label: 'Beneficios',
-        href: '#beneficios',
+        label: 'INICIO',
+        href: '#inicio',
     },
     {
-        label: 'Planes',
+        label: 'PLANES',
         href: '#planes',
     },
     {
-        label: 'Cómo funciona',
+        label: 'SERVICIOS',
         href: '#como-funciona',
     },
     {
-        label: 'Preguntas frecuentes',
+        label: 'SALAS',
+        href: '#salas',
+    },
+    {
+        label: 'PREGUNTAS FRECUENTES',
         href: '#preguntas',
     },
     {
-        label: 'Contacto',
+        label: 'CONTACTO',
         href: '#contacto',
     },
 ];
@@ -56,7 +60,7 @@ export function Header() {
                         className="shrink-0 transition duration-300 hover:opacity-90"
                     >
                         <img
-                            src="/images/Logo/Logo.jpg"
+                            src="/images/Logo/logo.webp"
                             alt="Animal Co-work"
                             className="h-14 w-auto object-contain transition duration-300 lg:h-16"
                         />
@@ -70,7 +74,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="group relative py-5 text-lg font-semibold text-deep-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-amarillo after:transition-all after:duration-300 hover:after:w-full"
+                                className="group relative py-5 font-semibold text-energy-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-instinct after:transition-all after:duration-300 hover:after:w-full hover:text-instinct"
                             >
                                 {item.label}
                             </a>
@@ -85,7 +89,7 @@ export function Header() {
 
                     <button
                         type="button"
-                        className="inline-flex size-12 items-center justify-center rounded-full border border-deep-blue/10 bg-white text-deep-blue transition hover:border-amarillo/40 hover:bg-amarillo-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amarillo xl:hidden"
+                        className="inline-flex size-12 items-center justify-center rounded-full border border-energy-blue bg-white text-energy-blue transition hover:border-instinct/40 hover:bg-instinct-light focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instinct xl:hidden"
                         aria-label={
                             isMenuOpen
                                 ? 'Cerrar menú de navegación'
@@ -118,7 +122,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="border-b border-deep-blue/8 py-5 text-lg font-bold text-deep-blue transition-colors duration-200 hover:text-instinct-dark"
+                                className="border-b border-deep-blue/8 py-5 text-lg font-bold text-energy-blue transition-colors duration-200 hover:text-instinct-dark"
                                 onClick={closeMenu}
                             >
                                 {item.label}
@@ -127,17 +131,6 @@ export function Header() {
                     </nav>
 
                     <div className="mt-auto space-y-5 pb-8">
-                        <div className="rounded-2xl bg-instinct-light p-5">
-                            <p className="text-sm font-bold text-deep-blue">
-                                Contratación rápida y completamente online
-                            </p>
-
-                            <p className="mt-2 text-sm leading-6 text-muted">
-                                Obtén tu dirección tributaria y firma tu
-                                contrato de manera segura.
-                            </p>
-                        </div>
-
                         <ButtonLink
                             href="#planes"
                             className="w-full"
