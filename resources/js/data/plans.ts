@@ -2,12 +2,32 @@ import type { Plan } from '@/types/plan';
 
 export const plans: Plan[] = [
     {
+        id: 'lobo',
+        name: 'Lobo',
+        badge: 'Recomendado',
+        price: '$89.990',
+        image: '/images/plans/lobo.webp',
+        imageAlt: 'Ilustración de un lobo',
+        features: [
+            'Contrato de Oficina Virtual por 1 año',
+            'Gestión de patente comercial',
+            'Dirección tributaria',
+            'Dirección comercial',
+            'Recepción de documentos y correspondencia',
+            'Escaneo de documentos',
+            'Acceso a sala de reuniones',
+        ],
+        action: {
+            label: 'ELIGIR PLAN',
+            href: '#contacto',
+        },
+        theme: 'green',
+    },
+    {
         id: 'fenix',
         name: 'Fénix',
-        tagline: 'Despega tu negocio.',
         badge: 'Más vendido',
         price: '$59.990',
-        duration: 'por 2 años',
         image: '/images/plans/fenix.webp',
         imageAlt: 'Ilustración de un fénix',
         features: [
@@ -19,42 +39,16 @@ export const plans: Plan[] = [
             'Acceso a sala de reuniones',
         ],
         action: {
-            label: 'Quiero mi oficina virtual',
+            label: 'ELIGIR PLAN',
             href: '#contacto',
         },
         theme: 'orange',
         featured: true,
     },
     {
-        id: 'lobo',
-        name: 'Lobo',
-        tagline: 'Fortalece tu estrategia.',
-        badge: 'Recomendado',
-        price: '$89.990',
-        duration: 'por 1 año',
-        image: '/images/plans/lobo.webp',
-        imageAlt: 'Ilustración de un lobo',
-        features: [
-            'Gestión de patente comercial',
-            'Contrato de Oficina Virtual por 1 año',
-            'Dirección tributaria',
-            'Dirección comercial',
-            'Recepción de documentos y correspondencia',
-            'Escaneo de documentos',
-            'Acceso a sala de reuniones',
-        ],
-        action: {
-            label: 'Necesito oficina virtual y patente',
-            href: '#contacto',
-        },
-        theme: 'green',
-    },
-    {
         id: 'leon',
         name: 'León',
-        tagline: 'Comienza como un líder.',
         price: '$98.000',
-        duration: 'por 2 años',
         image: '/images/plans/leon.webp',
         imageAlt: 'Ilustración de un león',
         features: [
@@ -66,7 +60,7 @@ export const plans: Plan[] = [
             'Acceso a sala de reuniones',
         ],
         action: {
-            label: 'Quiero comenzar con todo listo',
+            label: 'ELIGIR PLAN',
             href: '#contacto',
         },
         theme: 'gold',

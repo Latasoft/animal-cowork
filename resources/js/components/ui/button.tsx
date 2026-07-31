@@ -36,9 +36,9 @@ const variants: Record<ButtonVariant, string> = {
     secondary: `
         border
         border-deep-blue
-        bg-white
-        text-deep-blue
-        hover:bg-deep-blue
+        bg-deep-blue
+        text-white
+        hover:bg-deep-blue-light
         hover:text-white
         focus-visible:outline-deep-blue
     `,

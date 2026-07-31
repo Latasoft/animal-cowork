@@ -7,6 +7,12 @@ import { heroContent } from '@/data/home';
 import { plans } from '@/data/plans';
 import { PublicLayout } from '@/layouts/public-layout';
 
+import { AdditionalServicesSection } from '@/components/sections/additional-services-section';
+import {
+    additionalServices,
+    officeSetupSteps,
+} from '@/data/additional-services';
+
 export default function Welcome() {
     return (
         <>
@@ -19,42 +25,13 @@ export default function Welcome() {
 
             <PublicLayout>
                 <HeroSection content={heroContent} />
+
                 <PlansSection plans={plans} />
 
-                <Section id="beneficios" className="scroll-mt-24 bg-white">
-                    <Container>
-                        <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
-                            Beneficios
-                        </h2>
-                    </Container>
-                </Section>
-
-                <Section id="como-funciona" className="scroll-mt-24 bg-white">
-                    <Container>
-                        <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
-                            Cómo funciona
-                        </h2>
-                    </Container>
-                </Section>
-
-                <Section id="preguntas" className="scroll-mt-24 bg-background">
-                    <Container>
-                        <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
-                            Preguntas frecuentes
-                        </h2>
-                    </Container>
-                </Section>
-
-                <Section
-                    id="contacto"
-                    className="scroll-mt-24 bg-deep-blue text-white"
-                >
-                    <Container>
-                        <h2 className="text-4xl font-extrabold tracking-[-0.04em]">
-                            Contacto
-                        </h2>
-                    </Container>
-                </Section>
+                <AdditionalServicesSection
+                    services={additionalServices}
+                    steps={officeSetupSteps}
+                />
             </PublicLayout>
         </>
     );

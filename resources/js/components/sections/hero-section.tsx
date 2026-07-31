@@ -18,7 +18,6 @@ export function HeroSection({ content }: HeroSectionProps) {
             id="inicio"
             className="relative overflow-hidden bg-white py-8 sm:py-10 lg:py-12"
         >
-            {/* Manchas laterales / fondo */}
 
             <Container>
                 <div className="grid items-center gap-10 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[0.82fr_1.18fr] lg:gap-8">

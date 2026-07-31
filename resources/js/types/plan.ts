@@ -3,10 +3,8 @@ export type PlanTheme = 'green' | 'orange' | 'gold';
 export interface Plan {
     id: string;
     name: string;
-    tagline: string;
     badge?: string;
     price: string;
-    duration: string;
     image: string;
     imageAlt: string;
     features: string[];
