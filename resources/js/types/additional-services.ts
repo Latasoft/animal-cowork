@@ -1,9 +1,7 @@
 export type AdditionalServiceIcon = 'patent' | 'company';
 
 export type OfficeSetupStepIcon =
-    | 'select-plan'
-    | 'fill-form'
-    | 'review-contract';
+    'select-plan' | 'fill-form' | 'review-contract';
 
 export interface AdditionalService {
     id: string;

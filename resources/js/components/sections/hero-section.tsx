@@ -1,12 +1,11 @@
-import {
-    Users,
-} from 'lucide-react';
+import { Users } from 'lucide-react';
 
 import { ButtonSecondary, ButtonArrow } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import type { HeroContent } from '@/types/home';
 import TornImage from '@/components/ui/torn-image';
 import TrustBar from '@/components/ui/trust-bar';
+import type { HeroContent } from '@/types/home';
+import SketchAccent from '../ui/SketchAccent';
 
 interface HeroSectionProps {
     content: HeroContent;
@@ -18,16 +17,14 @@ export function HeroSection({ content }: HeroSectionProps) {
             id="inicio"
             className="relative overflow-hidden bg-white py-8 sm:py-10 lg:py-12"
         >
-
             <Container>
                 <div className="grid items-center gap-10 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[0.82fr_1.18fr] lg:gap-8">
                     {/* Columna izquierda */}
                     <div className="relative z-10 max-w-xl">
                         <div className="relative">
-                            <div
-                                className="pointer-events-none absolute -top-3 -left-7 hidden sm:block"
-                                aria-hidden="true"
-                            />
+                            <div className="pointer-events-none absolute -top-3 -left-10 hidden sm:block">
+                                <SketchAccent />
+                            </div>
 
                             <h1 className="text-[clamp(2.3rem,6vw,2.4rem)] leading-[0.95] font-extrabold tracking-[-0.055em] text-deep-blue uppercase">
                                 {content.title}
@@ -56,7 +53,6 @@ export function HeroSection({ content }: HeroSectionProps) {
                         </p>
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-
                             <ButtonArrow
                                 href={content.primaryAction.href}
                                 className="w-full min-w-[250px] sm:w-auto"
@@ -88,7 +84,6 @@ export function HeroSection({ content }: HeroSectionProps) {
                                     </p>
 
                                     <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-instinct px-4 py-2">
-
                                         <p className="text-xs font-bold tracking-wide text-instinct-dark sm:text-sm">
                                             {content.communityMessage}
                                         </p>
@@ -109,5 +104,3 @@ export function HeroSection({ content }: HeroSectionProps) {
         </section>
     );
 }
-
-

@@ -18,11 +18,11 @@ const navigation: NavigationItem[] = [
     },
     {
         label: 'SERVICIOS',
-        href: '#como-funciona',
+        href: '#servicios-adicionales',
     },
     {
         label: 'SALAS',
-        href: '#salas',
+        href: '#sala-reuniones',
     },
     {
         label: 'PREGUNTAS FRECUENTES',
@@ -74,7 +74,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="group relative py-5 font-semibold text-energy-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-instinct after:transition-all after:duration-300 hover:after:w-full hover:text-instinct"
+                                className="group relative py-5 font-semibold text-energy-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-instinct after:transition-all after:duration-300 hover:text-instinct hover:after:w-full"
                             >
                                 {item.label}
                             </a>

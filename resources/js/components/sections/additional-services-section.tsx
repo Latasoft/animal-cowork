@@ -1,21 +1,24 @@
 import {
     ArrowRight,
     Building2,
-    ClipboardList,
     FileSignature,
     Store,
-    WandSparkles,
-    type LucideIcon,
+    
+    MousePointerClick,
+    FileSearchCorner
 } from 'lucide-react';
+import type {LucideIcon} from 'lucide-react';
 
 import { ButtonArrow } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
+import SketchAccent from '@/components/ui/SketchAccent';
 import type {
     AdditionalService,
     AdditionalServiceIcon,
     OfficeSetupStep,
     OfficeSetupStepIcon,
 } from '@/types/additional-services';
+
 
 interface AdditionalServicesSectionProps {
     services: AdditionalService[];
@@ -29,10 +32,10 @@ export function AdditionalServicesSection({
     return (
         <section
             id="servicios-adicionales"
-            className="scroll-mt-24 bg-[#f8f8f5] py-16 sm:py-20 lg:py-24"
+            className="relative overflow-hidden bg-white py-8 sm:py-10 lg:py-12"
         >
             <Container>
-                <div className="rounded-[2rem] border border-deep-blue/8 bg-white px-5 py-6 shadow-[0_18px_45px_rgba(13,27,61,0.06)] sm:px-8 sm:py-8 lg:px-10 lg:py-10">
+                <div className="mx-auto max-w-7xl">
                     <div className="grid gap-5 lg:grid-cols-[1.08fr_0.96fr_0.96fr]">
                         <IntroCard />
 
@@ -44,11 +47,11 @@ export function AdditionalServicesSection({
                         ))}
                     </div>
 
-                    <div className="mt-10 border-t border-deep-blue/10 pt-8 sm:mt-12 sm:pt-10">
+                    <div className="mt-10 border-t border-deep-blue pt-8 sm:mt-12 sm:pt-10">
                         <div className="flex items-center justify-center gap-3 text-center">
                             <SketchAccent />
 
-                            <h3 className="text-balance text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
+                            <h3 className="text-2xl font-extrabold tracking-[-0.035em] text-balance text-deep-blue sm:text-3xl">
                                 En 3 simples pasos tendrás tu oficina virtual
                                 lista
                             </h3>
@@ -76,7 +79,7 @@ function IntroCard() {
             <div className="flex items-start gap-3">
                 <SketchAccent />
 
-                <h2 className="text-balance text-2xl leading-tight font-extrabold tracking-[-0.04em] text-deep-blue sm:text-[2rem]">
+                <h2 className="text-2xl leading-tight font-extrabold tracking-[-0.04em] text-balance text-deep-blue sm:text-[2rem]">
                     ¿Necesitas{' '}
                     <span className="text-instinct">
                         servicios adicionales?
@@ -88,7 +91,7 @@ function IntroCard() {
                 Haz crecer tu territorio de negocios.
             </p>
 
-            <p className="mt-3 max-w-md text-sm leading-6 text-muted sm:text-[0.95rem]">
+            <p className="mt-3 max-w-md text-sm leading-6 text-deep-blue sm:text-[0.95rem]">
                 Complementa tu contratación con alguno de nuestros servicios y
                 realiza todo el proceso en un solo lugar.
             </p>
@@ -100,28 +103,22 @@ interface AdditionalServiceCardProps {
     service: AdditionalService;
 }
 
-function AdditionalServiceCard({
-    service,
-}: AdditionalServiceCardProps) {
+function AdditionalServiceCard({ service }: AdditionalServiceCardProps) {
     const Icon = serviceIcons[service.icon];
 
     return (
         <article className="flex h-full flex-col rounded-[1.5rem] border border-deep-blue/10 bg-white p-6 transition duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-7">
             <div className="flex items-start gap-4">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-instinct-light text-instinct">
-                    <Icon
-                        className="size-7"
-                        strokeWidth={2}
-                        aria-hidden
-                    />
+                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl text-instinct">
+                    <Icon className="size-14" strokeWidth={2} aria-hidden />
                 </div>
 
                 <div>
-                    <h3 className="text-balance text-sm leading-5 font-extrabold tracking-[0.02em] text-deep-blue uppercase sm:text-base">
+                    <h3 className="text-sm leading-5 font-extrabold tracking-[0.02em] text-balance text-deep-blue uppercase sm:text-base">
                         {service.title}
                     </h3>
 
-                    <p className="mt-3 text-sm leading-6 text-muted">
+                    <p className="mt-3 text-sm leading-6 text-deep-blue">
                         {service.description}
                     </p>
                 </div>
@@ -144,10 +141,7 @@ interface StepGroupProps {
     showConnector: boolean;
 }
 
-function StepGroup({
-    step,
-    showConnector,
-}: StepGroupProps) {
+function StepGroup({ step, showConnector }: StepGroupProps) {
     return (
         <>
             <StepCard step={step} />
@@ -177,12 +171,8 @@ function StepCard({ step }: StepCardProps) {
             </div>
 
             <div className="mt-5 flex items-start gap-4">
-                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-deep-blue/6 text-deep-blue">
-                    <Icon
-                        className="size-6"
-                        strokeWidth={2}
-                        aria-hidden
-                    />
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl text-deep-blue">
+                    <Icon className="size-14" strokeWidth={2} aria-hidden />
                 </div>
 
                 <p className="text-sm leading-6 text-muted">
@@ -216,26 +206,13 @@ function StepConnector() {
     );
 }
 
-function SketchAccent() {
-    return (
-        <div
-            className="mt-1 flex shrink-0 flex-col gap-[6px] text-instinct"
-            aria-hidden
-        >
-            <span className="block h-[3px] w-6 -rotate-45 rounded-full bg-current" />
-            <span className="block h-[3px] w-8 -rotate-12 rounded-full bg-current" />
-            <span className="block h-[3px] w-6 rotate-[30deg] rounded-full bg-current" />
-        </div>
-    );
-}
-
 const serviceIcons: Record<AdditionalServiceIcon, LucideIcon> = {
     patent: Store,
     company: Building2,
 };
 
 const stepIcons: Record<OfficeSetupStepIcon, LucideIcon> = {
-    'select-plan': WandSparkles,
-    'fill-form': ClipboardList,
-    'review-contract': FileSignature,
+    'select-plan': MousePointerClick,
+    'fill-form': FileSignature,
+    'review-contract': FileSearchCorner,
 };

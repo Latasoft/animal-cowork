@@ -1,8 +1,8 @@
+import { ShieldCheck } from 'lucide-react';
 import { Container } from '@/components/ui/container';
 import { PlanCard } from '@/components/ui/plan-card';
-import type { Plan } from '@/types/plan';
-import { ShieldCheck } from 'lucide-react';
 import { RenewalCard } from '@/components/ui/renewalCard';
+import type { Plan } from '@/types/plan';
 
 interface PlansSectionProps {
     plans: Plan[];
@@ -44,14 +44,14 @@ export function PlansSection({ plans }: PlansSectionProps) {
 
                 <div className="">
                     <p className="mt-10 text-center text-lg font-semibold text-deep-blue">
-                        <ShieldCheck className="inline-block mr-2" />Todos nuestros planes incluyen dirección aceptada por el SII, y contrato 100% online.
+                        <ShieldCheck className="mr-2 inline-block" />
+                        Todos nuestros planes incluyen dirección aceptada por el
+                        SII, y contrato 100% online.
                     </p>
                 </div>
 
-                <RenewalCard/>
-
+                <RenewalCard />
             </Container>
         </section>
     );
 }
-

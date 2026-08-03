@@ -1,17 +1,23 @@
 import { Head } from '@inertiajs/react';
+import { Footer } from '@/components/layout/footer';
+import { AdditionalServicesSection } from '@/components/sections/additional-services-section';
+import { FaqSection } from '@/components/sections/faq-section';
 import { HeroSection } from '@/components/sections/hero-section';
+import { MeetingRoomSection } from '@/components/sections/meeting-room-section';
 import { PlansSection } from '@/components/sections/plans-section';
 import { Container } from '@/components/ui/container';
 import { Section } from '@/components/ui/section';
-import { heroContent } from '@/data/home';
-import { plans } from '@/data/plans';
-import { PublicLayout } from '@/layouts/public-layout';
-
-import { AdditionalServicesSection } from '@/components/sections/additional-services-section';
 import {
     additionalServices,
     officeSetupSteps,
 } from '@/data/additional-services';
+import { faqItems } from '@/data/faq';
+import { heroContent } from '@/data/home';
+import { plans } from '@/data/plans';
+import { PublicLayout } from '@/layouts/public-layout';
+
+
+
 
 export default function Welcome() {
     return (
@@ -25,13 +31,14 @@ export default function Welcome() {
 
             <PublicLayout>
                 <HeroSection content={heroContent} />
-
                 <PlansSection plans={plans} />
-
                 <AdditionalServicesSection
                     services={additionalServices}
                     steps={officeSetupSteps}
                 />
+                <MeetingRoomSection />
+                <FaqSection items={faqItems} />
+                <Footer />
             </PublicLayout>
         </>
     );
