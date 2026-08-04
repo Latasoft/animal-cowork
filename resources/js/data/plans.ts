@@ -19,7 +19,7 @@ export const plans: Plan[] = [
         ],
         action: {
             label: 'ELIGIR PLAN',
-            href: '#contacto',
+            href: '/checkout/lobo',
         },
         theme: 'green',
     },
@@ -40,7 +40,7 @@ export const plans: Plan[] = [
         ],
         action: {
             label: 'ELIGIR PLAN',
-            href: '#contacto',
+            href: '/checkout/fenix',
         },
         theme: 'orange',
         featured: true,
@@ -61,7 +61,7 @@ export const plans: Plan[] = [
         ],
         action: {
             label: 'ELIGIR PLAN',
-            href: '#contacto',
+            href: '/checkout/leon',
         },
         theme: 'gold',
     },

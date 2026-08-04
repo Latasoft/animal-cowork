@@ -10,27 +10,27 @@ interface NavigationItem {
 const navigation: NavigationItem[] = [
     {
         label: 'INICIO',
-        href: '#inicio',
+        href: '/#inicio',
     },
     {
         label: 'PLANES',
-        href: '#planes',
+        href: '/#planes',
     },
     {
         label: 'SERVICIOS',
-        href: '#servicios-adicionales',
+        href: '/#servicios-adicionales',
     },
     {
         label: 'SALAS',
-        href: '#sala-reuniones',
+        href: '/#sala-reuniones',
     },
     {
         label: 'PREGUNTAS FRECUENTES',
-        href: '#preguntas',
+        href: '/#preguntas',
     },
     {
         label: 'CONTACTO',
-        href: '#contacto',
+        href: '/#contacto',
     },
 ];
 
@@ -54,7 +54,7 @@ export function Header() {
             <Container>
                 <div className="flex min-h-24 items-center justify-between gap-5">
                     <a
-                        href="#inicio"
+                        href="/#inicio"
                         aria-label="Animal Co-work, ir al inicio"
                         onClick={closeMenu}
                         className="shrink-0 transition duration-300 hover:opacity-90"
@@ -82,7 +82,7 @@ export function Header() {
                     </nav>
 
                     <div className="hidden shrink-0 xl:block">
-                        <ButtonLink href="#planes">
+                        <ButtonLink href="/#planes">
                             Quiero mi oficina virtual
                         </ButtonLink>
                     </div>

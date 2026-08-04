@@ -5,7 +5,7 @@ import { Container } from '@/components/ui/container';
 import TornImage from '@/components/ui/torn-image';
 import TrustBar from '@/components/ui/trust-bar';
 import type { HeroContent } from '@/types/home';
-import SketchAccent from '../ui/SketchAccent';
+import SketchAccent from '../ui/sketch-accent';
 
 interface HeroSectionProps {
     content: HeroContent;

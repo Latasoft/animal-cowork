@@ -11,7 +11,7 @@ import type {LucideIcon} from 'lucide-react';
 
 import { ButtonArrow } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import SketchAccent from '@/components/ui/SketchAccent';
+import SketchAccent from '@/components/ui/sketch-accent';
 import type {
     AdditionalService,
     AdditionalServiceIcon,

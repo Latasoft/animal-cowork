@@ -2,6 +2,16 @@ import type { FaqItem } from '@/types/faq';
 
 export const faqItems: FaqItem[] = [
     {
+        id: 'contar-con-patente',
+        question: '¿Es necesario contar con patente comercial si contrato una oficina virtual?',
+        answer: 'Sí. En Chile, toda actividad comercial requiere una patente comercial, incluso si funciona con una oficina virtual. La diferencia es que estas patentes no pagan derecho de aseo, por lo que su costo suele ser menor.',
+    },
+    {
+        id: ' validez-contrato',
+        question: '¿El contrato tiene validez legal si se firma electrónicamente?',
+        answer: 'Sí. El contrato firmado con Firma Electrónica Avanzada tiene la misma validez jurídica que un documento firmado de forma presencial, conforme a la Ley N.º 19.799.',
+    },
+    {
         id: 'direccion-tributaria-sii',
         question:
             '¿La dirección tributaria es válida ante el Servicio de Impuestos Internos (SII)?',
