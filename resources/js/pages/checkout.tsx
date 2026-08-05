@@ -1,5 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
+import type { ComponentProps } from 'react';
 
 import { CheckoutForm } from '@/components/form/checkout-form';
 import { CheckoutSteps } from '@/components/ui/checkout-steps';
@@ -7,52 +7,93 @@ import { Container } from '@/components/ui/container';
 import { NoticeCard } from '@/components/ui/notice-card';
 import { SummaryCard } from '@/components/ui/summary-card';
 import { PublicLayout } from '@/layouts/public-layout';
-import { isCheckoutFormComplete } from '@/lib/checkout-validation';
+
 import type {
     CheckoutFormData,
     CheckoutPlan,
 } from '@/types/checkout';
 
+type FormSubmitHandler = NonNullable<
+    ComponentProps<'form'>['onSubmit']
+>;
+
 interface CheckoutPageProps {
     plan: CheckoutPlan;
 }
 
-export default function Checkout({ plan }: CheckoutPageProps) {
+export default function Checkout({
+    plan,
+}: CheckoutPageProps) {
     const {
         data,
         setData,
         post,
         processing,
         errors,
+        clearErrors,
     } = useForm<CheckoutFormData>({
         plan_id: plan.id,
-        representative_name: '',
-        representative_rut: '',
-        company_name: '',
-        company_rut: '',
-        representative_address: '',
         representative_email: '',
         representative_whatsapp: '',
+        discount_code: '',
         accept_terms: false,
+        accept_data_policy: false,
     });
 
-    const formIsComplete = isCheckoutFormComplete(data);
-
+    /*
+     * El botón depende únicamente de que el cliente acepte
+     * ambas condiciones y de que no exista un envío en proceso.
+     *
+     * El correo y WhatsApp serán validados por Laravel
+     * al intentar continuar.
+     */
     const canContinue =
-        formIsComplete &&
         data.accept_terms &&
+        data.accept_data_policy &&
         !processing;
 
-    function submit(event: FormEvent<HTMLFormElement>) {
+    const hasErrors = Object.keys(errors).length > 0;
+
+    const submit: FormSubmitHandler = (event) => {
         event.preventDefault();
 
-        if (!formIsComplete || !data.accept_terms || processing) {
+        post(`/checkout/${plan.id}/payment`, {
+            preserveScroll: true,
+            preserveState: true,
+
+            onError: () => {
+                requestAnimationFrame(() => {
+                    const firstInvalidElement =
+                        document.querySelector<HTMLElement>(
+                            '[aria-invalid="true"]',
+                        );
+
+                    firstInvalidElement?.focus();
+
+                    firstInvalidElement?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
+                });
+            },
+        });
+    };
+
+    function updateContactField(
+        key:
+            | 'representative_email'
+            | 'representative_whatsapp',
+        value: string,
+    ) {
+        if (key === 'representative_email') {
+            setData('representative_email', value);
+            clearErrors('representative_email');
+
             return;
         }
 
-        post('/checkout', {
-            preserveScroll: true,
-        });
+        setData('representative_whatsapp', value);
+        clearErrors('representative_whatsapp');
     }
 
     return (
@@ -61,36 +102,88 @@ export default function Checkout({ plan }: CheckoutPageProps) {
 
             <section className="bg-white py-8 sm:py-10 lg:py-12">
                 <Container>
-                    <CheckoutSteps />
+                    <CheckoutSteps currentStep={1} />
 
                     <div className="mt-10 grid items-start gap-10 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
-                        {/* Contenido principal */}
                         <div className="min-w-0">
                             <CheckoutHeader plan={plan} />
 
                             <NoticeCard />
 
+                            {hasErrors && (
+                                <div
+                                    role="alert"
+                                    className="mt-8 border border-red-200 bg-red-50 px-5 py-4"
+                                >
+                                    <p className="font-extrabold text-red-700">
+                                        Revisa los datos ingresados
+                                    </p>
+
+                                    <ul className="mt-2 space-y-1">
+                                        {Object.entries(errors).map(
+                                            ([field, message]) => (
+                                                <li
+                                                    key={field}
+                                                    className="text-sm font-semibold text-red-600"
+                                                >
+                                                    {message}
+                                                </li>
+                                            ),
+                                        )}
+                                    </ul>
+                                </div>
+                            )}
+
                             <CheckoutForm
                                 data={data}
-                                setData={setData}
+                                setData={updateContactField}
                                 errors={errors}
                                 processing={processing}
                                 onSubmit={submit}
                             />
                         </div>
 
-                        {/* Resumen del plan */}
                         <div className="lg:sticky lg:top-28">
                             <SummaryCard
                                 plan={plan}
+                                discountCode={data.discount_code}
+                                discountError={errors.discount_code}
+                                onDiscountCodeChange={(value) => {
+                                    setData(
+                                        'discount_code',
+                                        value,
+                                    );
+
+                                    clearErrors('discount_code');
+                                }}
                                 acceptTerms={data.accept_terms}
+                                acceptDataPolicy={
+                                    data.accept_data_policy
+                                }
                                 processing={processing}
                                 canContinue={canContinue}
-                                formIsComplete={formIsComplete}
                                 termsError={errors.accept_terms}
-                                onTermsChange={(checked) =>
-                                    setData('accept_terms', checked)
+                                dataPolicyError={
+                                    errors.accept_data_policy
                                 }
+                                onTermsChange={(checked) => {
+                                    setData(
+                                        'accept_terms',
+                                        checked,
+                                    );
+
+                                    clearErrors('accept_terms');
+                                }}
+                                onDataPolicyChange={(checked) => {
+                                    setData(
+                                        'accept_data_policy',
+                                        checked,
+                                    );
+
+                                    clearErrors(
+                                        'accept_data_policy',
+                                    );
+                                }}
                             />
                         </div>
                     </div>
@@ -104,24 +197,26 @@ interface CheckoutHeaderProps {
     plan: CheckoutPlan;
 }
 
-function CheckoutHeader({ plan }: CheckoutHeaderProps) {
+function CheckoutHeader({
+    plan,
+}: CheckoutHeaderProps) {
     return (
         <header className="border-b border-deep-blue/10 pb-8">
             <p className="text-sm font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
-                Contratación online
+                Selección del plan y pago
             </p>
 
             <h1 className="mt-3 max-w-3xl text-4xl leading-[1.03] font-extrabold tracking-[-0.05em] text-deep-blue sm:text-5xl">
-                Comienza con tu oficina virtual
+                Completa tus datos para continuar
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-7 text-deep-blue/65 sm:text-lg">
-                Completa los datos del representante legal y de la empresa.
-                Utilizaremos esta información para preparar el contrato del{' '}
+                Ingresa tu correo electrónico y número de WhatsApp. Luego
+                revisa el detalle del{' '}
                 <strong className="font-extrabold text-deep-blue">
                     {plan.name}
-                </strong>
-                .
+                </strong>{' '}
+                y acepta las condiciones antes de realizar el pago.
             </p>
         </header>
     );

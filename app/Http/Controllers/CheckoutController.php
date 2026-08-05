@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Rules\ValidChileanRut;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class CheckoutController extends Controller
 {
-    public function show(string $plan)
+    /**
+     * Paso 1: muestra el plan, datos de contacto y pago.
+     */
+    public function show(string $plan): Response
     {
         $plans = $this->plans();
 
@@ -20,142 +24,224 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function store(Request $request)
-    {
+    /**
+     * Paso 1: valida los datos previos al pago.
+     *
+     * Temporalmente simula el pago como confirmado y redirige
+     * al Paso 2. Más adelante aquí se conectará la pasarela.
+     */
+    public function processPayment(
+        Request $request,
+        string $plan,
+    ): RedirectResponse {
         $plans = $this->plans();
 
-        $validated = $request->validate([
-            'plan_id' => [
-                'required',
-                'string',
-                Rule::in(array_keys($plans)),
-            ],
+        abort_unless(isset($plans[$plan]), 404);
 
-            'representative_name' => [
-                'required',
-                'string',
-                'min:5',
-                'max:120',
-                "regex:/^[\pL\s.'-]+$/u",
-            ],
+        $validated = $request->validate(
+            [
+                'plan_id' => [
+                    'required',
+                    'string',
+                    Rule::in(array_keys($plans)),
+                ],
 
-            'representative_rut' => [
-                'required',
-                'string',
-                'max:12',
-                new ValidChileanRut(),
-            ],
+                'representative_email' => [
+                    'required',
+                    'string',
+                    'email:rfc',
+                    'max:150',
+                ],
 
-            'company_name' => [
-                'required',
-                'string',
-                'min:2',
-                'max:160',
-            ],
-
-            'company_rut' => [
-                'required',
-                'string',
-                'max:12',
-                new ValidChileanRut(),
-            ],
-
-            'representative_address' => [
-                'required',
-                'string',
-                'min:8',
-                'max:200',
-            ],
-
-            'representative_email' => [
-                'required',
-                'email:rfc',
-                'max:150',
-            ],
-
-            'representative_whatsapp' => [
-                'required',
-                'string',
-                'max:20',
-                function (
-                    string $attribute,
-                    mixed $value,
-                    \Closure $fail,
-                ): void {
-                    $digits = preg_replace(
-                        '/\D/',
-                        '',
-                        (string) $value,
-                    );
-
-                    if (!preg_match('/^(?:56)?9\d{8}$/', $digits)) {
-                        $fail(
-                            'Ingresa un número de WhatsApp chileno válido.',
+                'representative_whatsapp' => [
+                    'required',
+                    'string',
+                    'max:20',
+                    function (
+                        string $attribute,
+                        mixed $value,
+                        \Closure $fail,
+                    ): void {
+                        $digits = preg_replace(
+                            '/\D/',
+                            '',
+                            (string) $value,
                         );
-                    }
-                },
+
+                        /*
+                         * Formatos válidos:
+                         *
+                         * 912345678
+                         * 56912345678
+                         * +56 9 1234 5678
+                         */
+                        if (! preg_match('/^(?:56)?9\d{8}$/', $digits)) {
+                            $fail(
+                                'Ingresa un número de WhatsApp chileno válido, por ejemplo +56 9 1234 5678.',
+                            );
+                        }
+                    },
+                ],
+
+                'discount_code' => [
+                    'nullable',
+                    'string',
+                    'max:30',
+                ],
+
+                'accept_terms' => [
+                    'accepted',
+                ],
+
+                'accept_data_policy' => [
+                    'accepted',
+                ],
             ],
+            [
+                'plan_id.required' =>
+                    'Debes seleccionar un plan.',
 
-            'accept_terms' => [
-                'accepted',
+                'plan_id.string' =>
+                    'El plan seleccionado no es válido.',
+
+                'plan_id.in' =>
+                    'El plan seleccionado no es válido.',
+
+                'representative_email.required' =>
+                    'Ingresa tu correo electrónico.',
+
+                'representative_email.string' =>
+                    'El correo electrónico ingresado no es válido.',
+
+                'representative_email.email' =>
+                    'Ingresa un correo electrónico válido.',
+
+                'representative_email.max' =>
+                    'El correo electrónico no puede superar los 150 caracteres.',
+
+                'representative_whatsapp.required' =>
+                    'Ingresa tu número de WhatsApp.',
+
+                'representative_whatsapp.string' =>
+                    'El número de WhatsApp ingresado no es válido.',
+
+                'representative_whatsapp.max' =>
+                    'El número de WhatsApp no puede superar los 20 caracteres.',
+
+                'discount_code.string' =>
+                    'El cupón ingresado no es válido.',
+
+                'discount_code.max' =>
+                    'El cupón no puede superar los 30 caracteres.',
+
+                'accept_terms.accepted' =>
+                    'Debes aceptar los Términos y Condiciones.',
+
+                'accept_data_policy.accepted' =>
+                    'Debes aceptar la Política de Privacidad.',
             ],
-        ], [
-            'plan_id.required' =>
-                'Debes seleccionar un plan.',
-            'plan_id.in' =>
-                'El plan seleccionado no es válido.',
+        );
 
-            'representative_name.required' =>
-                'Ingresa el nombre completo del representante legal.',
-            'representative_name.min' =>
-                'El nombre completo debe tener al menos 5 caracteres.',
-            'representative_name.max' =>
-                'El nombre completo no puede superar los 120 caracteres.',
-            'representative_name.regex' =>
-                'El nombre contiene caracteres no permitidos.',
+        /*
+         * El precio se obtiene siempre desde Laravel.
+         * Nunca se utiliza un precio enviado desde React.
+         */
+        $selectedPlan = $plans[$plan];
+        $subtotal = $selectedPlan['price'];
 
-            'representative_rut.required' =>
-                'Ingresa el RUT del representante legal.',
+        /*
+         * El cupón todavía no aplica descuentos reales.
+         * Más adelante se validará desde la base de datos.
+         */
+        $discountCode = $validated['discount_code'] ?? null;
+        $discountAmount = 0;
+        $total = $subtotal - $discountAmount;
 
-            'company_name.required' =>
-                'Ingresa la razón social o nombre de la empresa.',
-            'company_name.min' =>
-                'La razón social debe tener al menos 2 caracteres.',
+        /*
+         * Simulación temporal del pago confirmado.
+         *
+         * Cuando se integre la pasarela:
+         *
+         * 1. Crear una orden pendiente.
+         * 2. Validar y aplicar el cupón.
+         * 3. Crear la transacción en la pasarela.
+         * 4. Redirigir al cliente hacia el pago.
+         * 5. Confirmar mediante webhook o retorno seguro.
+         * 6. Permitir el acceso al Paso 2.
+         */
+        $request->session()->put('checkout', [
+            'plan_id' => $plan,
+            'email' => $validated['representative_email'],
+            'whatsapp' => $validated['representative_whatsapp'],
+            'discount_code' => $discountCode,
+            'subtotal' => $subtotal,
+            'discount_amount' => $discountAmount,
+            'total' => $total,
 
-            'company_rut.required' =>
-                'Ingresa el RUT de la empresa.',
-
-            'representative_address.required' =>
-                'Ingresa la dirección particular del representante legal.',
-            'representative_address.min' =>
-                'Ingresa una dirección más completa.',
-
-            'representative_email.required' =>
-                'Ingresa el correo electrónico del representante legal.',
-            'representative_email.email' =>
-                'Ingresa un correo electrónico válido.',
-
-            'representative_whatsapp.required' =>
-                'Ingresa el número de WhatsApp del representante legal.',
-
-            'accept_terms.accepted' =>
-                'Debes aceptar los términos y condiciones para continuar.',
+            // Temporal para desarrollo.
+            'payment_confirmed' => true,
         ]);
 
-        $selectedPlan = $plans[$validated['plan_id']];
-
-        // El precio siempre debe obtenerse desde Laravel.
-        $total = $selectedPlan['price'];
-
-        // Próximo paso:
-        // guardar solicitud, generar contrato y crear transacción de pago.
-
-        return back()->with(
-            'success',
-            'Los datos fueron validados correctamente.',
-        );
+        return redirect()->route('checkout.data', [
+            'plan' => $plan,
+        ]);
     }
 
+    /**
+     * Paso 2: muestra el formulario con los datos necesarios
+     * para elaborar el contrato.
+     */
+    public function showContractData(
+        Request $request,
+        string $plan,
+    ): Response|RedirectResponse {
+        $plans = $this->plans();
+
+        abort_unless(isset($plans[$plan]), 404);
+
+        $checkout = $request->session()->get('checkout');
+
+        $hasConfirmedPayment =
+            is_array($checkout) &&
+            ($checkout['plan_id'] ?? null) === $plan &&
+            ($checkout['payment_confirmed'] ?? false) === true;
+
+        if (! $hasConfirmedPayment) {
+            return redirect()
+                ->route('checkout.show', [
+                    'plan' => $plan,
+                ])
+                ->with(
+                    'error',
+                    'Debes confirmar el pago antes de ingresar los datos del contrato.',
+                );
+        }
+
+        return Inertia::render('checkout-data', [
+            'plan' => $plans[$plan],
+
+            'customer' => [
+                'email' => $checkout['email'] ?? '',
+                'whatsapp' => $checkout['whatsapp'] ?? '',
+            ],
+
+            'payment' => [
+                'subtotal' => $checkout['subtotal'] ?? 0,
+                'discountCode' =>
+                    $checkout['discount_code'] ?? null,
+                'discountAmount' =>
+                    $checkout['discount_amount'] ?? 0,
+                'total' => $checkout['total'] ?? 0,
+                'confirmed' => true,
+            ],
+        ]);
+    }
+
+    /**
+     * Catálogo temporal de planes.
+     *
+     * Más adelante estos datos podrán obtenerse desde MySQL.
+     */
     private function plans(): array
     {
         return [
