@@ -518,7 +518,7 @@ La página principal incluye o incluirá:
 El encabezado utiliza los logos ubicados en:
 
 ```text
-public/images/Logo/Logo.jpg
+public/images/Logo/logo.webp
 ```
 
 El header debe:

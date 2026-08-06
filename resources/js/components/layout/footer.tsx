@@ -65,7 +65,7 @@ export function Footer() {
                             aria-label="Animal Co-work"
                         >
                             <img
-                                src="/images/Logo/Logo.webp"
+                                src="/images/Logo/logo.webp"
                                 alt="Animal Co-work"
                                 className="h-16 w-auto object-contain"
                             />
