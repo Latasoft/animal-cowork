@@ -39,6 +39,7 @@ export interface ContractDataFormData {
     company_rut: string;
     representative_address: string;
     company_in_progress: boolean;
+    is_natural_person: boolean;
 }
 
 export type ContractDataFormErrors = Partial<
