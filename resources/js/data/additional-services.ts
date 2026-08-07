@@ -36,6 +36,10 @@ export const officeSetupSteps: OfficeSetupStep[] = [
         description:
             'Selecciona el plan LOBO, FÉNIX o LEÓN según lo que necesites.',
         icon: 'select-plan',
+        action: {
+            label: 'COMIENZA AHORA',
+            href: '#planes',
+        },
     },
     {
         id: 'step-2',
@@ -44,10 +48,7 @@ export const officeSetupSteps: OfficeSetupStep[] = [
         description:
             'Llena los campos solicitados con los datos que necesitamos, luego realiza el pago vía webpay.',
         icon: 'fill-form',
-        action: {
-            label: 'COMENZAR AHORA',
-            href: '#contacto',
-        },
+
     },
     {
         id: 'step-3',

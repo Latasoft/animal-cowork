@@ -19,3 +19,6 @@ Route::get(
     '/checkout/{plan}',
     [CheckoutController::class, 'show'],
 )->name('checkout.show');
+
+Route::inertia('/renovar', 'renew-contract')
+    ->name('contract.renew');

@@ -1,31 +1,71 @@
 import { Users } from 'lucide-react';
 
-import { ButtonSecondary, ButtonArrow } from '@/components/ui/button';
+import {
+    ButtonArrow,
+    ButtonSecondary,
+} from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import TornImage from '@/components/ui/torn-image';
 import TrustBar from '@/components/ui/trust-bar';
 import type { HeroContent } from '@/types/home';
-import SketchAccent from '../ui/sketch-accent';
 
 interface HeroSectionProps {
     content: HeroContent;
 }
 
-export function HeroSection({ content }: HeroSectionProps) {
+export function HeroSection({
+    content,
+}: HeroSectionProps) {
     return (
-        <section
-            id="inicio"
-            className="relative overflow-hidden bg-white py-8 sm:py-10 lg:py-12"
-        >
-            <Container>
-                <div className="grid items-center gap-10 lg:min-h-[calc(100vh-7rem)] lg:grid-cols-[0.82fr_1.18fr] lg:gap-8">
-                    {/* Columna izquierda */}
-                    <div className="relative z-10 max-w-xl">
-                        <div className="relative">
-                            <div className="pointer-events-none absolute -top-3 -left-10 hidden sm:block">
-                                <SketchAccent />
-                            </div>
+<section className="relative overflow-hidden bg-white">
+    {/* Decoración lateral */}
+    <img
+        src="/images/hero/trazos.webp"
+        alt=""
+        aria-hidden="true"
+        className="
+            pointer-events-none
+            absolute
+            top-50
+            right-0
+            z-0
+            hidden
+            h-auto
+            w-40
+            select-none
+            opacity-90
+            md:block
+            lg:w-52
+            xl:w-64
+        "
+    />
+        {/* Decoración lateral */}
+    <img
+        src="/images/hero/trazos.webp"
+        alt=""
+        aria-hidden="true"
+        className="
+            pointer-events-none
+            absolute
+            top-50
+            left-0
+            z-0
+            hidden
+            h-auto
+            w-40
+            select-none
+            opacity-90
+            md:block
+            lg:w-32
+            xl:w-48
+        "
+    />
 
+            <Container>
+                <div className="relative z-10 grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-14 lg:py-16">
+                    {/* Columna izquierda */}
+                    <div className="relative z-10">
+                        <div>
                             <h1 className="text-[clamp(2.3rem,6vw,2.4rem)] leading-[0.95] font-extrabold tracking-[-0.055em] text-deep-blue uppercase">
                                 {content.title}
                             </h1>
@@ -47,6 +87,7 @@ export function HeroSection({ content }: HeroSectionProps) {
 
                         <p className="mt-5 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
                             {'Planes desde '}
+
                             <span className="text-instinct">
                                 {content.price}
                             </span>
@@ -54,17 +95,32 @@ export function HeroSection({ content }: HeroSectionProps) {
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <ButtonArrow
-                                href={content.primaryAction.href}
+                                href={
+                                    content.primaryAction
+                                        .href
+                                }
                                 className="w-full min-w-[250px] sm:w-auto"
                             >
-                                {content.primaryAction.label}
+                                {
+                                    content
+                                        .primaryAction
+                                        .label
+                                }
                             </ButtonArrow>
 
                             <ButtonSecondary
-                                href={content.secondaryAction.href}
+                                href={
+                                    content
+                                        .secondaryAction
+                                        .href
+                                }
                                 className="flex w-full items-center justify-center gap-2 px-6 text-sm sm:w-auto"
                             >
-                                {content.secondaryAction.label}
+                                {
+                                    content
+                                        .secondaryAction
+                                        .label
+                                }
                             </ButtonSecondary>
                         </div>
 
@@ -80,12 +136,16 @@ export function HeroSection({ content }: HeroSectionProps) {
 
                                 <div>
                                     <p className="text-xs font-extrabold text-deep-blue sm:text-base">
-                                        {content.socialProof}
+                                        {
+                                            content.socialProof
+                                        }
                                     </p>
 
                                     <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-instinct px-4 py-2">
                                         <p className="text-xs font-bold tracking-wide text-instinct-dark sm:text-sm">
-                                            {content.communityMessage}
+                                            {
+                                                content.communityMessage
+                                            }
                                         </p>
                                     </div>
                                 </div>
