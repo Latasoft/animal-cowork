@@ -14,4 +14,5 @@ export interface Plan {
     };
     theme: PlanTheme;
     featured?: boolean;
+    contractDurationMonths: number;
 }

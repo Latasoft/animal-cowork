@@ -10,6 +10,11 @@ Route::get(
     [CheckoutController::class, 'showContractData'],
 )->name('checkout.data');
 
+Route::get(
+    '/checkout/{plan}/contrato',
+    [CheckoutController::class, 'showContractPreview'],
+)->name('checkout.contract_preview');
+
 Route::post(
     '/checkout/{plan}/payment',
     [CheckoutController::class, 'processPayment'],

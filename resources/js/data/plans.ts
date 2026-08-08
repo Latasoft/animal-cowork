@@ -22,6 +22,7 @@ export const plans: Plan[] = [
             href: '/checkout/lobo',
         },
         theme: 'green',
+        contractDurationMonths: 12,
     },
     {
         id: 'fenix',
@@ -44,6 +45,7 @@ export const plans: Plan[] = [
         },
         theme: 'orange',
         featured: true,
+        contractDurationMonths: 24,
     },
     {
         id: 'leon',
@@ -64,5 +66,6 @@ export const plans: Plan[] = [
             href: '/checkout/leon',
         },
         theme: 'gold',
+        contractDurationMonths: 24,
     },
 ];

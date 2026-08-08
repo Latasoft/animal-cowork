@@ -98,47 +98,33 @@ class CheckoutController extends Controller
                 ],
             ],
             [
-                'plan_id.required' =>
-                    'Debes seleccionar un plan.',
+                'plan_id.required' => 'Debes seleccionar un plan.',
 
-                'plan_id.string' =>
-                    'El plan seleccionado no es válido.',
+                'plan_id.string' => 'El plan seleccionado no es válido.',
 
-                'plan_id.in' =>
-                    'El plan seleccionado no es válido.',
+                'plan_id.in' => 'El plan seleccionado no es válido.',
 
-                'representative_email.required' =>
-                    'Ingresa tu correo electrónico.',
+                'representative_email.required' => 'Ingresa tu correo electrónico.',
 
-                'representative_email.string' =>
-                    'El correo electrónico ingresado no es válido.',
+                'representative_email.string' => 'El correo electrónico ingresado no es válido.',
 
-                'representative_email.email' =>
-                    'Ingresa un correo electrónico válido.',
+                'representative_email.email' => 'Ingresa un correo electrónico válido.',
 
-                'representative_email.max' =>
-                    'El correo electrónico no puede superar los 150 caracteres.',
+                'representative_email.max' => 'El correo electrónico no puede superar los 150 caracteres.',
 
-                'representative_whatsapp.required' =>
-                    'Ingresa tu número de WhatsApp.',
+                'representative_whatsapp.required' => 'Ingresa tu número de WhatsApp.',
 
-                'representative_whatsapp.string' =>
-                    'El número de WhatsApp ingresado no es válido.',
+                'representative_whatsapp.string' => 'El número de WhatsApp ingresado no es válido.',
 
-                'representative_whatsapp.max' =>
-                    'El número de WhatsApp no puede superar los 20 caracteres.',
+                'representative_whatsapp.max' => 'El número de WhatsApp no puede superar los 20 caracteres.',
 
-                'discount_code.string' =>
-                    'El cupón ingresado no es válido.',
+                'discount_code.string' => 'El cupón ingresado no es válido.',
 
-                'discount_code.max' =>
-                    'El cupón no puede superar los 30 caracteres.',
+                'discount_code.max' => 'El cupón no puede superar los 30 caracteres.',
 
-                'accept_terms.accepted' =>
-                    'Debes aceptar los Términos y Condiciones.',
+                'accept_terms.accepted' => 'Debes aceptar los Términos y Condiciones.',
 
-                'accept_data_policy.accepted' =>
-                    'Debes aceptar la Política de Privacidad.',
+                'accept_data_policy.accepted' => 'Debes aceptar la Política de Privacidad.',
             ],
         );
 
@@ -227,13 +213,45 @@ class CheckoutController extends Controller
 
             'payment' => [
                 'subtotal' => $checkout['subtotal'] ?? 0,
-                'discountCode' =>
-                    $checkout['discount_code'] ?? null,
-                'discountAmount' =>
-                    $checkout['discount_amount'] ?? 0,
+                'discountCode' => $checkout['discount_code'] ?? null,
+                'discountAmount' => $checkout['discount_amount'] ?? 0,
                 'total' => $checkout['total'] ?? 0,
                 'confirmed' => true,
             ],
+        ]);
+    }
+
+    /**
+     * Paso 3: muestra la previsualización del contrato generado.
+     */
+    public function showContractPreview(
+        Request $request,
+        string $plan,
+    ): Response|RedirectResponse {
+        $plans = $this->plans();
+
+        abort_unless(isset($plans[$plan]), 404);
+
+        $checkout = $request->session()->get('checkout');
+
+        $hasConfirmedPayment =
+            is_array($checkout) &&
+            ($checkout['plan_id'] ?? null) === $plan &&
+            ($checkout['payment_confirmed'] ?? false) === true;
+
+        if (! $hasConfirmedPayment) {
+            return redirect()
+                ->route('checkout.show', [
+                    'plan' => $plan,
+                ])
+                ->with(
+                    'error',
+                    'Debes confirmar el pago antes de previsualizar el contrato.',
+                );
+        }
+
+        return Inertia::render('contract-preview', [
+            'plan' => $plans[$plan],
         ]);
     }
 
@@ -251,6 +269,7 @@ class CheckoutController extends Controller
                 'tagline' => 'Oficina virtual por 2 años',
                 'price' => 59990,
                 'duration' => '2 años',
+                'contractDurationMonths' => 24,
                 'image' => '/images/plans/fenix.webp',
                 'imageAlt' => 'Ilustración del Plan Fénix',
             ],
@@ -258,10 +277,10 @@ class CheckoutController extends Controller
             'lobo' => [
                 'id' => 'lobo',
                 'name' => 'Plan Lobo',
-                'tagline' =>
-                    'Oficina virtual y gestión de patente comercial',
+                'tagline' => 'Oficina virtual y gestión de patente comercial',
                 'price' => 89990,
                 'duration' => '1 año',
+                'contractDurationMonths' => 12,
                 'image' => '/images/plans/lobo.webp',
                 'imageAlt' => 'Ilustración del Plan Lobo',
             ],
@@ -272,6 +291,7 @@ class CheckoutController extends Controller
                 'tagline' => 'Oficina virtual por 2 años',
                 'price' => 98000,
                 'duration' => '2 años',
+                'contractDurationMonths' => 24,
                 'image' => '/images/plans/leon.webp',
                 'imageAlt' => 'Ilustración del Plan León',
             ],

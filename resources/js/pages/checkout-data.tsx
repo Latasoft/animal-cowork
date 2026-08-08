@@ -1,161 +1,195 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, router, useForm } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 
 import { ContractDataForm } from '@/components/form/contract-data-form';
 import { CheckoutSteps } from '@/components/ui/checkout-steps';
 import { Container } from '@/components/ui/container';
 import { PublicLayout } from '@/layouts/public-layout';
+import { readContractData, storeContractData } from '@/lib/checkout-storage';
+import { createAutomaticContractDates } from '@/lib/contract-dates';
+import {
+    contract_preview as contractPreview,
+    show as checkoutShow,
+} from '@/routes/checkout';
 
 import type {
     ContractDataFormData,
+    ContractGenerationData,
     CheckoutPlan,
 } from '@/types/checkout';
 
 interface CheckoutDataPageProps {
     plan: CheckoutPlan;
+    customer: {
+        email: string;
+        whatsapp: string;
+    };
 }
+
+const emptyContractData: ContractDataFormData = {
+    representative_name: '',
+    representative_rut: '',
+    company_name: '',
+    company_rut: '',
+    representative_address: '',
+    representative_commune: '',
+    representative_region: '',
+    company_in_progress: false,
+    is_natural_person: false,
+};
 
 export default function CheckoutData({
     plan,
+    customer,
 }: CheckoutDataPageProps) {
-    const {
-        data,
-        setData,
-        processing,
-        errors,
-        setError,
-        clearErrors,
-    } = useForm<ContractDataFormData>({
-        representative_name: '',
-        representative_rut: '',
-        company_name: '',
-        company_rut: '',
-        representative_address: '',
-        company_in_progress: false,
-        is_natural_person: false,
-    });
+    const { data, setData, errors, setError, clearErrors } =
+        useForm<ContractDataFormData>(emptyContractData);
+    const [isNavigating, setIsNavigating] = useState(false);
+    const [supportRequested, setSupportRequested] = useState(false);
+    const restoredPlanId = useRef<string | null>(null);
+
+    useEffect(() => {
+        if (restoredPlanId.current === plan.id) {
+            return;
+        }
+
+        restoredPlanId.current = plan.id;
+
+        const storedData = readContractData();
+
+        if (storedData?.plan_id !== plan.id) {
+            return;
+        }
+
+        setData({
+            representative_name: storedData.representative_name,
+            representative_rut: storedData.representative_rut,
+            company_name: storedData.company_name,
+            company_rut: storedData.company_rut,
+            representative_address: storedData.representative_address,
+            representative_commune: storedData.representative_commune,
+            representative_region: storedData.representative_region,
+            company_in_progress: storedData.company_in_progress,
+            is_natural_person: storedData.is_natural_person,
+        });
+    }, [plan.id, setData]);
 
     function validateForm(): boolean {
         clearErrors();
 
         let isValid = true;
 
-        if (!data.representative_name.trim()) {
-            setError(
-                'representative_name',
-                'Debes ingresar el nombre completo.',
-            );
-
-            isValid = false;
-        }
-
-        if (!data.representative_rut.trim()) {
-            setError(
-                'representative_rut',
-                data.is_natural_person
+        const requiredFields: Array<{
+            field: keyof ContractDataFormData;
+            message: string;
+        }> = [
+            {
+                field: 'representative_name',
+                message: 'Debes ingresar el nombre completo.',
+            },
+            {
+                field: 'representative_rut',
+                message: data.is_natural_person
                     ? 'Debes ingresar tu RUT personal.'
                     : 'Debes ingresar el RUT del representante legal.',
-            );
+            },
+            {
+                field: 'representative_address',
+                message: 'Debes ingresar la dirección particular.',
+            },
+            {
+                field: 'representative_commune',
+                message: 'Debes ingresar la comuna.',
+            },
+            {
+                field: 'representative_region',
+                message: 'Debes ingresar la región.',
+            },
+        ];
 
-            isValid = false;
+        for (const { field, message } of requiredFields) {
+            const value = data[field];
+
+            if (typeof value === 'string' && !value.trim()) {
+                setError(field, message);
+                isValid = false;
+            }
         }
 
-        if (!data.representative_address.trim()) {
-            setError(
-                'representative_address',
-                'Debes ingresar la dirección particular.',
-            );
-
-            isValid = false;
-        }
-
-        if (!data.company_name.trim()) {
+        if (!data.is_natural_person && !data.company_name.trim()) {
             setError(
                 'company_name',
-                data.is_natural_person
-                    ? 'Debes ingresar el nombre para el contrato.'
-                    : 'Debes ingresar la razón social o nombre de la empresa.',
+                'Debes ingresar la razón social o nombre de la empresa.',
             );
-
             isValid = false;
         }
 
-        /*
-         * El RUT de empresa solamente es obligatorio cuando:
-         *
-         * - No es una persona natural.
-         * - La empresa no está en proceso de constitución.
-         */
         if (
             !data.is_natural_person &&
             !data.company_in_progress &&
             !data.company_rut.trim()
         ) {
-            setError(
-                'company_rut',
-                'Debes ingresar el RUT de la empresa.',
-            );
-
+            setError('company_rut', 'Debes ingresar el RUT de la empresa.');
             isValid = false;
         }
 
         return isValid;
     }
 
-    function submit(event: FormEvent<HTMLFormElement>) {
+    function focusFirstError(): void {
+        requestAnimationFrame(() => {
+            const firstInvalidElement = document.querySelector<HTMLElement>(
+                '[aria-invalid="true"]',
+            );
+
+            firstInvalidElement?.focus();
+            firstInvalidElement?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+        });
+    }
+
+    function submit(event: FormEvent<HTMLFormElement>): void {
         event.preventDefault();
+        setSupportRequested(false);
 
-        const isValid = validateForm();
+        if (!validateForm()) {
+            focusFirstError();
 
-        if (!isValid) {
             return;
         }
 
-        if (data.company_in_progress) {
-            console.log(
-                'Información de empresa en constitución:',
-                data,
-            );
+        if (data.company_in_progress && !data.is_natural_person) {
+            setSupportRequested(true);
 
-            /*
-             * Más adelante:
-             *
-             * post('/checkout/data/support')
-             */
             return;
         }
 
-        if (data.is_natural_person) {
-            console.log(
-                'Contrato para persona natural:',
-                data,
-            );
+        const contractData: ContractGenerationData = {
+            ...data,
+            ...createAutomaticContractDates(plan.contractDurationMonths),
+            plan_id: plan.id,
+            representative_email: customer.email,
+            representative_whatsapp: customer.whatsapp,
+            company_name: data.is_natural_person ? '' : data.company_name,
+            company_rut: data.is_natural_person
+                ? data.representative_rut
+                : data.company_rut,
+        };
 
-            /*
-             * Más adelante:
-             *
-             * post('/checkout/contract-preview/natural-person')
-             */
-            return;
-        }
+        storeContractData(contractData);
 
-        console.log(
-            'Contrato para persona jurídica:',
-            data,
-        );
-
-        /*
-         * Más adelante:
-         *
-         * post('/checkout/contract-preview/legal-entity')
-         */
+        router.visit(contractPreview.url(plan.id), {
+            onStart: () => setIsNavigating(true),
+            onFinish: () => setIsNavigating(false),
+        });
     }
 
     return (
         <PublicLayout>
-            <Head
-                title={`Datos del contrato - ${plan.name}`}
-            />
+            <Head title={`Datos del contrato - ${plan.name}`} />
 
             <section className="bg-white py-8 sm:py-10 lg:py-12">
                 <Container>
@@ -172,9 +206,8 @@ export default function CheckoutData({
                             </h1>
 
                             <p className="mt-5 max-w-3xl text-base leading-7 text-deep-blue/65 sm:text-lg">
-                                Utilizaremos esta información
-                                para elaborar el contrato
-                                correspondiente al plan{' '}
+                                Utilizaremos esta información para elaborar el
+                                contrato correspondiente al plan{' '}
                                 <strong className="font-extrabold text-deep-blue">
                                     {plan.name}
                                 </strong>
@@ -182,12 +215,27 @@ export default function CheckoutData({
                             </p>
                         </header>
 
+                        {supportRequested && (
+                            <div
+                                role="status"
+                                className="mt-8 border-l-4 border-instinct bg-instinct/7 px-5 py-5 text-sm leading-6 text-deep-blue/70"
+                            >
+                                Tus antecedentes quedaron preparados para la
+                                revisión de un ejecutivo. Este flujo no genera
+                                un contrato convencional mientras la empresa no
+                                tenga RUT.
+                            </div>
+                        )}
+
                         <ContractDataForm
                             data={data}
                             setData={setData}
                             errors={errors}
-                            processing={processing}
+                            processing={isNavigating}
                             onSubmit={submit}
+                            onBack={() =>
+                                router.visit(checkoutShow.url(plan.id))
+                            }
                         />
                     </div>
                 </Container>

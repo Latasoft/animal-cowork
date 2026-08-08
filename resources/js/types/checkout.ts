@@ -6,6 +6,7 @@ export interface CheckoutPlan {
     tagline: string;
     price: number;
     duration: string;
+    contractDurationMonths: number;
     image: string;
     imageAlt: string;
 }
@@ -27,9 +28,7 @@ export type CheckoutFormErrors = Partial<
     Record<keyof CheckoutFormData, string>
 >;
 
-export type SetCheckoutFormData = <
-    Key extends keyof CheckoutFormData,
->(
+export type SetCheckoutFormData = <Key extends keyof CheckoutFormData>(
     key: Key,
     value: CheckoutFormData[Key],
 ) => void;
@@ -42,15 +41,28 @@ export interface ContractDataFormData {
     representative_address: string;
     company_in_progress: boolean;
     is_natural_person: boolean;
+    representative_commune: string;
+    representative_region: string;
 }
+
+export interface ContractDates {
+    contract_date: string;
+    contract_start_date: string;
+    contract_end_date: string;
+}
+
+export type ContractGenerationData = Pick<
+    CheckoutFormData,
+    'plan_id' | 'representative_email' | 'representative_whatsapp'
+> &
+    ContractDataFormData &
+    ContractDates;
 
 export type ContractDataFormErrors = Partial<
     Record<keyof ContractDataFormData, string>
 >;
 
-export type SetContractDataFormData = <
-    Key extends keyof ContractDataFormData,
->(
+export type SetContractDataFormData = <Key extends keyof ContractDataFormData>(
     key: Key,
     value: ContractDataFormData[Key],
 ) => void;
