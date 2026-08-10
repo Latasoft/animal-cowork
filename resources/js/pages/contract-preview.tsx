@@ -454,7 +454,7 @@ function ConfirmationState({ fileName }: ConfirmationStateProps) {
                     </p>
                     <p className="mt-2 text-sm leading-7 text-deep-blue/70 sm:text-base">
                         Una vez aceptado el contrato, un ejecutivo tomará
-                        contacto contigo en un plazo máximo de 2 horas hábiles.
+                        contacto contigo.
                     </p>
                     <p className="mt-4 text-xs leading-5 text-deep-blue/55">
                         Archivo preparado: {fileName}. En la integración final,

@@ -1,13 +1,13 @@
+import { router } from '@inertiajs/react';
 import {
     ArrowRight,
     Building2,
     FileSignature,
     Store,
-    
     MousePointerClick,
-    FileSearchCorner
+    FileSearchCorner,
 } from 'lucide-react';
-import type {LucideIcon} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 import { ButtonArrow } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
@@ -18,7 +18,6 @@ import type {
     OfficeSetupStep,
     OfficeSetupStepIcon,
 } from '@/types/additional-services';
-
 
 interface AdditionalServicesSectionProps {
     services: AdditionalService[];
@@ -128,6 +127,14 @@ function AdditionalServiceCard({ service }: AdditionalServiceCardProps) {
                 <ButtonArrow
                     href={service.action.href}
                     className="h-11 w-full px-4 text-xs font-extrabold tracking-[0.04em] sm:w-auto"
+                    onClick={(event) => {
+                        if (!service.action.href.startsWith('/')) {
+                            return;
+                        }
+
+                        event.preventDefault();
+                        router.visit(service.action.href);
+                    }}
                 >
                     {service.action.label}
                 </ButtonArrow>

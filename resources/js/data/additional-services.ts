@@ -1,3 +1,4 @@
+import { patent_management } from '@/routes/services';
 import type {
     AdditionalService,
     OfficeSetupStep,
@@ -12,7 +13,7 @@ export const additionalServices: AdditionalService[] = [
         icon: 'patent',
         action: {
             label: 'CONTRATAR SERVICIO',
-            href: '#contacto',
+            href: patent_management.url(),
         },
     },
     {
@@ -48,7 +49,6 @@ export const officeSetupSteps: OfficeSetupStep[] = [
         description:
             'Llena los campos solicitados con los datos que necesitamos, luego realiza el pago vía webpay.',
         icon: 'fill-form',
-
     },
     {
         id: 'step-3',

@@ -13,10 +13,10 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import {
-    type FormEvent,
     useMemo,
     useState,
 } from 'react';
+import type { FormEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';

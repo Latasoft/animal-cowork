@@ -5,8 +5,6 @@ import { FaqSection } from '@/components/sections/faq-section';
 import { HeroSection } from '@/components/sections/hero-section';
 import { MeetingRoomSection } from '@/components/sections/meeting-room-section';
 import { PlansSection } from '@/components/sections/plans-section';
-import { Container } from '@/components/ui/container';
-import { Section } from '@/components/ui/section';
 import {
     additionalServices,
     officeSetupSteps,
@@ -15,9 +13,6 @@ import { faqItems } from '@/data/faq';
 import { heroContent } from '@/data/home';
 import { plans } from '@/data/plans';
 import { PublicLayout } from '@/layouts/public-layout';
-
-
-
 
 export default function Welcome() {
     return (

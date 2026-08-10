@@ -5,6 +5,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
 
+Route::inertia(
+    '/gestion-patente-comercial',
+    'services/patent-management',
+)->name('services.patent_management');
+
 Route::get(
     '/checkout/{plan}/datos',
     [CheckoutController::class, 'showContractData'],
