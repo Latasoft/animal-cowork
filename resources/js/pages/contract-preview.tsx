@@ -1,14 +1,13 @@
 import { Head, router } from '@inertiajs/react';
 import {
     CheckCircle2,
-    ExternalLink,
     FileCheck2,
     LoaderCircle,
     RotateCcw,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 
-import { Button, ButtonLink } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { CheckoutSteps } from '@/components/ui/checkout-steps';
 import { Container } from '@/components/ui/container';
 import { plans } from '@/data/plans';
@@ -48,7 +47,6 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
     const [contractData, setContractData] =
         useState<ContractGenerationData | null>(null);
     const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
-    const [pdfUrl, setPdfUrl] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [isConfirming, setIsConfirming] = useState(false);
     const [preparedContract, setPreparedContract] =
@@ -56,13 +54,11 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
 
     useEffect(() => {
         let isActive = true;
-        let createdUrl: string | null = null;
 
         async function generate(): Promise<void> {
             setStatus('generating');
             setErrorMessage(null);
             setPdfBlob(null);
-            setPdfUrl(null);
             setPreparedContract(null);
 
             const storedData = readContractData();
@@ -105,12 +101,12 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                     return;
                 }
 
-                createdUrl = URL.createObjectURL(generatedBlob);
                 setContractData(generationData);
                 setPdfBlob(generatedBlob);
-                setPdfUrl(createdUrl);
                 setStatus('ready');
-            } catch {
+            } catch (error) {
+                console.error('Contract PDF generation failed.', error);
+
                 if (isActive) {
                     setStatus('error');
                     setErrorMessage(
@@ -124,10 +120,6 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
 
         return () => {
             isActive = false;
-
-            if (createdUrl) {
-                URL.revokeObjectURL(createdUrl);
-            }
         };
     }, [generationAttempt, plan.id, selectedPlan]);
 
@@ -210,7 +202,7 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                                 />
                             )}
 
-                            {status === 'ready' && pdfUrl && (
+                            {status === 'ready' && pdfBlob && (
                                 <>
                                     <div className="overflow-hidden border border-deep-blue/10 bg-deep-blue/[0.02] shadow-card">
                                         <div className="flex flex-col gap-3 border-b border-deep-blue/10 bg-white px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
@@ -254,33 +246,12 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                                                 </div>
                                             </div>
 
-                                            <ButtonLink
-                                                href={pdfUrl}
-                                                target="_blank"
-                                                rel="noreferrer"
-                                                variant="outline"
-                                                className="h-10 justify-center px-4"
-                                            >
-                                                Abrir contrato
-                                                <ExternalLink
-                                                    className="size-4"
-                                                    aria-hidden
-                                                />
-                                            </ButtonLink>
+                                            <p className="text-xs font-semibold text-deep-blue/55">
+                                                Vista de solo lectura
+                                            </p>
                                         </div>
 
-                                        <div className="w-full overflow-hidden bg-[#eef1f5] p-2 sm:p-4">
-                                            <iframe
-                                                src={`${pdfUrl}#view=FitH`}
-                                                title="Previsualización del contrato de Animal Co-work"
-                                                className="h-[520px] w-full border-0 bg-white md:h-[760px]"
-                                            >
-                                                No pudimos mostrar la
-                                                previsualización en este
-                                                navegador. Utiliza el botón
-                                                Abrir contrato.
-                                            </iframe>
-                                        </div>
+                                        <ContractPdfViewer pdfBlob={pdfBlob} />
                                     </div>
 
                                     <section className="mt-8 border border-deep-blue/10 bg-deep-blue/[0.025] p-6 sm:p-8">
@@ -347,6 +318,35 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                 </Container>
             </section>
         </PublicLayout>
+    );
+}
+
+interface ContractPdfViewerProps {
+    pdfBlob: Blob;
+}
+
+function ContractPdfViewer({ pdfBlob }: ContractPdfViewerProps) {
+    const [objectUrl] = useState(() => URL.createObjectURL(pdfBlob));
+
+    useEffect(() => {
+        return () => URL.revokeObjectURL(objectUrl);
+    }, [objectUrl]);
+
+    const viewerUrl = `${objectUrl}#toolbar=0&navpanes=0&pagemode=none&view=FitH`;
+
+    return (
+        <div
+            aria-label="Vista PDF de solo lectura del contrato"
+            className="h-[75svh] min-h-[32rem] w-full overflow-hidden bg-[#525659] sm:h-[78vh] sm:min-h-[44rem]"
+            onContextMenu={(event) => event.preventDefault()}
+        >
+            <iframe
+                src={viewerUrl}
+                title="Contrato PDF de solo lectura"
+                className="h-full w-full border-0"
+                referrerPolicy="no-referrer"
+            />
+        </div>
     );
 }
 

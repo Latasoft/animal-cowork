@@ -5,7 +5,8 @@ export const plans: Plan[] = [
         id: 'lobo',
         name: 'Lobo',
         badge: 'Recomendado',
-        price: '$89.990',
+        priceOffice: 47580,
+        priceAdditional: 42410,
         image: '/images/plans/lobo.webp',
         imageAlt: 'Ilustración de un lobo',
         features: [
@@ -28,7 +29,8 @@ export const plans: Plan[] = [
         id: 'fenix',
         name: 'Fénix',
         badge: 'Más vendido',
-        price: '$59.990',
+        priceOffice: 59990,
+        priceAdditional: 0,
         image: '/images/plans/fenix.webp',
         imageAlt: 'Ilustración de un fénix',
         features: [
@@ -50,7 +52,8 @@ export const plans: Plan[] = [
     {
         id: 'leon',
         name: 'León',
-        price: '$98.000',
+        priceOffice: 47580,
+        priceAdditional: 50420,
         image: '/images/plans/leon.webp',
         imageAlt: 'Ilustración de un león',
         features: [
@@ -69,3 +72,16 @@ export const plans: Plan[] = [
         contractDurationMonths: 24,
     },
 ];
+
+export function getPlanTotalPrice(plan: Plan): number {
+    return plan.priceOffice + plan.priceAdditional;
+}
+
+export function formatClp(value: number): string {
+    return new Intl.NumberFormat('es-CL', {
+        style: 'currency',
+        currency: 'CLP',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+    }).format(value);
+}

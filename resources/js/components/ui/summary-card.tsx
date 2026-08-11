@@ -1,6 +1,7 @@
 import { LockKeyhole, ShieldCheck, Tag } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { formatClp } from '@/data/plans';
 import type { CheckoutPlan } from '@/types/checkout';
 
 interface SummaryCardProps {
@@ -78,7 +79,7 @@ export function SummaryCard({
                     </span>
 
                     <span className="text-lg font-extrabold text-deep-blue">
-                        {formatCurrencyCLP(plan.price)}
+                        {formatClp(plan.price)}
                     </span>
                 </div>
 
@@ -88,7 +89,7 @@ export function SummaryCard({
                     </span>
 
                     <span className="text-4xl font-extrabold tracking-[-0.05em] text-instinct">
-                        {formatCurrencyCLP(plan.price)}
+                        {formatClp(plan.price)}
                     </span>
                 </div>
             </div>
@@ -285,12 +286,4 @@ export function SummaryCard({
             </div>
         </aside>
     );
-}
-
-function formatCurrencyCLP(value: number): string {
-    return new Intl.NumberFormat('es-CL', {
-        style: 'currency',
-        currency: 'CLP',
-        maximumFractionDigits: 0,
-    }).format(value);
 }

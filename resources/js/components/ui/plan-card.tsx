@@ -1,4 +1,5 @@
 import { ButtonLink } from '@/components/ui/button';
+import { formatClp, getPlanTotalPrice } from '@/data/plans';
 import type { Plan, PlanTheme } from '@/types/plan';
 import {
     Check,
@@ -124,7 +125,7 @@ export function PlanCard({ plan }: PlanCardProps) {
                         Desde 
                     </p>
                     <p className="text-4xl font-bold tracking-[-0.04em] text-instinct sm:text-5xl text-center">
-                        {plan.price}
+                        {formatClp(getPlanTotalPrice(plan))}
                         <span className="text-sm font-bold text-instinct"> / mes</span>
                     </p>
 

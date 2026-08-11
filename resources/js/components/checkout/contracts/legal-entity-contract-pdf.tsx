@@ -1,13 +1,19 @@
+import { formatClp } from '@/data/plans';
 import { formatContractDate } from '@/lib/contract-dates';
 
 import type { ContractGenerationData } from '@/types/checkout';
 import type { Plan } from '@/types/plan';
-import type { ContractClause } from './contract-pdf-layout';
+import type {
+    ContractClause,
+    ContractContent,
+    ContractLogoSource,
+} from './contract-pdf-layout';
 import { ContractPdfLayout } from './contract-pdf-layout';
 
 interface LegalEntityContractPdfProps {
     data: ContractGenerationData;
     plan: Plan;
+    logoSource: ContractLogoSource;
 }
 
 function uppercase(value: string): string {
@@ -17,7 +23,17 @@ function uppercase(value: string): string {
 export function LegalEntityContractPdf({
     data,
     plan,
+    logoSource,
 }: LegalEntityContractPdfProps) {
+    const content = getLegalEntityContractContent(data, plan);
+
+    return <ContractPdfLayout {...content} logoSource={logoSource} />;
+}
+
+export function getLegalEntityContractContent(
+    data: ContractGenerationData,
+    plan: Plan,
+): ContractContent {
     const introduction = `En Santiago de Chile, ${formatContractDate(data.contract_date)}, entre don CRISTÓBAL VICENTE FIORI-LEGGERO VISLYON, chileno, soltero, cédula nacional de identidad N°16.660.000-6, en representación de ANIMAL COWORKING GROUP SpA, persona jurídica del giro de su denominación, rol único tributario número 77.188.172-6, ambos domiciliados en calle EULOGIA SANCHEZ # 065, comuna de Providencia, ciudad de Santiago, por una parte y como el “Sub-Arrendador”; y por la otra y como el “Sub-Arrendatario”: ${uppercase(data.company_name)}, persona jurídica con rol único tributario número: ${uppercase(data.company_rut)}, representada según se acreditará por: ${uppercase(data.representative_name)}, cédula nacional de identidad N° ${uppercase(data.representative_rut)} con domicilio ${uppercase(data.representative_address)}, comuna de ${uppercase(data.representative_commune)}, Región ${uppercase(data.representative_region)}, ambos comparecientes mayores de edad, quienes acreditan su identidad con las cédulas antes indicadas, exponen que vienen libre y voluntariamente en celebrar el siguiente contrato de Sub-arrendamiento:`;
 
     const clauses: ContractClause[] = [
@@ -51,7 +67,7 @@ export function LegalEntityContractPdf({
         {
             heading: 'QUINTO. Renta:',
             paragraphs: [
-                `La renta de arrendamiento será de ${plan.price}.-, cantidad que se pagará cada ${plan.contractDurationMonths} meses. Esta renta se pagará por anticipado, antes de la fecha de cada periodo de vencimiento mediante un depósito en:`,
+                `La renta de arrendamiento será de ${formatClp(plan.priceOffice)}.-, cantidad que se pagará cada ${plan.contractDurationMonths} meses. Esta renta se pagará por anticipado, antes de la fecha de cada periodo de vencimiento mediante un depósito en:`,
                 'CUENTA CORRIENTE N° 0-000-8438383-0\nBANCO SANTANDER.\nNOMBRE: ANIMAL COWORKING GROUP\nRUT: 77.188.172-6',
                 'En Su defecto el lugar de pago es calle EULOGIA SANCHEZ #065, comuna de Providencia. Si la renta de arrendamiento no se pagare dentro de los días indicados, se considerará como incumplimiento de contrato por parte del sub-Arrendatario y dará derecho al sub-Arrendador a poner término al mismo.',
                 'En caso de mora o simple retardo en el pago de la renta, el Sub-Arrendatario deberá pagar, además de la suma adeudada, un interés por mora equivalente al 0,04% diario sobre el monto impago, calculado desde la fecha de vencimiento hasta el pago efectivo.',
@@ -93,11 +109,9 @@ export function LegalEntityContractPdf({
         },
     ];
 
-    return (
-        <ContractPdfLayout
-            introduction={introduction}
-            clauses={clauses}
-            subject={`Contrato persona jurídica - Plan ${plan.name}`}
-        />
-    );
+    return {
+        introduction,
+        clauses,
+        subject: `Contrato persona jurídica - Plan ${plan.name}`,
+    };
 }

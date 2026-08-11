@@ -20,7 +20,7 @@ import type { FormEvent } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import { plans } from '@/data/plans';
+import { formatClp, getPlanTotalPrice, plans } from '@/data/plans';
 import { PublicLayout } from '@/layouts/public-layout';
 
 import type { StoredCustomerContract } from '@/types/checkout';
@@ -624,7 +624,7 @@ function PlanSelection({
                                 </h3>
 
                                 <p className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-instinct">
-                                    {plan.price}
+                                    {formatClp(getPlanTotalPrice(plan))}
                                 </p>
 
                                 {planSummary && (
@@ -760,7 +760,7 @@ function PaymentSimulation({
                         )}
 
                         <p className="mt-4 text-3xl font-extrabold tracking-[-0.04em] text-instinct">
-                            {plan.price}
+                            {formatClp(getPlanTotalPrice(plan))}
                         </p>
                     </div>
                 </div>
@@ -794,7 +794,7 @@ function PaymentSimulation({
                 >
                     {processing
                         ? 'Procesando pago...'
-                        : `Pagar ${plan.price}`}
+                        : `Pagar ${formatClp(getPlanTotalPrice(plan))}`}
                 </Button>
             </div>
         </div>
@@ -866,7 +866,7 @@ function RenewalSuccess({
                         </p>
 
                         <p className="mt-1 font-extrabold text-instinct">
-                            {plan.price}
+                            {formatClp(getPlanTotalPrice(plan))}
                         </p>
                     </div>
                 </div>

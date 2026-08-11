@@ -1,11 +1,14 @@
+import { formatClp, getPlanTotalPrice, plans } from '@/data/plans';
 import type { HeroContent } from '@/types/home';
+
+const lowestPlanPrice = Math.min(...plans.map(getPlanTotalPrice));
 
 export const heroContent: HeroContent = {
     title: 'TÚ NEGOCIO NECESITA MÁS QUE UNA DIRECCIÓN,',
     title2: 'NECESITA UN IMPULSO.',
     subtitle: 'La oficina virtual más conveniente de Chile.',
     promotion: '2 años por el precio de 1.',
-    price: '$59.990',
+    price: formatClp(lowestPlanPrice),
     primaryAction: {
         label: 'QUIERO MI OFICINA VIRTUAL',
         href: '#planes',

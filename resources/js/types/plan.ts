@@ -4,7 +4,8 @@ export interface Plan {
     id: string;
     name: string;
     badge?: string;
-    price: string;
+    priceOffice: number;
+    priceAdditional: number;
     image: string;
     imageAlt: string;
     features: string[];
