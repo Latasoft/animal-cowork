@@ -53,7 +53,7 @@ export const plans: Plan[] = [
         id: 'leon',
         name: 'León',
         priceOffice: 59990,
-        priceAdditional: 30000,
+        priceAdditional: 38010,
         image: '/images/plans/leon.webp',
         imageAlt: 'Ilustración de un león',
         features: [
