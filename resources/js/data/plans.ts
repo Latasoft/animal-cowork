@@ -35,11 +35,11 @@ export const plans: Plan[] = [
         imageAlt: 'Ilustración de un fénix',
         features: [
             'Contrato de Oficina Virtual por 2 años',
+            'Acceso a sala de reuniones',
             'Dirección tributaria',
             'Dirección comercial',
             'Recepción de documentos y correspondencia',
             'Escaneo de documentos',
-            'Acceso a sala de reuniones',
         ],
         action: {
             label: 'ELIGIR PLAN',
@@ -52,12 +52,13 @@ export const plans: Plan[] = [
     {
         id: 'leon',
         name: 'León',
-        priceOffice: 47580,
-        priceAdditional: 50420,
+        priceOffice: 59990,
+        priceAdditional: 30000,
         image: '/images/plans/leon.webp',
         imageAlt: 'Ilustración de un león',
         features: [
             'Contrato de Oficina Virtual por 2 años',
+            'Gestión de patente comercial',
             'Dirección tributaria',
             'Dirección comercial',
             'Recepción de documentos y correspondencia',

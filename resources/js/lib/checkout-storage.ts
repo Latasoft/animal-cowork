@@ -1,6 +1,25 @@
-import type { ContractGenerationData } from '@/types/checkout';
+import type { ContractFlow, ContractGenerationData } from '@/types/checkout';
+import type { Plan } from '@/types/plan';
 
 const checkoutStorageKey = 'animal_cowork_checkout';
+
+export interface RenewalContractStorageContext {
+    previous_plan_id: Plan['id'];
+    expires_at: string;
+}
+
+export interface ContractStorageState {
+    data: ContractGenerationData;
+    flow: ContractFlow;
+    renewal: RenewalContractStorageContext | null;
+}
+
+interface StoredContractEnvelope {
+    version: 1;
+    contract_data: ContractGenerationData;
+    flow: ContractFlow;
+    renewal?: RenewalContractStorageContext;
+}
 
 const sharedRequiredFields = [
     'plan_id',
@@ -59,6 +78,10 @@ export function isCompleteContractData(
 }
 
 export function readContractData(): ContractGenerationData | null {
+    return readContractStorage()?.data ?? null;
+}
+
+export function readContractStorage(): ContractStorageState | null {
     if (typeof window === 'undefined') {
         return null;
     }
@@ -72,8 +95,47 @@ export function readContractData(): ContractGenerationData | null {
     try {
         const parsedValue: unknown = JSON.parse(storedValue);
 
+        if (
+            isRecord(parsedValue) &&
+            parsedValue.version === 1 &&
+            isCompleteContractData(parsedValue.contract_data) &&
+            (parsedValue.flow === 'checkout' || parsedValue.flow === 'renewal')
+        ) {
+            const renewal = parsedValue.renewal;
+
+            if (parsedValue.flow === 'checkout') {
+                return {
+                    data: parsedValue.contract_data,
+                    flow: 'checkout',
+                    renewal: null,
+                };
+            }
+
+            if (
+                isRecord(renewal) &&
+                typeof renewal.previous_plan_id === 'string' &&
+                renewal.previous_plan_id.trim().length > 0 &&
+                typeof renewal.expires_at === 'string' &&
+                renewal.expires_at.trim().length > 0
+            ) {
+                return {
+                    data: parsedValue.contract_data,
+                    flow: 'renewal',
+                    renewal: {
+                        previous_plan_id: renewal.previous_plan_id,
+                        expires_at: renewal.expires_at,
+                    },
+                };
+            }
+        }
+
+        // Compatibilidad con sesiones creadas antes de incorporar el flujo.
         if (isCompleteContractData(parsedValue)) {
-            return parsedValue;
+            return {
+                data: parsedValue,
+                flow: 'checkout',
+                renewal: null,
+            };
         }
     } catch {
         // El valor se elimina abajo para que un JSON corrupto no bloquee el checkout.
@@ -85,9 +147,27 @@ export function readContractData(): ContractGenerationData | null {
 }
 
 export function storeContractData(data: ContractGenerationData): void {
+    storeContractStorage({
+        data,
+        flow: 'checkout',
+        renewal: null,
+    });
+}
+
+export function storeContractStorage(state: ContractStorageState): void {
     if (typeof window === 'undefined') {
         return;
     }
 
-    window.sessionStorage.setItem(checkoutStorageKey, JSON.stringify(data));
+    const storedValue: StoredContractEnvelope = {
+        version: 1,
+        contract_data: state.data,
+        flow: state.flow,
+        ...(state.renewal ? { renewal: state.renewal } : {}),
+    };
+
+    window.sessionStorage.setItem(
+        checkoutStorageKey,
+        JSON.stringify(storedValue),
+    );
 }

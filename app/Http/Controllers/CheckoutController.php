@@ -234,12 +234,16 @@ class CheckoutController extends Controller
 
         $checkout = $request->session()->get('checkout');
 
+        $flow = $request->routeIs('contract.renew_preview')
+            ? 'renewal'
+            : 'checkout';
+
         $hasConfirmedPayment =
             is_array($checkout) &&
             ($checkout['plan_id'] ?? null) === $plan &&
             ($checkout['payment_confirmed'] ?? false) === true;
 
-        if (! $hasConfirmedPayment) {
+        if ($flow === 'checkout' && ! $hasConfirmedPayment) {
             return redirect()
                 ->route('checkout.show', [
                     'plan' => $plan,
@@ -252,6 +256,7 @@ class CheckoutController extends Controller
 
         return Inertia::render('contract-preview', [
             'plan' => $plans[$plan],
+            'flow' => $flow,
         ]);
     }
 

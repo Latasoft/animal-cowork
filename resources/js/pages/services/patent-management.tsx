@@ -1,7 +1,6 @@
 import { Head } from '@inertiajs/react';
 import {
     FileCheck2,
-    ImageIcon,
     Scale,
     ShieldCheck,
 } from 'lucide-react';
@@ -65,103 +64,93 @@ export default function PatentManagement() {
                     </Container>
                 </section>
 
-                {/* Información del servicio */}
-                <section className="bg-background py-12 sm:py-16 lg:py-20">
-                    <Container>
-                        <div className="mx-auto max-w-6xl">
-                            <div className="grid gap-6 lg:grid-cols-[1fr_1.15fr]">
-                                {/* Qué gestionamos */}
-                                <article className="rounded-card border border-deep-blue/10 bg-white p-7 shadow-card sm:p-9">
-                                    <div className="flex size-14 items-center justify-center rounded-2xl bg-instinct-light text-instinct-dark">
-                                        <FileCheck2
-                                            className="size-7"
-                                            strokeWidth={2}
-                                            aria-hidden="true"
-                                        />
-                                    </div>
+{/* Información del servicio */}
+<section className="bg-background py-12 sm:py-16 lg:py-20">
+    <Container>
+        <div className="mx-auto max-w-6xl">
+            <div className="overflow-hidden rounded-card border border-deep-blue/10 bg-white shadow-card">
 
-                                    <h2 className="mt-6 text-3xl font-extrabold tracking-[-0.04em] text-deep-blue sm:text-4xl">
-                                        {content.serviceSectionTitle}
-                                    </h2>
+                {/* Qué gestionamos */}
+                <article className="grid gap-6 p-7 sm:p-9 lg:grid-cols-[auto_1fr] lg:items-start lg:gap-8">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-instinct-light text-instinct-dark">
+                        <FileCheck2
+                            className="size-7"
+                            strokeWidth={2}
+                            aria-hidden="true"
+                        />
+                    </div>
 
-                                    <p className="mt-4 text-base leading-7 text-muted sm:text-lg">
-                                        {content.serviceSectionDescription}
-                                    </p>
-                                </article>
+                    <div>
+                        <p className="text-xs font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
+                            Servicio
+                        </p>
 
-                                {/* Importancia legal */}
-                                <article className="rounded-card border border-instinct/40 bg-instinct-light p-7 sm:p-9">
-                                    <div className="flex items-center gap-3">
-                                        <Scale
-                                            className="size-8 shrink-0 text-instinct-dark"
-                                            strokeWidth={2}
-                                            aria-hidden="true"
-                                        />
+                        <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-deep-blue sm:text-3xl">
+                            {content.serviceSectionTitle}
+                        </h2>
 
-                                        <h2 className="text-sm font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
-                                            Importancia legal
-                                        </h2>
-                                    </div>
+                        <p className="mt-4 max-w-4xl text-base leading-7 text-muted sm:text-lg">
+                            {content.serviceSectionDescription}
+                        </p>
+                    </div>
+                </article>
 
-                                    <p className="mt-6 text-xl leading-8 font-bold text-deep-blue sm:text-2xl sm:leading-9">
-                                        {content.legalNotice}
-                                    </p>
-                                </article>
+                {/* Separador */}
+                <div className="mx-7 border-t border-deep-blue/10 sm:mx-9" />
 
-                                {/* Información municipal secundaria */}
-                                <article className="rounded-card border border-deep-blue/10 bg-white p-7 shadow-card sm:p-9 lg:col-span-2">
-                                    <div className="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-                                        {/* Valor */}
-                                        <div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-energy-blue/10 text-energy-blue">
-                                                    <ShieldCheck
-                                                        className="size-6"
-                                                        strokeWidth={2}
-                                                        aria-hidden="true"
-                                                    />
-                                                </div>
+                {/* Importancia legal */}
+                <article className="grid gap-6 bg-white p-7 sm:p-9 lg:grid-cols-[auto_1fr] lg:items-start lg:gap-8">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-white text-instinct-dark shadow-sm">
+                        <Scale
+                            className="size-7"
+                            strokeWidth={2}
+                            aria-hidden="true"
+                        />
+                    </div>
 
-                                                <div>
-                                                    <p className="text-xs font-extrabold tracking-[0.14em] text-energy-blue uppercase">
-                                                         Libre de cobro
-                                                    </p>
+                    <div>
+                        <p className="text-xs font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
+                            Importancia legal
+                        </p>
 
-                                                    <h3 className="mt-1 text-xl font-extrabold text-deep-blue">
-                                                        {
-                                                            content.municipalPaymentTitle
-                                                        }
-                                                    </h3>
-                                                </div>
-                                            </div>
+                        <p className="mt-3 max-w-4xl text-lg leading-8 font-bold text-deep-blue sm:text-xl sm:leading-9">
+                            {content.legalNotice}
+                        </p>
+                    </div>
+                </article>
 
-                                            <p className="mt-6 text-4xl font-extrabold tracking-[-0.05em] text-deep-blue sm:text-5xl">
-                                                {
-                                                    content.municipalPaymentAmount
-                                                }
-                                            </p>
+                {/* Separador */}
+                <div className="mx-7 border-t border-deep-blue/10 sm:mx-9" />
 
-                                            <p className="mt-2 text-lg font-bold text-energy-blue">
-                                                {
-                                                    content.municipalPaymentFrequency
-                                                }
-                                            </p>
-                                        </div>
+                {/* Derecho de aseo */}
+                <article className="grid gap-6 p-7 sm:p-9 lg:grid-cols-[auto_1fr] lg:items-start lg:gap-8">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-deep-blue/5 text-deep-blue">
+                        <ShieldCheck
+                            className="size-7"
+                            strokeWidth={2}
+                            aria-hidden="true"
+                        />
+                    </div>
 
-                                        {/* Detalle */}
-                                        <div className="border-t border-deep-blue/10 pt-7 lg:border-t-0 lg:border-l lg:pt-0 lg:pl-8">
-                                            <p className="text-base leading-7 text-muted">
-                                                {
-                                                    content.municipalPaymentDetail
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                    </Container>
-                </section>
+                    <div>
+                        <p className="text-xs font-extrabold tracking-[0.16em] text-energy-blue uppercase">
+                            Beneficio
+                        </p>
+
+                        <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-deep-blue sm:text-3xl">
+                            Libre de cobro por derecho de aseo
+                        </h2>
+
+                        <p className="mt-4 max-w-4xl text-base leading-7 text-muted sm:text-lg">
+                            {content.municipalPaymentDetail}
+                        </p>
+                    </div>
+                </article>
+
+            </div>
+        </div>
+    </Container>
+</section>
 
                 <Footer />
             </PublicLayout>
@@ -170,31 +159,12 @@ export default function PatentManagement() {
 }
 
 function ServiceImage() {
-    if (content.image.src) {
-        return (
-            <img
-                src={content.image.src}
-                alt={content.image.alt}
-                className="aspect-[4/3] w-full rounded-card object-cover shadow-card"
-            />
-        );
-    }
-
     return (
-        <div className="flex aspect-[4/3] min-h-72 items-center justify-center rounded-card border border-dashed border-deep-blue/25 bg-deep-blue/5 p-8 text-center">
-            <div>
-                <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-white text-instinct shadow-card">
-                    <ImageIcon
-                        className="size-9"
-                        strokeWidth={1.8}
-                        aria-hidden="true"
-                    />
-                </span>
-
-                <p className="mt-5 text-sm font-extrabold tracking-[0.12em] text-deep-blue uppercase">
-                    Imagen del servicio
-                </p>
-            </div>
-        </div>
+        <img
+            src="/images/plans/service.jpg"
+            alt="Gestión de patente comercial de oficina virtual"
+            className="aspect-[4/3] w-full rounded-card object-cover shadow-card"
+            loading="lazy"
+        />
     );
 }

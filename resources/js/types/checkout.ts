@@ -58,6 +58,8 @@ export type ContractGenerationData = Pick<
     ContractDataFormData &
     ContractDates;
 
+export type ContractFlow = 'checkout' | 'renewal';
+
 export type ContractDataFormErrors = Partial<
     Record<keyof ContractDataFormData, string>
 >;
@@ -81,6 +83,8 @@ export interface StoredCustomerContract {
     company_rut: string;
 
     representative_address: string;
+    representative_commune: string;
+    representative_region: string;
 
     representative_email: string;
     representative_whatsapp: string;
