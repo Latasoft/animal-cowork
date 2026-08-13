@@ -32,8 +32,3 @@ Route::get(
 
 Route::inertia('/renovar', 'renew-contract')
     ->name('contract.renew');
-
-Route::get(
-    '/renovar/{plan}/contrato',
-    [CheckoutController::class, 'showContractPreview'],
-)->name('contract.renew_preview');

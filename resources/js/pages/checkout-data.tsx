@@ -16,11 +16,13 @@ import {
 import type {
     ContractDataFormData,
     ContractGenerationData,
+    CheckoutFlow,
     CheckoutPlan,
 } from '@/types/checkout';
 
 interface CheckoutDataPageProps {
     plan: CheckoutPlan;
+    flow: CheckoutFlow;
     customer: {
         email: string;
         whatsapp: string;
@@ -41,6 +43,7 @@ const emptyContractData: ContractDataFormData = {
 
 export default function CheckoutData({
     plan,
+    flow,
     customer,
 }: CheckoutDataPageProps) {
     const { data, setData, errors, setError, clearErrors } =
@@ -70,10 +73,11 @@ export default function CheckoutData({
             representative_address: storedData.representative_address,
             representative_commune: storedData.representative_commune,
             representative_region: storedData.representative_region,
-            company_in_progress: storedData.company_in_progress,
+            company_in_progress:
+                flow === 'renewal' ? false : storedData.company_in_progress,
             is_natural_person: storedData.is_natural_person,
         });
-    }, [plan.id, setData]);
+    }, [flow, plan.id, setData]);
 
     function validateForm(): boolean {
         clearErrors();
@@ -169,6 +173,8 @@ export default function CheckoutData({
 
         const contractData: ContractGenerationData = {
             ...data,
+            company_in_progress:
+                flow === 'renewal' ? false : data.company_in_progress,
             ...createAutomaticContractDates(plan.contractDurationMonths),
             plan_id: plan.id,
             representative_email: customer.email,
@@ -232,9 +238,15 @@ export default function CheckoutData({
                             setData={setData}
                             errors={errors}
                             processing={isNavigating}
+                            showCompanyInProgress={flow !== 'renewal'}
                             onSubmit={submit}
                             onBack={() =>
-                                router.visit(checkoutShow.url(plan.id))
+                                router.visit(
+                                    checkoutShow.url(plan.id, {
+                                        query:
+                                            flow === 'renewal' ? { flow } : {},
+                                    }),
+                                )
                             }
                         />
                     </div>

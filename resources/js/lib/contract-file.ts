@@ -1,4 +1,4 @@
-import type { ContractFlow, ContractGenerationData } from '@/types/checkout';
+import type { ContractGenerationData } from '@/types/checkout';
 import type { Plan } from '@/types/plan';
 
 function sanitizeFileSegment(value: string): string {
@@ -39,7 +39,6 @@ export function createContractConfirmationPayload(
     file: File,
     data: ContractGenerationData,
     plan: Plan,
-    flow: ContractFlow = 'checkout',
 ): FormData {
     const payload = new FormData();
 
@@ -48,7 +47,7 @@ export function createContractConfirmationPayload(
         data.is_natural_person ? 'natural_person' : 'legal_entity',
     );
     payload.append('plan_id', plan.id);
-    payload.append('contract_action', flow === 'renewal' ? 'renewal' : 'new');
+    payload.append('contract_action', 'new');
     payload.append('contract_data', JSON.stringify(data));
     payload.append('contract_pdf', file);
 

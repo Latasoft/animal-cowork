@@ -13,7 +13,7 @@ class CheckoutController extends Controller
     /**
      * Paso 1: muestra el plan, datos de contacto y pago.
      */
-    public function show(string $plan): Response
+    public function show(Request $request, string $plan): Response
     {
         $plans = $this->plans();
 
@@ -21,6 +21,7 @@ class CheckoutController extends Controller
 
         return Inertia::render('checkout', [
             'plan' => $plans[$plan],
+            'flow' => $this->checkoutFlow($request),
         ]);
     }
 
@@ -134,6 +135,7 @@ class CheckoutController extends Controller
          */
         $selectedPlan = $plans[$plan];
         $subtotal = $selectedPlan['price'];
+        $flow = $this->checkoutFlow($request);
 
         /*
          * El cupón todavía no aplica descuentos reales.
@@ -170,6 +172,7 @@ class CheckoutController extends Controller
 
         return redirect()->route('checkout.data', [
             'plan' => $plan,
+            ...($flow === 'renewal' ? ['flow' => 'renewal'] : []),
         ]);
     }
 
@@ -205,6 +208,7 @@ class CheckoutController extends Controller
 
         return Inertia::render('checkout-data', [
             'plan' => $plans[$plan],
+            'flow' => $this->checkoutFlow($request),
 
             'customer' => [
                 'email' => $checkout['email'] ?? '',
@@ -234,16 +238,12 @@ class CheckoutController extends Controller
 
         $checkout = $request->session()->get('checkout');
 
-        $flow = $request->routeIs('contract.renew_preview')
-            ? 'renewal'
-            : 'checkout';
-
         $hasConfirmedPayment =
             is_array($checkout) &&
             ($checkout['plan_id'] ?? null) === $plan &&
             ($checkout['payment_confirmed'] ?? false) === true;
 
-        if ($flow === 'checkout' && ! $hasConfirmedPayment) {
+        if (! $hasConfirmedPayment) {
             return redirect()
                 ->route('checkout.show', [
                     'plan' => $plan,
@@ -256,8 +256,14 @@ class CheckoutController extends Controller
 
         return Inertia::render('contract-preview', [
             'plan' => $plans[$plan],
-            'flow' => $flow,
         ]);
+    }
+
+    private function checkoutFlow(Request $request): string
+    {
+        return $request->query('flow') === 'renewal'
+            ? 'renewal'
+            : 'checkout';
     }
 
     /**

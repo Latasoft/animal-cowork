@@ -7,38 +7,31 @@ import { Container } from '@/components/ui/container';
 import { NoticeCard } from '@/components/ui/notice-card';
 import { SummaryCard } from '@/components/ui/summary-card';
 import { PublicLayout } from '@/layouts/public-layout';
+import { payment as checkoutPayment } from '@/routes/checkout';
 
 import type {
     CheckoutFormData,
+    CheckoutFlow,
     CheckoutPlan,
 } from '@/types/checkout';
 
-type FormSubmitHandler = NonNullable<
-    ComponentProps<'form'>['onSubmit']
->;
+type FormSubmitHandler = NonNullable<ComponentProps<'form'>['onSubmit']>;
 
 interface CheckoutPageProps {
     plan: CheckoutPlan;
+    flow: CheckoutFlow;
 }
 
-export default function Checkout({
-    plan,
-}: CheckoutPageProps) {
-    const {
-        data,
-        setData,
-        post,
-        processing,
-        errors,
-        clearErrors,
-    } = useForm<CheckoutFormData>({
-        plan_id: plan.id,
-        representative_email: '',
-        representative_whatsapp: '',
-        discount_code: '',
-        accept_terms: false,
-        accept_data_policy: false,
-    });
+export default function Checkout({ plan, flow }: CheckoutPageProps) {
+    const { data, setData, post, processing, errors, clearErrors } =
+        useForm<CheckoutFormData>({
+            plan_id: plan.id,
+            representative_email: '',
+            representative_whatsapp: '',
+            discount_code: '',
+            accept_terms: false,
+            accept_data_policy: false,
+        });
 
     /*
      * El botón depende únicamente de que el cliente acepte
@@ -48,41 +41,42 @@ export default function Checkout({
      * al intentar continuar.
      */
     const canContinue =
-        data.accept_terms &&
-        data.accept_data_policy &&
-        !processing;
+        data.accept_terms && data.accept_data_policy && !processing;
 
     const hasErrors = Object.keys(errors).length > 0;
 
     const submit: FormSubmitHandler = (event) => {
         event.preventDefault();
 
-        post(`/checkout/${plan.id}/payment`, {
-            preserveScroll: true,
-            preserveState: true,
+        post(
+            checkoutPayment.url(plan.id, {
+                query: flow === 'renewal' ? { flow } : {},
+            }),
+            {
+                preserveScroll: true,
+                preserveState: true,
 
-            onError: () => {
-                requestAnimationFrame(() => {
-                    const firstInvalidElement =
-                        document.querySelector<HTMLElement>(
-                            '[aria-invalid="true"]',
-                        );
+                onError: () => {
+                    requestAnimationFrame(() => {
+                        const firstInvalidElement =
+                            document.querySelector<HTMLElement>(
+                                '[aria-invalid="true"]',
+                            );
 
-                    firstInvalidElement?.focus();
+                        firstInvalidElement?.focus();
 
-                    firstInvalidElement?.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'center',
+                        firstInvalidElement?.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'center',
+                        });
                     });
-                });
+                },
             },
-        });
+        );
     };
 
     function updateContactField(
-        key:
-            | 'representative_email'
-            | 'representative_whatsapp',
+        key: 'representative_email' | 'representative_whatsapp',
         value: string,
     ) {
         if (key === 'representative_email') {
@@ -149,40 +143,25 @@ export default function Checkout({
                                 discountCode={data.discount_code}
                                 discountError={errors.discount_code}
                                 onDiscountCodeChange={(value) => {
-                                    setData(
-                                        'discount_code',
-                                        value,
-                                    );
+                                    setData('discount_code', value);
 
                                     clearErrors('discount_code');
                                 }}
                                 acceptTerms={data.accept_terms}
-                                acceptDataPolicy={
-                                    data.accept_data_policy
-                                }
+                                acceptDataPolicy={data.accept_data_policy}
                                 processing={processing}
                                 canContinue={canContinue}
                                 termsError={errors.accept_terms}
-                                dataPolicyError={
-                                    errors.accept_data_policy
-                                }
+                                dataPolicyError={errors.accept_data_policy}
                                 onTermsChange={(checked) => {
-                                    setData(
-                                        'accept_terms',
-                                        checked,
-                                    );
+                                    setData('accept_terms', checked);
 
                                     clearErrors('accept_terms');
                                 }}
                                 onDataPolicyChange={(checked) => {
-                                    setData(
-                                        'accept_data_policy',
-                                        checked,
-                                    );
+                                    setData('accept_data_policy', checked);
 
-                                    clearErrors(
-                                        'accept_data_policy',
-                                    );
+                                    clearErrors('accept_data_policy');
                                 }}
                             />
                         </div>
@@ -197,9 +176,7 @@ interface CheckoutHeaderProps {
     plan: CheckoutPlan;
 }
 
-function CheckoutHeader({
-    plan,
-}: CheckoutHeaderProps) {
+function CheckoutHeader({ plan }: CheckoutHeaderProps) {
     return (
         <header className="border-b border-deep-blue/10 pb-8">
             <p className="text-sm font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
@@ -211,8 +188,8 @@ function CheckoutHeader({
             </h1>
 
             <p className="mt-5 max-w-2xl text-base leading-7 text-deep-blue/65 sm:text-lg">
-                Ingresa tu correo electrónico y número de WhatsApp. Luego
-                revisa el detalle del{' '}
+                Ingresa tu correo electrónico y número de WhatsApp. Luego revisa
+                el detalle del{' '}
                 <strong className="font-extrabold text-deep-blue">
                     {plan.name}
                 </strong>{' '}

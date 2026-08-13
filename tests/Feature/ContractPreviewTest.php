@@ -32,22 +32,17 @@ test('contract preview renders the selected plan after payment', function () {
     $response->assertInertia(fn (Assert $page) => $page
         ->component('contract-preview')
         ->where('plan.id', 'fenix')
-        ->where('flow', 'checkout')
         ->where('plan.name', 'Plan Fénix'));
 });
 
-test('renewal reuses the contract preview without a checkout payment session', function () {
+test('renewal page is the plan selection entry point', function () {
     $this->withoutVite();
 
-    $response = $this->get(route('contract.renew_preview', [
-        'plan' => 'leon',
-    ]));
+    $response = $this->get(route('contract.renew'));
 
     $response->assertSuccessful();
     $response->assertInertia(fn (Assert $page) => $page
-        ->component('contract-preview')
-        ->where('plan.id', 'leon')
-        ->where('flow', 'renewal'));
+        ->component('renew-contract'));
 });
 
 test('contract preview rejects an unknown plan', function () {

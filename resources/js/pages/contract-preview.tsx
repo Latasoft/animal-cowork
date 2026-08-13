@@ -12,7 +12,7 @@ import { CheckoutSteps } from '@/components/ui/checkout-steps';
 import { Container } from '@/components/ui/container';
 import { plans } from '@/data/plans';
 import { PublicLayout } from '@/layouts/public-layout';
-import { readContractStorage } from '@/lib/checkout-storage';
+import { readContractData } from '@/lib/checkout-storage';
 import {
     createAutomaticContractDates,
     formatContractDate,
@@ -22,20 +22,14 @@ import {
     createContractFile,
 } from '@/lib/contract-file';
 import { data as checkoutData } from '@/routes/checkout';
-import { renew as renewContract } from '@/routes/contract';
 
-import type {
-    ContractFlow,
-    ContractGenerationData,
-    CheckoutPlan,
-} from '@/types/checkout';
+import type { ContractGenerationData, CheckoutPlan } from '@/types/checkout';
 
 type GenerationStatus =
     'loading' | 'generating' | 'ready' | 'missing' | 'error';
 
 interface ContractPreviewPageProps {
     plan: CheckoutPlan;
-    flow: ContractFlow;
 }
 
 interface PreparedContract {
@@ -43,10 +37,7 @@ interface PreparedContract {
     payload: FormData;
 }
 
-export default function ContractPreview({
-    plan,
-    flow,
-}: ContractPreviewPageProps) {
+export default function ContractPreview({ plan }: ContractPreviewPageProps) {
     const selectedPlan = useMemo(
         () => plans.find((catalogPlan) => catalogPlan.id === plan.id),
         [plan.id],
@@ -70,13 +61,9 @@ export default function ContractPreview({
             setPdfBlob(null);
             setPreparedContract(null);
 
-            const storedContract = readContractStorage();
+            const storedContract = readContractData();
 
-            if (
-                !storedContract ||
-                storedContract.flow !== flow ||
-                storedContract.data.plan_id !== plan.id
-            ) {
+            if (!storedContract || storedContract.plan_id !== plan.id) {
                 if (isActive) {
                     setContractData(null);
                     setStatus('missing');
@@ -98,7 +85,7 @@ export default function ContractPreview({
 
             try {
                 const generationData: ContractGenerationData = {
-                    ...storedContract.data,
+                    ...storedContract,
                     ...createAutomaticContractDates(
                         selectedPlan.contractDurationMonths,
                     ),
@@ -134,7 +121,7 @@ export default function ContractPreview({
         return () => {
             isActive = false;
         };
-    }, [flow, generationAttempt, plan.id, selectedPlan]);
+    }, [generationAttempt, plan.id, selectedPlan]);
 
     async function confirmContract(): Promise<void> {
         if (isConfirming || !pdfBlob || !contractData || !selectedPlan) {
@@ -157,7 +144,6 @@ export default function ContractPreview({
                 file,
                 contractData,
                 selectedPlan,
-                flow,
             );
 
             setPreparedContract({ file, payload });
@@ -167,8 +153,7 @@ export default function ContractPreview({
     }
 
     const isBusy = status === 'loading' || status === 'generating';
-    const returnUrl =
-        flow === 'renewal' ? renewContract.url() : checkoutData.url(plan.id);
+    const returnUrl = checkoutData.url(plan.id);
 
     return (
         <PublicLayout>
@@ -189,9 +174,10 @@ export default function ContractPreview({
                             </h1>
 
                             <p className="mt-5 max-w-3xl text-base leading-7 text-deep-blue/65 sm:text-lg">
-                                {flow === 'renewal'
-                                    ? 'Revisa los datos de tu contrato renovado antes de confirmar.'
-                                    : 'Revisa cuidadosamente la información antes de confirmar. Este documento fue generado automáticamente con los datos ingresados durante la contratación.'}
+                                Revisa cuidadosamente la información antes de
+                                confirmar. Este documento fue generado
+                                automáticamente con los datos ingresados durante
+                                la contratación.
                             </p>
                         </header>
 
@@ -290,7 +276,6 @@ export default function ContractPreview({
                                             fileName={
                                                 preparedContract.file.name
                                             }
-                                            flow={flow}
                                         />
                                     ) : (
                                         <div className="mt-8 flex flex-col-reverse gap-3 border-t border-deep-blue/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
@@ -440,10 +425,9 @@ function GenerationErrorState({ message, onRetry }: GenerationErrorStateProps) {
 
 interface ConfirmationStateProps {
     fileName: string;
-    flow: ContractFlow;
 }
 
-function ConfirmationState({ fileName, flow }: ConfirmationStateProps) {
+function ConfirmationState({ fileName }: ConfirmationStateProps) {
     return (
         <div
             role="status"
@@ -460,9 +444,8 @@ function ConfirmationState({ fileName, flow }: ConfirmationStateProps) {
                         Contrato confirmado
                     </h2>
                     <p className="mt-3 text-sm leading-7 text-deep-blue/70 sm:text-base">
-                        {flow === 'renewal'
-                            ? 'Tu contrato de renovación fue generado correctamente y quedó listo para su procesamiento.'
-                            : 'Tu contrato fue generado correctamente y quedó listo para su procesamiento.'}
+                        Tu contrato fue generado correctamente y quedó listo
+                        para su procesamiento.
                     </p>
                     <p className="mt-2 text-sm leading-7 text-deep-blue/70 sm:text-base">
                         Una vez aceptado el contrato, un ejecutivo tomará

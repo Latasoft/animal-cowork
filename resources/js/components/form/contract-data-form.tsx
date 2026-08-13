@@ -1,14 +1,5 @@
-import {
-    Building2,
-    FileText,
-    MapPin,
-    UserRound,
-} from 'lucide-react';
-import type {
-    ComponentType,
-    FormEvent,
-    ReactNode,
-} from 'react';
+import { Building2, FileText, MapPin, UserRound } from 'lucide-react';
+import type { ComponentType, FormEvent, ReactNode } from 'react';
 
 import { Button } from '@/components/ui/button';
 
@@ -25,9 +16,8 @@ interface ContractDataFormProps {
     setData: SetContractDataFormData;
     errors: ContractDataFormErrors;
     processing: boolean;
-    onSubmit: (
-        event: FormEvent<HTMLFormElement>,
-    ) => void;
+    showCompanyInProgress: boolean;
+    onSubmit: (event: FormEvent<HTMLFormElement>) => void;
     onBack: () => void;
 }
 
@@ -36,42 +26,29 @@ export function ContractDataForm({
     setData,
     errors,
     processing,
+    showCompanyInProgress,
     onSubmit,
     onBack,
 }: ContractDataFormProps) {
-    function handleNaturalPersonChange(
-        checked: boolean,
-    ) {
+    function handleNaturalPersonChange(checked: boolean) {
         setData('is_natural_person', checked);
 
         setData('company_name', '');
 
         setData(
             'company_rut',
-            checked
-                ? formatRut(
-                      data.representative_rut,
-                  )
-                : '',
+            checked ? formatRut(data.representative_rut) : '',
         );
 
         if (checked) {
-            setData(
-                'company_in_progress',
-                false,
-            );
+            setData('company_in_progress', false);
         }
     }
 
-    function handleRepresentativeRutChange(
-        value: string,
-    ) {
+    function handleRepresentativeRutChange(value: string) {
         const formattedRut = formatRut(value);
 
-        setData(
-            'representative_rut',
-            formattedRut,
-        );
+        setData('representative_rut', formattedRut);
 
         /**
          * Para persona natural el RUT del
@@ -79,29 +56,16 @@ export function ContractDataForm({
          * de la persona.
          */
         if (data.is_natural_person) {
-            setData(
-                'company_rut',
-                formattedRut,
-            );
+            setData('company_rut', formattedRut);
         }
     }
 
-    function handleCompanyRutChange(
-        value: string,
-    ) {
-        setData(
-            'company_rut',
-            formatRut(value),
-        );
+    function handleCompanyRutChange(value: string) {
+        setData('company_rut', formatRut(value));
     }
 
-    function handleCompanyInProgressChange(
-        checked: boolean,
-    ) {
-        setData(
-            'company_in_progress',
-            checked,
-        );
+    function handleCompanyInProgressChange(checked: boolean) {
+        setData('company_in_progress', checked);
 
         if (checked) {
             setData('company_rut', '');
@@ -131,8 +95,7 @@ export function ContractDataForm({
                     </p>
 
                     <h2 className="mt-1 text-3xl font-extrabold tracking-[-0.04em] text-deep-blue">
-                        Datos para elaborar el
-                        contrato
+                        Datos para elaborar el contrato
                     </h2>
                 </div>
             </div>
@@ -142,14 +105,9 @@ export function ContractDataForm({
                     <input
                         type="checkbox"
                         name="is_natural_person"
-                        checked={
-                            data.is_natural_person
-                        }
+                        checked={data.is_natural_person}
                         onChange={(event) =>
-                            handleNaturalPersonChange(
-                                event.target
-                                    .checked,
-                            )
+                            handleNaturalPersonChange(event.target.checked)
                         }
                         disabled={processing}
                         className="mt-1 size-5 shrink-0 cursor-pointer rounded border-deep-blue/25 accent-instinct focus:ring-instinct disabled:cursor-not-allowed"
@@ -157,15 +115,12 @@ export function ContractDataForm({
 
                     <span>
                         <span className="block text-sm font-extrabold text-deep-blue">
-                            Contratar como persona
-                            natural
+                            Contratar como persona natural
                         </span>
 
                         <span className="mt-1 block text-sm leading-6 text-deep-blue/60">
-                            Selecciona esta opción
-                            si realizarás el contrato
-                            como persona natural con
-                            giro.
+                            Selecciona esta opción si realizarás el contrato
+                            como persona natural con giro.
                         </span>
                     </span>
                 </label>
@@ -174,10 +129,8 @@ export function ContractDataForm({
             {data.is_natural_person && (
                 <div className="mt-5 border-l-4 border-instinct bg-instinct/7 px-5 py-4">
                     <p className="text-sm leading-6 text-deep-blue/70">
-                        El contrato identificará
-                        directamente a la persona
-                        natural mediante su nombre y
-                        RUT personal.
+                        El contrato identificará directamente a la persona
+                        natural mediante su nombre y RUT personal.
                     </p>
                 </div>
             )}
@@ -200,20 +153,13 @@ export function ContractDataForm({
                         <FormField
                             label="Nombre completo"
                             name="representative_name"
-                            value={
-                                data.representative_name
-                            }
+                            value={data.representative_name}
                             onChange={(value) =>
-                                setData(
-                                    'representative_name',
-                                    value,
-                                )
+                                setData('representative_name', value)
                             }
                             placeholder="Nombre y apellidos"
                             autoComplete="name"
-                            error={
-                                errors.representative_name
-                            }
+                            error={errors.representative_name}
                             disabled={processing}
                         />
 
@@ -224,19 +170,13 @@ export function ContractDataForm({
                                     : 'RUT representante legal'
                             }
                             name="representative_rut"
-                            value={
-                                data.representative_rut
-                            }
-                            onChange={
-                                handleRepresentativeRutChange
-                            }
+                            value={data.representative_rut}
+                            onChange={handleRepresentativeRutChange}
                             placeholder="12.345.678-9"
                             autoComplete="off"
                             inputMode="text"
                             maxLength={12}
-                            error={
-                                errors.representative_rut
-                            }
+                            error={errors.representative_rut}
                             disabled={processing}
                         />
                     </div>
@@ -251,20 +191,13 @@ export function ContractDataForm({
                         <FormField
                             label="Dirección particular"
                             name="representative_address"
-                            value={
-                                data.representative_address
-                            }
+                            value={data.representative_address}
                             onChange={(value) =>
-                                setData(
-                                    'representative_address',
-                                    value,
-                                )
+                                setData('representative_address', value)
                             }
                             placeholder="Calle, número y departamento si corresponde"
                             autoComplete="street-address"
-                            error={
-                                errors.representative_address
-                            }
+                            error={errors.representative_address}
                             disabled={processing}
                             className="md:col-span-2"
                         />
@@ -272,40 +205,26 @@ export function ContractDataForm({
                         <FormField
                             label="Comuna"
                             name="representative_commune"
-                            value={
-                                data.representative_commune
-                            }
+                            value={data.representative_commune}
                             onChange={(value) =>
-                                setData(
-                                    'representative_commune',
-                                    value,
-                                )
+                                setData('representative_commune', value)
                             }
                             placeholder="Providencia"
                             autoComplete="address-level2"
-                            error={
-                                errors.representative_commune
-                            }
+                            error={errors.representative_commune}
                             disabled={processing}
                         />
 
                         <FormField
                             label="Región"
                             name="representative_region"
-                            value={
-                                data.representative_region
-                            }
+                            value={data.representative_region}
                             onChange={(value) =>
-                                setData(
-                                    'representative_region',
-                                    value,
-                                )
+                                setData('representative_region', value)
                             }
                             placeholder="Metropolitana"
                             autoComplete="address-level1"
-                            error={
-                                errors.representative_region
-                            }
+                            error={errors.representative_region}
                             disabled={processing}
                         />
                     </div>
@@ -321,112 +240,75 @@ export function ContractDataForm({
                             <FormField
                                 label="Razón social o nombre de la empresa"
                                 name="company_name"
-                                value={
-                                    data.company_name
-                                }
-                                onChange={(
-                                    value,
-                                ) =>
-                                    setData(
-                                        'company_name',
-                                        value,
-                                    )
+                                value={data.company_name}
+                                onChange={(value) =>
+                                    setData('company_name', value)
                                 }
                                 placeholder="Nombre de la empresa"
                                 autoComplete="organization"
-                                error={
-                                    errors.company_name
-                                }
-                                disabled={
-                                    processing
-                                }
+                                error={errors.company_name}
+                                disabled={processing}
                             />
 
                             <FormField
                                 label="RUT de la empresa"
                                 name="company_rut"
-                                value={
-                                    data.company_rut
-                                }
-                                onChange={
-                                    handleCompanyRutChange
-                                }
+                                value={data.company_rut}
+                                onChange={handleCompanyRutChange}
                                 placeholder="76.123.456-7"
                                 autoComplete="off"
                                 inputMode="text"
                                 maxLength={12}
-                                error={
-                                    errors.company_rut
-                                }
+                                error={errors.company_rut}
                                 disabled={
-                                    processing ||
-                                    data.company_in_progress
+                                    processing || data.company_in_progress
                                 }
-                                required={
-                                    !data.company_in_progress
-                                }
+                                required={!data.company_in_progress}
                             />
                         </div>
 
-                        <div className="mt-6 border border-instinct/20 bg-instinct/5 p-5">
-                            <label className="flex cursor-pointer items-start gap-3">
-                                <input
-                                    type="checkbox"
-                                    name="company_in_progress"
-                                    checked={
-                                        data.company_in_progress
-                                    }
-                                    onChange={(
-                                        event,
-                                    ) =>
-                                        handleCompanyInProgressChange(
-                                            event
-                                                .target
-                                                .checked,
-                                        )
-                                    }
-                                    disabled={
-                                        processing
-                                    }
-                                    className="mt-1 size-5 shrink-0 cursor-pointer rounded border-deep-blue/25 accent-instinct focus:ring-instinct disabled:cursor-not-allowed"
-                                />
+                        {showCompanyInProgress && (
+                            <div className="mt-6 border border-instinct/20 bg-instinct/5 p-5">
+                                <label className="flex cursor-pointer items-start gap-3">
+                                    <input
+                                        type="checkbox"
+                                        name="company_in_progress"
+                                        checked={data.company_in_progress}
+                                        onChange={(event) =>
+                                            handleCompanyInProgressChange(
+                                                event.target.checked,
+                                            )
+                                        }
+                                        disabled={processing}
+                                        className="mt-1 size-5 shrink-0 cursor-pointer rounded border-deep-blue/25 accent-instinct focus:ring-instinct disabled:cursor-not-allowed"
+                                    />
 
-                                <span>
-                                    <span className="block text-sm font-extrabold text-deep-blue">
-                                        Aún no tengo
-                                        RUT de mi
-                                        empresa
-                                    </span>
+                                    <span>
+                                        <span className="block text-sm font-extrabold text-deep-blue">
+                                            Aún no tengo RUT de mi empresa
+                                        </span>
 
-                                    <span className="mt-1 block text-sm leading-6 text-deep-blue/60">
-                                        Mi empresa
-                                        se encuentra
-                                        actualmente
-                                        en proceso de
-                                        constitución.
+                                        <span className="mt-1 block text-sm leading-6 text-deep-blue/60">
+                                            Mi empresa se encuentra actualmente
+                                            en proceso de constitución.
+                                        </span>
                                     </span>
-                                </span>
-                            </label>
-                        </div>
+                                </label>
+                            </div>
+                        )}
                     </FormSection>
                 )}
             </div>
 
-            {data.company_in_progress &&
-                !data.is_natural_person && (
-                    <div className="mt-8 border-l-4 border-instinct bg-instinct/7 px-5 py-5">
-                        <p className="text-sm leading-6 text-deep-blue/70">
-                            Como tu empresa aún no
-                            cuenta con RUT, no
-                            avanzarás a la
-                            previsualización del
-                            contrato. Un ejecutivo
-                            deberá revisar estos
-                            antecedentes para
-                            continuar el proceso.
-                        </p>
-                    </div>
-                )}
+            {data.company_in_progress && !data.is_natural_person && (
+                <div className="mt-8 border-l-4 border-instinct bg-instinct/7 px-5 py-5">
+                    <p className="text-sm leading-6 text-deep-blue/70">
+                        Como tu empresa aún no cuenta con RUT, no avanzarás a la
+                        previsualización del contrato. Un ejecutivo deberá
+                        revisar estos antecedentes para continuar el proceso.
+                    </p>
+                </div>
+            )}
 
             <div className="mt-8 flex flex-col-reverse gap-3 border-t border-deep-blue/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
                 <Button
@@ -446,8 +328,7 @@ export function ContractDataForm({
                 >
                     {processing
                         ? 'Procesando...'
-                        : data.company_in_progress &&
-                            !data.is_natural_person
+                        : data.company_in_progress && !data.is_natural_person
                           ? 'Enviar información'
                           : 'Continuar a previsualización'}
                 </Button>
@@ -477,11 +358,7 @@ function FormSection({
         <section>
             <div className="mb-6 flex items-start gap-3">
                 <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-instinct/10 text-instinct-dark">
-                    <Icon
-                        className="size-4"
-                        strokeWidth={2.2}
-                        aria-hidden
-                    />
+                    <Icon className="size-4" strokeWidth={2.2} aria-hidden />
                 </div>
 
                 <div>
@@ -551,11 +428,7 @@ function FormField({
             >
                 {label}
 
-                {required && (
-                    <span className="ml-1 text-instinct">
-                        *
-                    </span>
-                )}
+                {required && <span className="ml-1 text-instinct">*</span>}
             </label>
 
             <input
@@ -563,11 +436,7 @@ function FormField({
                 name={name}
                 type={type}
                 value={value}
-                onInput={(event) =>
-                    onChange(
-                        event.currentTarget.value,
-                    )
-                }
+                onInput={(event) => onChange(event.currentTarget.value)}
                 placeholder={placeholder}
                 autoComplete={autoComplete}
                 inputMode={inputMode}
@@ -575,9 +444,7 @@ function FormField({
                 disabled={disabled}
                 required={required}
                 aria-invalid={Boolean(error)}
-                aria-describedby={
-                    describedBy || undefined
-                }
+                aria-describedby={describedBy || undefined}
                 className={[
                     'h-12 w-full rounded-xl border px-4 text-sm font-medium text-deep-blue transition duration-200 outline-none',
                     'border-deep-blue/15 bg-white placeholder:text-deep-blue/35',
