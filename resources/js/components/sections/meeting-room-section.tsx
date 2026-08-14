@@ -155,7 +155,7 @@ function BookingBlock() {
                 </p>
 
                 <ButtonSecondary
-                    href="#contacto"
+                    href="/agendamiento-de-sala-de-reuniones"
                     className="mt-7 w-full justify-center bg-deep-blue text-white hover:bg-deep-blue-light hover:text-white"
                 >
                     Reservar mi espacio

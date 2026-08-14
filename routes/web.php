@@ -10,6 +10,11 @@ Route::inertia(
     'services/patent-management',
 )->name('services.patent_management');
 
+Route::inertia(
+    '/agendamiento-de-sala-de-reuniones',
+    'meeting-room-booking',
+)->name('meeting_rooms.booking');
+
 Route::get(
     '/checkout/{plan}/datos',
     [CheckoutController::class, 'showContractData'],

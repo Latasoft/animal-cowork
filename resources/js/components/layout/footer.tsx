@@ -7,27 +7,27 @@ import { Container } from '@/components/ui/container';
 const footerLinks = [
     {
         label: 'Inicio',
-        href: '#inicio',
+        href: '/#inicio',
     },
     {
         label: 'Planes',
-        href: '#planes',
+        href: '/#planes',
     },
     {
         label: 'Servicios adicionales',
-        href: '#servicios-adicionales',
+        href: '/#servicios-adicionales',
     },
     {
         label: 'Sala de reuniones',
-        href: '#sala-reuniones',
+        href: "/agendamiento-de-sala-de-reuniones"
     },
     {
         label: 'Preguntas frecuentes',
-        href: '#preguntas',
+        href: '/#preguntas',
     },
     {
         label: 'Contacto',
-        href: '#contacto',
+        href: '/#contacto',
     },
 ];
 
@@ -60,7 +60,7 @@ export function Footer() {
                     {/* Logo */}
                     <div>
                         <a
-                            href="#inicio"
+                            href="/#inicio"
                             className="inline-flex transition duration-300 hover:opacity-90"
                             aria-label="Animal Co-work"
                         >

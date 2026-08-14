@@ -22,7 +22,7 @@ const navigation: NavigationItem[] = [
     },
     {
         label: 'SALAS',
-        href: '/#sala-reuniones',
+        href: "/agendamiento-de-sala-de-reuniones"
     },
     {
         label: 'PREGUNTAS FRECUENTES',
