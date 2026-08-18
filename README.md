@@ -1032,99 +1032,868 @@ php artisan route:list
 ## Base de datos
 
 La base de datos debe diseñarse de manera modular y normalizada.
+# Modelo de Base de Datos
 
-### Entidades principales sugeridas
+La base de datos de **Animal Co-work** está diseñada para soportar la gestión de planes de oficina virtual, clientes, suscripciones, usuarios administrativos, salas de reuniones y reservas.
 
-#### Planes
+Actualmente, el modelo principal está compuesto por las siguientes tablas:
 
-Almacenan:
+* `plans`
+* `clients`
+* `subscriptions`
+* `users`
+* `rooms`
+* `reservations`
 
-* Nombre.
-* Slug.
-* Descripción.
-* Precio.
-* Duración.
-* Beneficios.
-* Imagen.
+## Diagrama Entidad-Relación
+
+```mermaid
+erDiagram
+    PLANS {
+        bigint id PK
+        string slug UK
+        string name
+        string badge
+        int price_office
+        int price_additional
+        smallint contract_duration_months
+        json features
+        boolean includes_room_access
+        smallint monthly_room_minutes_included
+        boolean room_minutes_rollover
+        int extra_room_hour_price_net
+        boolean extra_room_hour_taxable
+        string image_path
+        string image_alt
+        string theme
+        boolean is_featured
+        boolean is_active
+        smallint sort_order
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    CLIENTS {
+        bigint id PK
+        string contract_type
+        string email
+        string phone
+        string representative_name
+        string representative_rut
+        string address
+        string commune
+        string region
+        string company_name
+        string company_rut UK
+        string status
+        text notes
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    SUBSCRIPTIONS {
+        bigint id PK
+        bigint client_id FK
+        bigint plan_id FK
+        date starts_at
+        date ends_at
+        string status
+        int price_office
+        int price_additional
+        boolean includes_room_access
+        smallint monthly_room_minutes_included
+        boolean room_minutes_rollover
+        int extra_room_hour_price_net
+        boolean extra_room_hour_taxable
+        bigint previous_subscription_id FK
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    USERS {
+        bigint id PK
+        string name
+        string email UK
+        timestamp email_verified_at
+        string password
+        string role
+        string status
+        timestamp last_login_at
+        string remember_token
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    ROOMS {
+        bigint id PK
+        string slug UK
+        string name
+        string short_name
+        text description
+        smallint capacity
+        string location
+        json images
+        string image_alt
+        json features
+        int normal_hour_price_net
+        boolean normal_hour_taxable
+        json time_slots
+        boolean is_active
+        smallint sort_order
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
+
+    RESERVATIONS {
+        bigint id PK
+        bigint room_id FK
+        bigint client_id FK
+        bigint subscription_id FK
+        bigint created_by FK
+        string contact_name
+        string contact_email
+        string contact_phone
+        datetime starts_at
+        datetime ends_at
+        smallint duration_minutes
+        string rate_type
+        smallint included_minutes_used
+        smallint billable_minutes
+        int rate_per_hour_net
+        decimal tax_rate
+        int subtotal_net
+        int tax_amount
+        int total_amount
+        string payment_status
+        timestamp paid_at
+        string status
+        timestamp confirmed_at
+        timestamp cancelled_at
+        text cancellation_reason
+        timestamp terms_accepted_at
+        string terms_version
+        text notes
+        timestamp created_at
+        timestamp updated_at
+    }
+
+    CLIENTS ||--o{ SUBSCRIPTIONS : has
+    PLANS ||--o{ SUBSCRIPTIONS : defines
+    SUBSCRIPTIONS o|--o{ SUBSCRIPTIONS : renews_from
+
+    ROOMS ||--o{ RESERVATIONS : has
+    CLIENTS o|--o{ RESERVATIONS : makes
+    SUBSCRIPTIONS o|--o{ RESERVATIONS : applies_benefit
+    USERS o|--o{ RESERVATIONS : created_by
+```
+
+## Descripción de las tablas
+
+### `plans`
+
+Almacena la configuración comercial de los planes disponibles de Animal Co-work.
+
+Actualmente existen los planes:
+
+* Lobo
+* Fénix
+* León
+
+La tabla incluye información relacionada con:
+
+* Nombre e identificador del plan.
+* Precio correspondiente a oficina virtual.
+* Precio de servicios adicionales.
+* Duración del contrato.
+* Características incluidas.
+* Acceso a salas de reuniones.
+* Minutos gratuitos mensuales.
+* Tarifa de horas adicionales.
+* Imágenes y configuración visual.
+* Estado activo o inactivo.
+
+Los precios se almacenan como números enteros en pesos chilenos.
+
+El precio total de un plan se obtiene mediante:
+
+```text
+price_office + price_additional
+```
+
+De esta forma se evita almacenar información redundante.
+
+---
+
+### `clients`
+
+Representa a los clientes comerciales de Animal Co-work.
+
+Un cliente puede contratar como:
+
+```text
+natural
+legal
+```
+
+Donde:
+
+* `natural` corresponde a persona natural con giro.
+* `legal` corresponde a persona jurídica.
+
+La tabla almacena:
+
+* Correo electrónico.
+* Número telefónico.
+* Nombre del representante legal.
+* RUT del representante.
+* Dirección particular.
+* Comuna.
+* Región.
+* Razón social o nombre comercial.
+* RUT de empresa.
+* Estado administrativo.
+* Observaciones internas.
+
+El `company_rut` es único y representa la principal identificación comercial del cliente.
+
+El RUT del representante no es único, ya que una misma persona puede representar múltiples empresas.
+
+Los RUT se almacenan normalizados, preferentemente sin puntos y con dígito verificador:
+
+```text
+12345678-K
+```
+
+---
+
+### `subscriptions`
+
+Representa la contratación de un plan por parte de un cliente durante un período determinado.
+
+Esta tabla permite mantener el historial completo de contrataciones y renovaciones.
+
+Relación principal:
+
+```text
+Client
+   ↓
+Subscription
+   ↓
+Plan
+```
+
+Una suscripción contiene:
+
+* Cliente asociado.
+* Plan contratado.
+* Fecha de inicio.
+* Fecha de término.
 * Estado.
-* Orden.
-* Etiqueta comercial.
-* Configuración del contrato asociado.
+* Precio de oficina virtual al momento de contratar.
+* Precio adicional al momento de contratar.
+* Beneficio mensual de sala.
+* Tarifa adicional de sala.
+* Referencia a una suscripción anterior en caso de renovación.
 
-#### Clientes
+Los precios y beneficios se copian desde el plan al crear la suscripción.
 
-Almacenan información común:
+Esto permite conservar las condiciones históricas aunque posteriormente cambien los precios o características del plan.
 
-* Tipo de cliente.
+Ejemplo:
+
+```text
+Plan Fénix actual
+$69.990
+
+Suscripción antigua
+$59.990
+```
+
+La suscripción antigua mantiene siempre el valor contratado originalmente.
+
+Los estados contemplados inicialmente son:
+
+```text
+pending
+active
+expired
+cancelled
+```
+
+Las renovaciones se representan mediante:
+
+```text
+previous_subscription_id
+```
+
+permitiendo construir un historial como:
+
+```text
+Lobo
+2025 → 2026
+   ↓
+Fénix
+2026 → 2028
+```
+
+---
+
+### `users`
+
+Corresponde a los usuarios internos que tienen acceso al sistema administrativo.
+
+No representa clientes.
+
+Los roles contemplados inicialmente son:
+
+```text
+super_admin
+admin
+executive
+reception
+```
+
+La tabla almacena:
+
 * Nombre.
-* RUT.
+* Correo electrónico.
+* Contraseña.
+* Rol.
+* Estado.
+* Último inicio de sesión.
+
+Los estados iniciales son:
+
+```text
+active
+inactive
+```
+
+La autenticación utiliza el sistema proporcionado por Laravel y las contraseñas se almacenan mediante hashing.
+
+---
+
+### `rooms`
+
+Representa las salas de reuniones disponibles en Animal Co-work.
+
+Actualmente existen:
+
+```text
+Sala 1
+Sala 2
+```
+
+Cada sala almacena:
+
+* Nombre.
+* Nombre corto.
+* Capacidad.
+* Descripción.
+* Ubicación.
+* Imágenes.
+* Características.
+* Tarifa normal.
+* Bloques horarios disponibles.
+* Estado.
+
+Las imágenes y características se almacenan como JSON para evitar tablas adicionales innecesarias.
+
+Ejemplo de características:
+
+```json
+[
+    "Aire acondicionado",
+    "Conexiones eléctricas",
+    "Smart TV de 55\"",
+    "Pizarra de vidrio",
+    "Cafetera",
+    "Dispensador de agua"
+]
+```
+
+Los bloques horarios también se almacenan como JSON.
+
+Ejemplo:
+
+```json
+{
+    "id": "10-11",
+    "start": "10:00",
+    "end": "11:10",
+    "billable_minutes": 60
+}
+```
+
+Esto permite distinguir entre:
+
+```text
+Tiempo bloqueado de sala
+70 minutos
+
+Tiempo contratado/facturable
+60 minutos
+```
+
+---
+
+## Reglas de las salas
+
+### Sala 1
+
+La Sala 1 permite actualmente los siguientes bloques:
+
+```text
+10:00 → 11:10
+11:20 → 12:30
+12:40 → 13:50
+14:00 → 15:10
+15:20 → 16:30
+16:40 → 17:50
+18:00 → 19:10
+```
+
+Cada bloque corresponde a:
+
+```text
+60 minutos de uso
++
+10 minutos operativos para limpieza/preparación
+```
+
+Por lo tanto:
+
+```text
+Bloque de disponibilidad: 70 minutos
+Tiempo cobrado:            60 minutos
+Tiempo descontado:         60 minutos
+```
+
+Los 10 minutos destinados a limpieza no se cobran ni descuentan del beneficio del cliente.
+
+---
+
+### Sala 2
+
+Actualmente la Sala 2 tiene únicamente disponible:
+
+```text
+18:00 → 20:00
+```
+
+Este bloque es indivisible.
+
+Por lo tanto, no es posible reservar:
+
+```text
+18:00 → 19:00
+19:00 → 20:00
+```
+
+La reserva debe realizarse obligatoriamente por las dos horas completas:
+
+```text
+18:00 → 20:00
+120 minutos
+```
+
+---
+
+### `reservations`
+
+Representa cada reserva realizada sobre una sala.
+
+Una reserva puede corresponder a:
+
+* Un cliente con una suscripción vigente.
+* Un cliente sin beneficio disponible.
+* Público general.
+* Una reserva creada manualmente por un usuario administrativo.
+
+La tabla relaciona:
+
+```text
+Room
+Client
+Subscription
+User
+```
+
+según corresponda.
+
+También conserva un snapshot de los datos de contacto:
+
+* Nombre.
 * Correo.
 * Teléfono.
-* Dirección.
 
-#### Empresas
+Esto evita que una modificación posterior de los datos del cliente cambie el registro histórico de una reserva.
 
-Almacenan:
+---
 
-* Razón social.
-* Nombre de fantasía.
-* RUT.
-* Giro.
-* Representante legal.
+## Tiempo reservado vs. tiempo bloqueado
 
-#### Solicitudes de contratación
+La aplicación distingue dos conceptos.
 
-Almacenan:
+### Tiempo bloqueado
 
-* Cliente.
-* Plan.
-* Tipo de persona.
-* Estado.
-* Datos enviados.
-* Fecha de inicio.
-* Fecha de confirmación.
-* Observaciones.
-* Fuente de origen.
+Está representado por:
 
-#### Contratos
+```text
+starts_at
+ends_at
+```
 
-Almacenan:
+Indica durante cuánto tiempo la sala no puede ser utilizada por otra persona.
 
-* Solicitud.
-* Tipo de contrato.
-* Versión.
-* Contenido generado.
-* Archivo generado.
-* Estado.
-* Fecha de confirmación.
-* Fecha de envío.
-* Fecha de firma.
-* Hash del documento.
+Ejemplo Sala 1:
 
-#### Pagos
+```text
+starts_at = 10:00
+ends_at   = 11:10
+```
 
-Almacenan:
+La sala queda bloqueada durante 70 minutos.
 
-* Solicitud.
-* Contrato.
-* Monto.
-* Moneda.
-* Estado.
-* Proveedor.
-* Identificador externo.
-* Respuesta de la pasarela.
-* Fecha del pago.
+### Tiempo contratado
 
-#### Renovaciones
+Está representado por:
 
-Almacenan:
+```text
+duration_minutes
+```
 
-* Contrato anterior.
-* Cliente.
-* Nuevo plan.
-* Estado.
-* Fecha solicitada.
-* Fecha procesada.
+Para el mismo ejemplo:
+
+```text
+duration_minutes = 60
+```
+
+Solo estos 60 minutos se utilizan para calcular:
+
+* Beneficios incluidos.
+* Horas adicionales.
+* Cobros.
+
+Los minutos de limpieza no se cobran.
+
+---
+
+## Beneficio de salas para clientes vigentes
+
+Los clientes con una suscripción vigente de oficina virtual tienen derecho actualmente a:
+
+```text
+2 horas mensuales gratuitas
+```
+
+Internamente se almacenan como:
+
+```text
+120 minutos
+```
+
+Esto facilita los cálculos.
+
+Las horas:
+
+* No son acumulables.
+* Se reinician cada mes.
+* No generan devolución si no son utilizadas.
+
+Ejemplo:
+
+```text
+Saldo inicial mensual
+120 minutos
+
+Reserva 1
+60 minutos
+
+Saldo restante
+60 minutos
+
+Reserva 2
+60 minutos
+
+Saldo restante
+0 minutos
+```
+
+Al comenzar un nuevo mes, el cliente vuelve a disponer de:
+
+```text
+120 minutos
+```
+
+No es necesario almacenar manualmente un saldo mensual, ya que este se puede calcular a partir de las reservas confirmadas del período.
+
+---
+
+## Tarifas de salas
+
+### Cliente vigente
+
+Una vez agotadas las horas incluidas:
+
+```text
+$7.000 netos + IVA por hora adicional
+```
+
+Esta tarifa se conserva como snapshot dentro de la suscripción.
+
+### Público general
+
+La tarifa normal actual es:
+
+```text
+$12.000 netos + IVA por hora
+```
+
+Esta tarifa pertenece a la configuración de la sala.
+
+---
+
+## Cálculo de una reserva
+
+Una reserva almacena:
+
+```text
+duration_minutes
+included_minutes_used
+billable_minutes
+rate_per_hour_net
+tax_rate
+subtotal_net
+tax_amount
+total_amount
+```
+
+Ejemplo de cliente que ya agotó sus horas gratuitas:
+
+```text
+Reserva:
+60 minutos
+
+Minutos gratuitos:
+0
+
+Minutos cobrables:
+60
+
+Tarifa:
+$7.000 netos
+
+IVA:
+$1.330
+
+Total:
+$8.330
+```
+
+Ejemplo para público general en Sala 2:
+
+```text
+Reserva:
+120 minutos
+
+Tarifa:
+$12.000 netos por hora
+
+Subtotal:
+$24.000
+
+IVA:
+$4.560
+
+Total:
+$28.560
+```
+
+---
+
+## Estados de reserva
+
+Los estados contemplados inicialmente son:
+
+```text
+pending
+confirmed
+completed
+cancelled
+no_show
+```
+
+Para efectos del consumo de las horas gratuitas, se consideran inicialmente:
+
+```text
+confirmed
+completed
+no_show
+```
+
+No consumen beneficio:
+
+```text
+pending
+cancelled
+```
+
+---
+
+## Estados de pago
+
+Las reservas pueden tener:
+
+```text
+unpaid
+pending
+paid
+waived
+```
+
+`waived` se utiliza cuando la reserva está completamente cubierta por el beneficio mensual del cliente y no existe monto que pagar.
+
+---
+
+## Disponibilidad de salas
+
+La disponibilidad no se almacena directamente como:
+
+```text
+available = true
+```
+
+porque depende de la fecha y de las reservas existentes.
+
+La disponibilidad se calcula dinámicamente utilizando:
+
+```text
+rooms.time_slots
++
+reservations
+```
+
+Una sala se considera ocupada cuando existe una reserva activa cuyo intervalo se solapa con el bloque solicitado.
+
+Conceptualmente:
+
+```text
+existing.starts_at < requested_end
+AND
+existing.ends_at > requested_start
+```
+
+Esto permite considerar también los minutos destinados a limpieza.
+
+---
+
+## Renovaciones
+
+Una renovación no modifica ni reemplaza una suscripción existente.
+
+Se crea una nueva:
+
+```text
+Client
+ │
+ ├── Subscription #1
+ │      Lobo
+ │      2025 → 2026
+ │
+ └── Subscription #2
+        Fénix
+        2026 → 2028
+```
+
+La segunda suscripción mantiene:
+
+```text
+previous_subscription_id = Subscription #1
+```
+
+De esta forma se conserva completamente el historial contractual del cliente.
+
+---
+
+## Datos que deliberadamente no se almacenan en `clients`
+
+La tabla `clients` representa la identidad comercial del cliente.
+
+Por este motivo no almacena directamente:
+
+```text
+plan_id
+coupon_id
+payment_id
+terms_accepted
+privacy_accepted
+```
+
+Un cliente puede contratar diferentes planes y servicios a lo largo del tiempo, por lo que estos datos pertenecen a las contrataciones y transacciones correspondientes.
+
+En futuras etapas se incorporarán entidades como:
+
+```text
+orders
+order_items
+payments
+coupons
+contracts
+additional_services
+```
+
+sin necesidad de modificar la estructura principal de clientes.
+
+---
+
+## Seeders de desarrollo
+
+El entorno de desarrollo incluye seeders iniciales para poder probar diferentes escenarios del sistema:
+
+```text
+PlanSeeder
+ClientSeeder
+SubscriptionSeeder
+UserSeeder
+RoomSeeder
+ReservationSeeder
+```
+
+Estos permiten disponer de:
+
+* Planes iniciales.
+* Clientes ficticios.
+* Suscripciones vigentes y vencidas.
+* Casos de renovación.
+* Usuarios administrativos.
+* Salas configuradas.
+* Reservas gratuitas y pagadas.
+* Reservas de público general.
+
+Los datos ficticios utilizan dominios como:
+
+```text
+example.test
+animal.test
+```
+
+para reducir el riesgo de enviar accidentalmente comunicaciones a direcciones reales.
+
+Para regenerar completamente la base de datos de desarrollo:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+> **Advertencia:** este comando elimina todas las tablas y datos existentes antes de volver a ejecutar las migraciones y seeders. Debe utilizarse únicamente en entornos de desarrollo o pruebas.
+
+
+
 
 #### Historial de estados
 
