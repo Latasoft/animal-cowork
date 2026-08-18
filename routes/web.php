@@ -37,3 +37,8 @@ Route::get(
 
 Route::inertia('/renovar', 'renew-contract')
     ->name('contract.renew');
+
+Route::inertia(
+    '/constitucion-de-empresa',
+    'company-formation',
+)->name('company_formation.index');  

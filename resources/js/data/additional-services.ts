@@ -24,7 +24,7 @@ export const additionalServices: AdditionalService[] = [
         icon: 'company',
         action: {
             label: 'CONTRATAR SERVICIO',
-            href: '#contacto',
+            href: '/constitucion-de-empresa',
         },
     },
 ];
