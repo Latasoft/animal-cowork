@@ -2,15 +2,27 @@
 
 namespace App\Models;
 
+use Database\Factories\UserFactory;
+use Filament\Models\Contracts\FilamentUser;
+use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    public const ADMIN_ROLES = [
+        'super_admin',
+        'admin',
+        'executive',
+        'reception',
+    ];
+
+    public const STATUS_ACTIVE = 'active';
 
     protected $fillable = [
         'name',
@@ -34,6 +46,15 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function canAccessPanel(Panel $panel): bool
+    {
+        return $panel->getId() === 'admin'
+            && $this->status === self::STATUS_ACTIVE
+            && in_array($this->role, self::ADMIN_ROLES, true);
+    }
+
+    /** @return HasMany<Reservation, $this> */
     public function createdReservations(): HasMany
     {
         return $this->hasMany(

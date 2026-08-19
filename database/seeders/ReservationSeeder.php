@@ -23,7 +23,7 @@ class ReservationSeeder extends Seeder
 
         $bosqueSur = Client::where(
             'company_rut',
-            '77123456-7'
+            '77123456-9'
         )->firstOrFail();
 
         $bosqueSubscription = Subscription::where(
@@ -73,8 +73,7 @@ class ReservationSeeder extends Seeder
                 'terms_accepted_at' => '2026-08-18 12:00:00',
                 'terms_version' => '2026-08',
 
-                'notes' =>
-                    'Primera hora gratuita. Sala bloqueada 70 minutos incluyendo limpieza.',
+                'notes' => 'Primera hora gratuita. Sala bloqueada 70 minutos incluyendo limpieza.',
             ],
         );
 
@@ -121,8 +120,7 @@ class ReservationSeeder extends Seeder
                 'terms_accepted_at' => '2026-08-18 12:10:00',
                 'terms_version' => '2026-08',
 
-                'notes' =>
-                    'Segunda hora gratuita. Completa los 120 minutos incluidos del mes.',
+                'notes' => 'Segunda hora gratuita. Completa los 120 minutos incluidos del mes.',
             ],
         );
 
@@ -134,7 +132,7 @@ class ReservationSeeder extends Seeder
 
         $matias = Client::where(
             'company_rut',
-            '18567432-1'
+            '18567432-0'
         )->firstOrFail();
 
         $matiasSubscription = Subscription::where(
@@ -181,8 +179,7 @@ class ReservationSeeder extends Seeder
                 'terms_accepted_at' => '2026-08-18 12:20:00',
                 'terms_version' => '2026-08',
 
-                'notes' =>
-                    'Sala 2 reservada por bloque completo de dos horas.',
+                'notes' => 'Sala 2 reservada por bloque completo de dos horas.',
             ],
         );
 
@@ -230,8 +227,7 @@ class ReservationSeeder extends Seeder
                 'terms_accepted_at' => '2026-08-18 12:30:00',
                 'terms_version' => '2026-08',
 
-                'notes' =>
-                    'Hora adicional pagada. Incluye 10 minutos posteriores de limpieza.',
+                'notes' => 'Hora adicional pagada. Incluye 10 minutos posteriores de limpieza.',
             ],
         );
 
@@ -263,12 +259,12 @@ class ReservationSeeder extends Seeder
                 'included_minutes_used' => 0,
                 'billable_minutes' => 120,
 
-                'rate_per_hour_net' => 12000,
+                'rate_per_hour_net' => 20000,
                 'tax_rate' => 0.1900,
 
-                'subtotal_net' => 24000,
-                'tax_amount' => 4560,
-                'total_amount' => 28560,
+                'subtotal_net' => 40000,
+                'tax_amount' => 7600,
+                'total_amount' => 47600,
 
                 'payment_status' => 'paid',
                 'paid_at' => '2026-08-18 12:40:00',
@@ -279,8 +275,7 @@ class ReservationSeeder extends Seeder
                 'terms_accepted_at' => '2026-08-18 12:40:00',
                 'terms_version' => '2026-08',
 
-                'notes' =>
-                    'Público general. Reserva obligatoria de dos horas en Sala 2.',
+                'notes' => 'Público general. Reserva obligatoria de dos horas en Sala 2.',
             ],
         );
     }

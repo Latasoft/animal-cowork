@@ -271,6 +271,9 @@ class CheckoutController extends Controller
      *
      * Más adelante estos datos podrán obtenerse desde MySQL.
      */
+    /**
+     * @return array<string, array{id: string, name: string, tagline: string, price: int, duration: string, contractDurationMonths: int, image: string, imageAlt: string}>
+     */
     private function plans(): array
     {
         return [

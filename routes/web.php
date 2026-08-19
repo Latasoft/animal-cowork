@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CompanyLookupController;
+use App\Http\Controllers\MeetingRoomBookingController;
+use App\Http\Controllers\MeetingRoomReservationController;
+use App\Http\Controllers\RoomAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
 Route::inertia('/', 'welcome')->name('home');
@@ -10,10 +14,25 @@ Route::inertia(
     'services/patent-management',
 )->name('services.patent_management');
 
-Route::inertia(
+Route::get(
     '/agendamiento-de-sala-de-reuniones',
-    'meeting-room-booking',
+    [MeetingRoomBookingController::class, 'index'],
 )->name('meeting_rooms.booking');
+
+Route::get(
+    '/agendamiento-de-sala-de-reuniones/disponibilidad',
+    RoomAvailabilityController::class,
+)->name('meeting_rooms.availability');
+
+Route::post(
+    '/agendamiento-de-sala-de-reuniones/consultar-empresa',
+    CompanyLookupController::class,
+)->middleware('throttle:30,1')->name('meeting_rooms.company_lookup');
+
+Route::post(
+    '/agendamiento-de-sala-de-reuniones/reservas',
+    [MeetingRoomReservationController::class, 'store'],
+)->middleware('throttle:10,1')->name('meeting_rooms.reservations.store');
 
 Route::get(
     '/checkout/{plan}/datos',
@@ -41,4 +60,4 @@ Route::inertia('/renovar', 'renew-contract')
 Route::inertia(
     '/constitucion-de-empresa',
     'company-formation',
-)->name('company_formation.index');  
+)->name('company_formation.index');

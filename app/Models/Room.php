@@ -2,10 +2,18 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $slug
+ * @property int $normal_hour_price_net
+ * @property bool $normal_hour_taxable
+ * @property array<int, array{id: string, start: string, end: string, billable_minutes: int}> $time_slots
+ */
 class Room extends Model
 {
     use SoftDeletes;
@@ -48,9 +56,16 @@ class Room extends Model
             'sort_order' => 'integer',
         ];
     }
-    
+
+    /** @return HasMany<Reservation, $this> */
     public function reservations(): HasMany
     {
         return $this->hasMany(Reservation::class);
+    }
+
+    /** @param Builder<Room> $query */
+    public function scopeActive(Builder $query): void
+    {
+        $query->where('is_active', true);
     }
 }

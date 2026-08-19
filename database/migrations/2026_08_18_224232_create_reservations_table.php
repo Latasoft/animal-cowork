@@ -109,7 +109,7 @@ return new class extends Migration
             | rate_per_hour_net representa la tarifa aplicable:
             |
             | cliente: $7.000
-            | público: $12.000
+            | público: $20.000
             |
             */
             $table->unsignedInteger('rate_per_hour_net')

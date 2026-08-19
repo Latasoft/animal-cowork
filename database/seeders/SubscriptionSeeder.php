@@ -17,17 +17,17 @@ class SubscriptionSeeder extends Seeder
 
         $bosqueSur = Client::where(
             'company_rut',
-            '77123456-7'
+            '77123456-9'
         )->firstOrFail();
 
         $matias = Client::where(
             'company_rut',
-            '18567432-1'
+            '18567432-0'
         )->firstOrFail();
 
         $norteCreativo = Client::where(
             'company_rut',
-            '76876543-2'
+            '76876543-K'
         )->firstOrFail();
 
         $patagoniaSoft = Client::where(
@@ -37,7 +37,7 @@ class SubscriptionSeeder extends Seeder
 
         $valentina = Client::where(
             'company_rut',
-            '20123456-9'
+            '20123456-5'
         )->firstOrFail();
 
         /*
@@ -155,20 +155,15 @@ class SubscriptionSeeder extends Seeder
                 | Snapshot de beneficio de sala
                 */
                 'includes_room_access' => $plan->includes_room_access,
-                'monthly_room_minutes_included' =>
-                    $plan->monthly_room_minutes_included,
+                'monthly_room_minutes_included' => $plan->monthly_room_minutes_included,
 
-                'room_minutes_rollover' =>
-                    $plan->room_minutes_rollover,
+                'room_minutes_rollover' => $plan->room_minutes_rollover,
 
-                'extra_room_hour_price_net' =>
-                    $plan->extra_room_hour_price_net,
+                'extra_room_hour_price_net' => $plan->extra_room_hour_price_net,
 
-                'extra_room_hour_taxable' =>
-                    $plan->extra_room_hour_taxable,
+                'extra_room_hour_taxable' => $plan->extra_room_hour_taxable,
 
-                'previous_subscription_id' =>
-                    $previousSubscriptionId,
+                'previous_subscription_id' => $previousSubscriptionId,
 
                 'notes' => $notes,
             ],

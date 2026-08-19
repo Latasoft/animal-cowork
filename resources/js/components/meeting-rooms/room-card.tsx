@@ -88,8 +88,14 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                 </div>
 
                 <p className="mt-3 font-bold text-deep-blue/65">
-                    {room.capacity}
+                    Hasta {room.capacity} personas
                 </p>
+
+                {room.description && (
+                    <p className="mt-3 text-sm leading-6 text-deep-blue/60">
+                        {room.description}
+                    </p>
+                )}
 
                 {room.features.length > 0 && (
                     <ul className="mt-6 grid gap-3 sm:grid-cols-2">
@@ -109,11 +115,14 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                     </ul>
                 )}
 
-                {room.priceLabel && (
-                    <p className="mt-6 text-lg font-extrabold text-deep-blue">
-                        {room.priceLabel}
-                    </p>
-                )}
+                <p className="mt-6 text-lg font-extrabold text-deep-blue">
+                    {new Intl.NumberFormat('es-CL', {
+                        style: 'currency',
+                        currency: 'CLP',
+                        maximumFractionDigits: 0,
+                    }).format(room.normalHourlyRate)}{' '}
+                    {room.normalHourlyRateTaxable ? '+ IVA ' : ''}por hora
+                </p>
 
                 <Button
                     type="button"

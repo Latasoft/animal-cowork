@@ -17,14 +17,14 @@ class ClientSeeder extends Seeder
                 'phone' => '+56961234567',
 
                 'representative_name' => 'Camila Andrea Soto Pérez',
-                'representative_rut' => '17456321-K',
+                'representative_rut' => '17456321-7',
 
                 'address' => 'Av. Providencia 1450, Depto. 602',
                 'commune' => 'Providencia',
                 'region' => 'Región Metropolitana',
 
                 'company_name' => 'Bosque Sur SpA',
-                'company_rut' => '77123456-7',
+                'company_rut' => '77123456-9',
 
                 'status' => 'active',
                 'notes' => 'Cliente ficticio para pruebas de persona jurídica.',
@@ -37,7 +37,7 @@ class ClientSeeder extends Seeder
                 'phone' => '+56972345678',
 
                 'representative_name' => 'Matías Ignacio Rivera López',
-                'representative_rut' => '18567432-1',
+                'representative_rut' => '18567432-0',
 
                 'address' => 'Los Alerces 820',
                 'commune' => 'Puerto Montt',
@@ -46,7 +46,7 @@ class ClientSeeder extends Seeder
                 // Persona natural con giro:
                 // nombre y RUT comercial coinciden con el contratante.
                 'company_name' => 'Matías Ignacio Rivera López',
-                'company_rut' => '18567432-1',
+                'company_rut' => '18567432-0',
 
                 'status' => 'active',
                 'notes' => 'Persona natural con giro para pruebas.',
@@ -59,14 +59,14 @@ class ClientSeeder extends Seeder
                 'phone' => '+56983456789',
 
                 'representative_name' => 'Fernanda Paz Morales Díaz',
-                'representative_rut' => '16234567-8',
+                'representative_rut' => '16234567-2',
 
                 'address' => 'Manuel Montt 425, Oficina 301',
                 'commune' => 'Providencia',
                 'region' => 'Región Metropolitana',
 
                 'company_name' => 'Norte Creativo Limitada',
-                'company_rut' => '76876543-2',
+                'company_rut' => '76876543-K',
 
                 'status' => 'active',
                 'notes' => null,
@@ -79,7 +79,7 @@ class ClientSeeder extends Seeder
                 'phone' => '+56994567890',
 
                 'representative_name' => 'Sebastián Andrés Muñoz Vera',
-                'representative_rut' => '19345678-5',
+                'representative_rut' => '19345678-2',
 
                 'address' => 'Benavente 640',
                 'commune' => 'Puerto Montt',
@@ -99,14 +99,14 @@ class ClientSeeder extends Seeder
                 'phone' => '+56955667788',
 
                 'representative_name' => 'Valentina Ignacia Contreras Silva',
-                'representative_rut' => '20123456-9',
+                'representative_rut' => '20123456-5',
 
                 'address' => 'Las Camelias 1175',
                 'commune' => 'Ñuñoa',
                 'region' => 'Región Metropolitana',
 
                 'company_name' => 'Valentina Ignacia Contreras Silva',
-                'company_rut' => '20123456-9',
+                'company_rut' => '20123456-5',
 
                 'status' => 'active',
                 'notes' => 'Persona natural con giro para probar contrataciones y reservas.',
@@ -115,7 +115,7 @@ class ClientSeeder extends Seeder
 
         foreach ($clients as $client) {
             Client::updateOrCreate(
-                ['company_rut' => $client['company_rut']],
+                ['company_name' => $client['company_name']],
                 $client,
             );
         }

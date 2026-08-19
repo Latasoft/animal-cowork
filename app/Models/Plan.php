@@ -3,9 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property int $id
+ * @property string $slug
+ * @property string $name
+ */
 class Plan extends Model
 {
     use SoftDeletes;
@@ -63,10 +68,10 @@ class Plan extends Model
     {
         return $this->price_office + $this->price_additional;
     }
-    
+
+    /** @return HasMany<Subscription, $this> */
     public function subscriptions(): HasMany
     {
         return $this->hasMany(Subscription::class);
     }
-
 }

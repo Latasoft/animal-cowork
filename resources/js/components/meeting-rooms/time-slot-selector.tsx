@@ -83,8 +83,8 @@ export function TimeSlotSelector({
                     </div>
 
                     <p className="mt-4 text-sm leading-6 text-deep-blue/55">
-                        Puedes sumar horas consecutivas. Si eliges un horario no
-                        contiguo, comenzaremos un nuevo bloque desde esa hora.
+                        Cada bloque se cobra por hora completa. El margen de
+                        limpieza posterior no se cobra.
                     </p>
                 </>
             ) : (

@@ -53,11 +53,11 @@ return new class extends Migration
             |--------------------------------------------------------------------------
             |
             | Valor NETO.
-            | Ejemplo actual: $12.000 + IVA.
+            | Tarifa pública actual: $20.000 + IVA.
             |
             */
             $table->unsignedInteger('normal_hour_price_net')
-                ->default(12000);
+                ->default(20000);
 
             $table->boolean('normal_hour_taxable')
                 ->default(true);

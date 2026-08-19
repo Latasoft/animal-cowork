@@ -1,327 +1,525 @@
 import {
-    BadgeCheck,
     Building2,
-    Info,
+    Check,
     Mail,
+    MapPin,
     Phone,
+    Search,
     UserRound,
 } from 'lucide-react';
 
-import { meetingRoomSettings, reservationTerms } from '@/data/meeting-rooms';
+import { Button } from '@/components/ui/button';
 import type {
+    CompanyLookupResult,
+    CustomerType,
     ReservationFormData,
     ReservationFormErrors,
 } from '@/types/meeting-room';
+import { formatRut } from '@/utils/rut';
 
 interface ReservationFormProps {
+    customerType: CustomerType | null;
     data: ReservationFormData;
     errors: ReservationFormErrors;
-    processing: boolean;
+    disabled: boolean;
+    lookup: CompanyLookupResult | null;
+    lookupProcessing: boolean;
+    onCustomerTypeChange: (customerType: CustomerType) => void;
+    onContinueWithoutPlan: () => void;
     onChange: <Key extends keyof ReservationFormData>(
         key: Key,
         value: ReservationFormData[Key],
     ) => void;
-}
-
-interface TextFieldProps {
-    name: keyof Pick<
-        ReservationFormData,
-        'companyName' | 'representativeName' | 'email' | 'phone'
-    >;
-    label: string;
-    value: string;
-    placeholder: string;
-    type?: 'text' | 'email' | 'tel';
-    autoComplete?: string;
-    inputMode?: 'text' | 'email' | 'tel';
-    error?: string;
-    disabled: boolean;
-    icon: typeof Building2;
-    onChange: (value: string) => void;
+    onLookup: () => void;
 }
 
 export function ReservationForm({
+    customerType,
     data,
     errors,
-    processing,
+    disabled,
+    lookup,
+    lookupProcessing,
+    onCustomerTypeChange,
+    onContinueWithoutPlan,
     onChange,
+    onLookup,
 }: ReservationFormProps) {
+    const isExternal = customerType === 'external';
+    const hasRecognizedPlan =
+        customerType === 'plan' && lookup?.company.has_active_plan === true;
+
     return (
         <section aria-labelledby="reservation-data-heading">
-            <div className="flex items-center gap-3">
-                <span className="flex size-10 items-center justify-center rounded-full bg-deep-blue text-white">
-                    <UserRound className="size-5" aria-hidden />
-                </span>
-                <div>
-                    <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                        Paso 4 · Datos
-                    </p>
-                    <h3
-                        id="reservation-data-heading"
-                        className="mt-1 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue"
-                    >
-                        Completa tus datos
-                    </h3>
-                </div>
-            </div>
+            <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
+                Paso 4 · Datos
+            </p>
+            <h3
+                id="reservation-data-heading"
+                className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue"
+            >
+                Identifica tu reserva
+            </h3>
 
-            <div className="mt-7 grid gap-5 sm:grid-cols-2">
-                <TextField
-                    name="companyName"
-                    label="Nombre de empresa"
-                    value={data.companyName}
-                    onChange={(value) => onChange('companyName', value)}
-                    placeholder="Empresa SpA"
-                    autoComplete="organization"
-                    error={errors.companyName}
-                    disabled={processing}
-                    icon={Building2}
-                />
-                <TextField
-                    name="representativeName"
-                    label="Nombre de representante legal"
-                    value={data.representativeName}
-                    onChange={(value) => onChange('representativeName', value)}
-                    placeholder="Nombre y apellido"
-                    autoComplete="name"
-                    error={errors.representativeName}
-                    disabled={processing}
-                    icon={UserRound}
-                />
-                <TextField
-                    name="email"
-                    label="Correo electrónico"
-                    type="email"
-                    inputMode="email"
-                    value={data.email}
-                    onChange={(value) => onChange('email', value)}
-                    placeholder="contacto@empresa.cl"
-                    autoComplete="email"
-                    error={errors.email}
-                    disabled={processing}
-                    icon={Mail}
-                />
-                <TextField
-                    name="phone"
-                    label="Número de contacto"
-                    type="tel"
-                    inputMode="tel"
-                    value={data.phone}
-                    onChange={(value) => onChange('phone', value)}
-                    placeholder="+56 9 1234 5678"
-                    autoComplete="tel"
-                    error={errors.phone}
-                    disabled={processing}
-                    icon={Phone}
-                />
-            </div>
-
-            <fieldset className="mt-7">
+            <fieldset className="mt-6">
                 <legend className="text-sm font-extrabold text-deep-blue">
-                    ¿Eres cliente vigente de Oficina Virtual de Animal
-                    Coworking? <span className="text-instinct">*</span>
+                    ¿Eres cliente con plan Animal Co-work?
                 </legend>
-
                 <div className="mt-3 grid grid-cols-2 gap-3">
-                    {[
-                        { value: 'yes' as const, label: 'Sí' },
-                        { value: 'no' as const, label: 'No' },
-                    ].map((option) => (
-                        <label
-                            key={option.value}
-                            className={[
-                                'flex min-h-12 cursor-pointer items-center justify-center gap-3 rounded-xl border px-4 font-extrabold transition',
-                                data.isVirtualOfficeClient === option.value
-                                    ? 'border-instinct bg-instinct-light text-instinct-dark ring-2 ring-instinct/10'
-                                    : 'border-deep-blue/12 bg-white text-deep-blue hover:border-instinct/45',
-                            ].join(' ')}
-                        >
-                            <input
-                                id={`client-status-${option.value}`}
-                                type="radio"
-                                name="isVirtualOfficeClient"
-                                value={option.value}
-                                checked={
-                                    data.isVirtualOfficeClient === option.value
-                                }
-                                onChange={() =>
-                                    onChange(
-                                        'isVirtualOfficeClient',
-                                        option.value,
-                                    )
-                                }
-                                disabled={processing}
-                                aria-invalid={
-                                    errors.isVirtualOfficeClient
-                                        ? true
-                                        : undefined
-                                }
-                                aria-describedby={
-                                    errors.isVirtualOfficeClient
-                                        ? 'isVirtualOfficeClient-error'
-                                        : undefined
-                                }
-                                className="size-4 accent-instinct"
-                            />
-                            {option.label}
-                        </label>
-                    ))}
+                    <CustomerTypeOption
+                        value="plan"
+                        label="Sí"
+                        selected={customerType === 'plan'}
+                        disabled={disabled}
+                        onChange={onCustomerTypeChange}
+                    />
+                    <CustomerTypeOption
+                        value="external"
+                        label="No"
+                        selected={customerType === 'external'}
+                        disabled={disabled}
+                        onChange={onCustomerTypeChange}
+                    />
                 </div>
-
-                {errors.isVirtualOfficeClient && (
-                    <p
-                        id="isVirtualOfficeClient-error"
-                        role="alert"
-                        className="mt-2 text-sm font-semibold text-red-600"
-                    >
-                        {errors.isVirtualOfficeClient}
-                    </p>
-                )}
             </fieldset>
 
-            <aside className="mt-7 rounded-2xl border border-instinct/25 bg-instinct-light p-5 sm:p-6">
-                <div className="flex items-start gap-4">
-                    <BadgeCheck
-                        className="mt-0.5 size-6 shrink-0 text-instinct-dark"
-                        aria-hidden
-                    />
-                    <div>
-                        <h4 className="font-extrabold text-deep-blue">
-                            Beneficio para clientes vigentes
-                        </h4>
-                        <p className="mt-2 text-sm leading-6 text-deep-blue/70">
-                            Tienes derecho a{' '}
-                            <strong>
-                                {meetingRoomSettings.includedClientHours} horas
-                                mensuales gratis
-                            </strong>
-                            . Las horas no son acumulables. Hora adicional:{' '}
-                            <strong>$7.000 + IVA</strong>.
-                        </p>
-                        <p className="mt-3 text-xs leading-5 font-bold text-deep-blue/60">
-                            Beneficio sujeto a validación de vigencia y
-                            disponibilidad mensual.
-                        </p>
-                    </div>
-                </div>
-            </aside>
-
-            <div className="mt-7 rounded-2xl border border-deep-blue/10 bg-deep-blue/3 p-5 sm:p-6">
-                <div className="flex items-start gap-3">
-                    <Info
-                        className="mt-0.5 size-5 shrink-0 text-energy-blue"
-                        aria-hidden
-                    />
-                    <div>
-                        <h4 className="font-extrabold text-deep-blue">
-                            Términos de la reserva
-                        </h4>
-                        <div className="mt-3 space-y-3 text-sm leading-6 text-deep-blue/65">
-                            {reservationTerms.map((term) => (
-                                <p key={term}>{term}</p>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-
-                <label className="mt-5 flex cursor-pointer items-start gap-3 border-t border-deep-blue/10 pt-5">
-                    <input
-                        id="acceptsTerms"
-                        type="checkbox"
-                        checked={data.acceptsTerms}
-                        onChange={(event) =>
-                            onChange('acceptsTerms', event.target.checked)
+            {customerType === 'plan' && (
+                <div className="mt-6">
+                    <CompanyRutField
+                        value={data.companyRut}
+                        error={errors.company_rut}
+                        disabled={disabled || lookupProcessing}
+                        onChange={(value) => onChange('companyRut', value)}
+                        action={
+                            <Button
+                                type="button"
+                                onClick={onLookup}
+                                disabled={
+                                    disabled ||
+                                    lookupProcessing ||
+                                    !data.companyRut
+                                }
+                                className="h-12 justify-center px-6"
+                            >
+                                <Search className="size-4" aria-hidden />
+                                {lookupProcessing
+                                    ? 'Consultando...'
+                                    : 'Consultar'}
+                            </Button>
                         }
-                        disabled={processing}
-                        aria-invalid={errors.acceptsTerms ? true : undefined}
-                        aria-describedby={
-                            errors.acceptsTerms
-                                ? 'acceptsTerms-error'
-                                : undefined
-                        }
-                        className="mt-0.5 size-5 shrink-0 cursor-pointer rounded accent-instinct focus:ring-instinct disabled:cursor-not-allowed"
                     />
-                    <span className="text-sm leading-6 font-bold text-deep-blue">
-                        Acepto los términos y condiciones.
-                    </span>
-                </label>
+                </div>
+            )}
 
-                {errors.acceptsTerms && (
-                    <p
-                        id="acceptsTerms-error"
-                        role="alert"
-                        className="mt-2 pl-8 text-sm font-semibold text-red-600"
-                    >
-                        {errors.acceptsTerms}
+            {customerType === 'plan' && lookup && (
+                <LookupNotice
+                    lookup={lookup}
+                    onContinueWithoutPlan={onContinueWithoutPlan}
+                />
+            )}
+
+            {isExternal && (
+                <div className="mt-6">
+                    <CompanyRutField
+                        value={data.companyRut}
+                        error={errors.company_rut}
+                        disabled={disabled}
+                        onChange={(value) => onChange('companyRut', value)}
+                    />
+                    <p className="mt-2 text-sm text-deep-blue/60">
+                        No realizaremos una consulta previa de beneficios. Se
+                        aplicará la tarifa general de la sala.
                     </p>
-                )}
-            </div>
+                </div>
+            )}
+
+            {(isExternal || hasRecognizedPlan) && (
+                <div className="mt-7 grid gap-5 sm:grid-cols-2">
+                    <TextField
+                        id="company-name"
+                        label="Empresa"
+                        icon={Building2}
+                        value={data.companyName}
+                        error={errors.company_name}
+                        disabled={disabled}
+                        onChange={(value) => onChange('companyName', value)}
+                    />
+                    <TextField
+                        id="representative-name"
+                        label="Nombre de contacto"
+                        icon={UserRound}
+                        value={data.representativeName}
+                        error={errors.representative_name}
+                        disabled={disabled}
+                        onChange={(value) =>
+                            onChange('representativeName', value)
+                        }
+                    />
+                    <TextField
+                        id="email"
+                        label="Correo"
+                        icon={Mail}
+                        type="email"
+                        value={data.email}
+                        error={errors.email}
+                        disabled={disabled}
+                        onChange={(value) => onChange('email', value)}
+                    />
+                    <TextField
+                        id="phone"
+                        label="Teléfono / WhatsApp"
+                        icon={Phone}
+                        value={data.phone}
+                        error={errors.phone}
+                        disabled={disabled}
+                        onChange={(value) => onChange('phone', value)}
+                    />
+                </div>
+            )}
+
+            {isExternal && (
+                <div className="mt-7 rounded-2xl border border-deep-blue/10 bg-deep-blue/3 p-5">
+                    <p className="font-extrabold text-deep-blue">
+                        Datos para tu reserva sin plan
+                    </p>
+                    <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                        <div>
+                            <label
+                                htmlFor="contract-type"
+                                className="text-sm font-extrabold text-deep-blue"
+                            >
+                                Tipo de empresa
+                            </label>
+                            <select
+                                id="contract-type"
+                                value={data.contractType}
+                                disabled={disabled}
+                                onChange={(event) =>
+                                    onChange(
+                                        'contractType',
+                                        event.target
+                                            .value as ReservationFormData['contractType'],
+                                    )
+                                }
+                                className={inputClasses(
+                                    Boolean(errors.contract_type),
+                                )}
+                            >
+                                <option value="">Seleccionar</option>
+                                <option value="legal">Persona jurídica</option>
+                                <option value="natural">
+                                    Persona natural con giro
+                                </option>
+                            </select>
+                            <FieldError message={errors.contract_type} />
+                        </div>
+                        <TextField
+                            id="representative-rut"
+                            label="RUT representante"
+                            icon={UserRound}
+                            value={data.representativeRut}
+                            error={errors.representative_rut}
+                            disabled={disabled}
+                            onChange={(value) =>
+                                onChange('representativeRut', formatRut(value))
+                            }
+                        />
+                        <TextField
+                            id="address"
+                            label="Dirección"
+                            icon={MapPin}
+                            value={data.address}
+                            error={errors.address}
+                            disabled={disabled}
+                            onChange={(value) => onChange('address', value)}
+                        />
+                        <TextField
+                            id="commune"
+                            label="Comuna"
+                            icon={MapPin}
+                            value={data.commune}
+                            error={errors.commune}
+                            disabled={disabled}
+                            onChange={(value) => onChange('commune', value)}
+                        />
+                        <TextField
+                            id="region"
+                            label="Región"
+                            icon={MapPin}
+                            value={data.region}
+                            error={errors.region}
+                            disabled={disabled}
+                            onChange={(value) => onChange('region', value)}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {isExternal && (
+                <div className="mt-7 space-y-4 rounded-2xl border border-instinct/25 bg-instinct-light p-5">
+                    <LegalCheckbox
+                        checked={data.acceptsTerms}
+                        error={errors.accepts_terms}
+                        disabled={disabled}
+                        onChange={(checked) =>
+                            onChange('acceptsTerms', checked)
+                        }
+                    >
+                        He leído y acepto los{' '}
+                        <a
+                            href="/terminos-y-condiciones"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-extrabold underline"
+                        >
+                            Términos y Condiciones
+                        </a>{' '}
+                        del servicio.
+                    </LegalCheckbox>
+                    <LegalCheckbox
+                        checked={data.acceptsPrivacy}
+                        error={errors.accepts_privacy}
+                        disabled={disabled}
+                        onChange={(checked) =>
+                            onChange('acceptsPrivacy', checked)
+                        }
+                    >
+                        He leído y acepto la{' '}
+                        <a
+                            href="/politica-de-privacidad"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="font-extrabold underline"
+                        >
+                            Política de Privacidad
+                        </a>{' '}
+                        y autorizo el tratamiento de mis datos conforme a la Ley
+                        N.º 21.719.
+                    </LegalCheckbox>
+                </div>
+            )}
         </section>
     );
 }
 
-function TextField({
-    name,
-    label,
+function CustomerTypeOption({
     value,
-    placeholder,
-    type = 'text',
-    autoComplete,
-    inputMode,
+    label,
+    selected,
+    disabled,
+    onChange,
+}: {
+    value: CustomerType;
+    label: string;
+    selected: boolean;
+    disabled: boolean;
+    onChange: (value: CustomerType) => void;
+}) {
+    return (
+        <label
+            className={`flex min-h-14 cursor-pointer items-center justify-center gap-3 rounded-xl border px-4 text-sm font-extrabold transition ${
+                selected
+                    ? 'border-instinct bg-instinct-light text-instinct-dark ring-2 ring-instinct/15'
+                    : 'border-deep-blue/15 bg-white text-deep-blue hover:border-instinct/50'
+            } ${disabled ? 'cursor-not-allowed opacity-60' : ''}`}
+        >
+            <input
+                type="radio"
+                name="customer_type"
+                value={value}
+                checked={selected}
+                disabled={disabled}
+                onChange={() => onChange(value)}
+                className="sr-only"
+            />
+            <span
+                className={`flex size-5 items-center justify-center rounded border ${
+                    selected
+                        ? 'border-instinct bg-instinct text-white'
+                        : 'border-deep-blue/25 bg-white'
+                }`}
+                aria-hidden
+            >
+                {selected && <Check className="size-3.5" />}
+            </span>
+            {label}
+        </label>
+    );
+}
+
+function CompanyRutField({
+    value,
     error,
     disabled,
-    icon: Icon,
     onChange,
-}: TextFieldProps) {
-    const errorId = `${name}-error`;
-
+    action,
+}: {
+    value: string;
+    error?: string;
+    disabled: boolean;
+    onChange: (value: string) => void;
+    action?: React.ReactNode;
+}) {
     return (
         <div>
             <label
-                htmlFor={name}
-                className="mb-2 block text-sm font-extrabold text-deep-blue"
+                htmlFor="company-rut"
+                className="text-sm font-extrabold text-deep-blue"
             >
-                {label} <span className="text-instinct">*</span>
+                RUT empresa
             </label>
-
-            <div className="relative">
-                <Icon
-                    className="pointer-events-none absolute top-1/2 left-4 size-4 -translate-y-1/2 text-deep-blue/35"
-                    aria-hidden
-                />
+            <div className="mt-2 flex flex-col gap-3 sm:flex-row">
                 <input
-                    id={name}
-                    name={name}
-                    type={type}
-                    inputMode={inputMode}
+                    id="company-rut"
                     value={value}
-                    onChange={(event) => onChange(event.target.value)}
-                    placeholder={placeholder}
-                    autoComplete={autoComplete}
+                    onChange={(event) =>
+                        onChange(formatRut(event.target.value))
+                    }
+                    placeholder="12.345.678-5"
                     disabled={disabled}
-                    required
-                    aria-invalid={error ? true : undefined}
-                    aria-describedby={error ? errorId : undefined}
-                    className={[
-                        'h-12 w-full rounded-xl border bg-white pr-4 pl-11 text-sm font-medium text-deep-blue transition outline-none',
-                        'placeholder:text-deep-blue/35 hover:border-deep-blue/30 focus:ring-4',
-                        'disabled:cursor-not-allowed disabled:bg-deep-blue/3 disabled:opacity-60',
-                        error
-                            ? 'border-red-400 focus:border-red-500 focus:ring-red-100'
-                            : 'border-deep-blue/15 focus:border-instinct focus:ring-instinct/10',
-                    ].join(' ')}
+                    className={inputClasses(Boolean(error))}
                 />
+                {action}
             </div>
+            <FieldError message={error} />
+        </div>
+    );
+}
 
-            {error && (
-                <p
-                    id={errorId}
-                    role="alert"
-                    className="mt-2 text-sm font-semibold text-red-600"
-                >
-                    {error}
-                </p>
+function LookupNotice({
+    lookup,
+    onContinueWithoutPlan,
+}: {
+    lookup: CompanyLookupResult;
+    onContinueWithoutPlan: () => void;
+}) {
+    return (
+        <div className="mt-5 rounded-2xl border border-instinct/25 bg-instinct-light p-5">
+            {lookup.company.has_active_plan ? (
+                <>
+                    <p className="font-extrabold text-instinct-dark">
+                        Cliente Animal Co-work encontrado
+                    </p>
+                    <p className="mt-2 text-sm text-deep-blue/70">
+                        Plan {lookup.company.plan?.name}. Dispones de{' '}
+                        {lookup.company.available_included_minutes / 60} horas
+                        para salas este mes.
+                    </p>
+                </>
+            ) : (
+                <>
+                    <p className="font-extrabold text-deep-blue">
+                        No encontramos un plan activo de Animal Co-work asociado
+                        a este RUT.
+                    </p>
+                    <p className="mt-2 text-sm leading-6 text-deep-blue/70">
+                        Puedes revisar el RUT ingresado o continuar como cliente
+                        sin plan utilizando la tarifa general.
+                    </p>
+                    <Button
+                        type="button"
+                        variant="outline"
+                        onClick={onContinueWithoutPlan}
+                        className="mt-4 h-11 justify-center px-5"
+                    >
+                        Continuar sin plan
+                    </Button>
+                </>
             )}
         </div>
     );
+}
+
+interface TextFieldProps {
+    id: string;
+    label: string;
+    icon: typeof Building2;
+    value: string;
+    error?: string;
+    type?: 'text' | 'email';
+    disabled?: boolean;
+    onChange: (value: string) => void;
+}
+
+function TextField({
+    id,
+    label,
+    icon: Icon,
+    value,
+    error,
+    type = 'text',
+    disabled,
+    onChange,
+}: TextFieldProps) {
+    return (
+        <div>
+            <label
+                htmlFor={id}
+                className="text-sm font-extrabold text-deep-blue"
+            >
+                {label}
+            </label>
+            <div className="relative mt-2">
+                <Icon
+                    className="absolute top-1/2 left-4 size-4 -translate-y-1/2 text-deep-blue/40"
+                    aria-hidden
+                />
+                <input
+                    id={id}
+                    type={type}
+                    value={value}
+                    disabled={disabled}
+                    onChange={(event) => onChange(event.target.value)}
+                    className={`${inputClasses(Boolean(error))} pl-11`}
+                />
+            </div>
+            <FieldError message={error} />
+        </div>
+    );
+}
+
+function LegalCheckbox({
+    checked,
+    error,
+    disabled,
+    onChange,
+    children,
+}: {
+    checked: boolean;
+    error?: string;
+    disabled: boolean;
+    onChange: (checked: boolean) => void;
+    children: React.ReactNode;
+}) {
+    return (
+        <label className="flex items-start gap-3 text-sm leading-6 text-deep-blue/75">
+            <input
+                type="checkbox"
+                checked={checked}
+                disabled={disabled}
+                onChange={(event) => onChange(event.target.checked)}
+                className="mt-1 size-4 accent-instinct"
+            />
+            <span>
+                {children}
+                <FieldError message={error} />
+            </span>
+        </label>
+    );
+}
+
+function FieldError({ message }: { message?: string }) {
+    return message ? (
+        <p className="mt-2 text-sm font-semibold text-red-600">{message}</p>
+    ) : null;
+}
+
+function inputClasses(hasError: boolean): string {
+    return [
+        'h-12 w-full rounded-xl border bg-white px-4 text-sm font-medium text-deep-blue outline-none transition',
+        'disabled:cursor-not-allowed disabled:opacity-60',
+        hasError
+            ? 'border-red-400 focus:border-red-500 focus:ring-4 focus:ring-red-100'
+            : 'border-deep-blue/15 focus:border-instinct focus:ring-4 focus:ring-instinct/10',
+    ].join(' ');
 }

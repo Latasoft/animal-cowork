@@ -78,8 +78,7 @@ class RoomSeeder extends Seeder
                 'name' => 'Sala de Reuniones 1',
                 'short_name' => 'Sala 1',
 
-                'description' =>
-                    'Sala de reuniones principal de Animal Co-work.',
+                'description' => 'Sala de reuniones principal de Animal Co-work.',
 
                 'capacity' => 10,
                 'location' => 'Animal Co-work',
@@ -90,12 +89,11 @@ class RoomSeeder extends Seeder
                     '/images/rooms/sala1.4.webp',
                 ],
 
-                'image_alt' =>
-                    'Sala de reuniones principal de Animal Coworking',
+                'image_alt' => 'Sala de reuniones principal de Animal Coworking',
 
                 'features' => $commonFeatures,
 
-                'normal_hour_price_net' => 12000,
+                'normal_hour_price_net' => 20000,
                 'normal_hour_taxable' => true,
 
                 'time_slots' => $sala1TimeSlots,
@@ -109,8 +107,7 @@ class RoomSeeder extends Seeder
                 'name' => 'Sala de Reuniones 2',
                 'short_name' => 'Sala 2',
 
-                'description' =>
-                    'Sala disponible actualmente solo entre las 18:00 y las 20:00 horas, mediante reserva del bloque completo de 2 horas.',
+                'description' => 'Sala disponible actualmente solo entre las 18:00 y las 20:00 horas, mediante reserva del bloque completo de 2 horas.',
 
                 'capacity' => 6,
                 'location' => 'Animal Co-work',
@@ -121,12 +118,11 @@ class RoomSeeder extends Seeder
                     '/images/rooms/sala2.3.webp',
                 ],
 
-                'image_alt' =>
-                    'Sala 2 de Animal Coworking',
+                'image_alt' => 'Sala 2 de Animal Coworking',
 
                 'features' => $commonFeatures,
 
-                'normal_hour_price_net' => 12000,
+                'normal_hour_price_net' => 20000,
                 'normal_hour_taxable' => true,
 
                 'time_slots' => $sala2TimeSlots,

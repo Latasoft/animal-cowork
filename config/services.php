@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'reservations' => [
+        'reception_email' => env('RESERVATION_RECEPTION_EMAIL'),
+    ],
+
 ];
