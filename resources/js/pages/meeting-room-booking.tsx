@@ -4,6 +4,7 @@ import {
     Check,
     Clock3,
     CreditCard,
+    Gift,
     MousePointerClick,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
@@ -539,11 +540,8 @@ function BookingHero() {
                         icon={CalendarDays}
                         text="Disponibilidad en tiempo real"
                     />
-                    <HeroBenefit
-                        icon={CreditCard}
-                        text="Pago simulado seguro"
-                    />
                     <HeroBenefit icon={Check} text="Confirmación inmediata" />
+                    <HeroBenefit icon={Gift} text="Si eres cliente vigente de Oficina Virtual tienes derecho a 2 horas mensuales gratis." />
                 </div>
             </Container>
         </section>

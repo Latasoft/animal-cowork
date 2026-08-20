@@ -39,27 +39,6 @@ export function HeroSection({
             xl:w-64
         "
     />
-        {/* Decoración lateral */}
-    <img
-        src="/images/hero/trazos.webp"
-        alt=""
-        aria-hidden="true"
-        className="
-            pointer-events-none
-            absolute
-            top-50
-            left-0
-            z-0
-            hidden
-            h-auto
-            w-40
-            select-none
-            opacity-90
-            md:block
-            lg:w-32
-            xl:w-48
-        "
-    />
 
             <Container>
                 <div className="relative z-10 grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-14 lg:py-16">

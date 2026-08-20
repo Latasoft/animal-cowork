@@ -74,7 +74,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="group relative py-5 font-semibold text-energy-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-instinct after:transition-all after:duration-300 hover:text-instinct hover:after:w-full"
+                                className="group relative py-5 font-semibold text-deep-blue transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-[3px] after:w-0 after:bg-instinct after:transition-all after:duration-300 hover:text-instinct hover:after:w-full"
                             >
                                 {item.label}
                             </a>
@@ -122,7 +122,7 @@ export function Header() {
                             <a
                                 key={item.href}
                                 href={item.href}
-                                className="border-b border-deep-blue/8 py-5 text-lg font-bold text-energy-blue transition-colors duration-200 hover:text-instinct-dark"
+                                className="border-b border-deep-blue/8 py-5 text-lg font-bold text-deep-blue transition-colors duration-200 hover:text-instinct-dark"
                                 onClick={closeMenu}
                             >
                                 {item.label}
