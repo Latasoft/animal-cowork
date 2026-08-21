@@ -1,19 +1,14 @@
 import { Head } from '@inertiajs/react';
 import {
     BadgeCheck,
-    Building2,
-    Check,
-    CircleDollarSign,
+    CheckCircle2,
     FileCheck2,
-    FileText,
     IdCard,
     ImageIcon,
-    KeyRound,
     Mail,
     MessageCircle,
     ReceiptText,
     ShieldCheck,
-    UserRound,
 } from 'lucide-react';
 
 import { Footer } from '@/components/layout/footer';
@@ -57,7 +52,7 @@ export default function CompanyFormation() {
                  * ======================================================= */}
                 <section className="relative overflow-hidden bg-white">
                     <Container>
-                        <div className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-20">
+                        <div className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
                             <div>
                                 <p className="text-sm font-extrabold tracking-[0.16em] text-instinct uppercase">
                                     {content.eyebrow}
@@ -71,7 +66,6 @@ export default function CompanyFormation() {
                                     {content.description}
                                 </p>
 
-                                {/* Precio principal */}
                                 <div className="mt-7 flex flex-wrap items-end gap-x-3 gap-y-1">
                                     <span className="text-sm font-extrabold tracking-[0.12em] text-deep-blue/50 uppercase">
                                         Paquete completo
@@ -89,8 +83,8 @@ export default function CompanyFormation() {
                                 </div>
 
                                 <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-                                    Constitución e inicio de actividades + Oficina Virtual Animal
-                                    Co-work por 2 años.
+                                    Constitución e inicio de actividades +
+                                    Oficina Virtual Animal Co-work por 2 años.
                                 </p>
 
                                 <div className="mt-8">
@@ -109,275 +103,187 @@ export default function CompanyFormation() {
                 </section>
 
                 {/* =========================================================
-                 * DESGLOSE DE PRECIOS
+                 * RESUMEN DEL SERVICIO
                  * ======================================================= */}
-                <section className="bg-background py-12 sm:py-16">
+                <section className="bg-background py-10 sm:py-12 lg:py-14">
                     <Container>
                         <div className="mx-auto max-w-6xl">
-                            <div className="max-w-3xl">
-                                <p className="text-xs font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
-                                    Precio convenio
-                                </p>
-
-                                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.045em] text-deep-blue sm:text-4xl">
-                                    Todo lo que necesitas para comenzar tu
-                                    empresa
-                                </h2>
-
-                                <p className="mt-4 text-base leading-7 text-muted sm:text-lg">
-                                    Accede a un valor exclusivo combinando el
-                                    servicio de constitución e inicio de
-                                    actividades con tu Oficina Virtual Animal
-                                    Co-work.
-                                </p>
-                            </div>
-
-                            <div className="mt-9 grid gap-4 lg:grid-cols-[1fr_auto_1fr_auto_1.1fr] lg:items-stretch">
-                                {/* Servicio externo */}
-                                <PriceCard
-                                    eyebrow="Servicio externo"
-                                    title={
-                                        content.externalService.title
-                                    }
-                                    price={
-                                        content.externalService.price
-                                    }
-                                    description={
-                                        content.externalService
-                                            .description
-                                    }
-                                    icon={FileText}
-                                />
-
-                                <div
-                                    className="hidden items-center justify-center text-3xl font-extrabold text-deep-blue/25 lg:flex"
-                                    aria-hidden
-                                >
-                                    +
-                                </div>
-
-                                {/* Oficina virtual */}
-                                <PriceCard
-                                    eyebrow={
-                                        content.virtualOffice.label
-                                    }
-                                    title={`${content.virtualOffice.title} · ${content.virtualOffice.duration}`}
-                                    price={
-                                        content.virtualOffice.price
-                                    }
-                                    description="Dirección tributaria y comercial de Animal Co-work por 2 años."
-                                    icon={Building2}
-                                />
-
-                                <div
-                                    className="hidden items-center justify-center text-3xl font-extrabold text-deep-blue/25 lg:flex"
-                                    aria-hidden
-                                >
-                                    =
-                                </div>
-
-                                {/* Total */}
-                                <article className="relative overflow-hidden rounded-card bg-deep-blue p-7 text-white shadow-card sm:p-8">
-                                    <div
-                                        className="absolute -top-16 -right-16 size-40 rounded-full bg-instinct/15"
-                                        aria-hidden
-                                    />
-
-                                    <div
-                                        className="absolute -bottom-20 -left-16 size-44 rounded-full bg-energy-blue/10"
-                                        aria-hidden
-                                    />
-
-                                    <div className="relative">
-                                        <CircleDollarSign
-                                            className="size-8 text-instinct"
-                                            strokeWidth={2}
-                                            aria-hidden
-                                        />
-
-                                        <p className="mt-5 text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
-                                            Total ambos servicios
-                                        </p>
-
-                                        <p className="mt-3 text-4xl font-extrabold tracking-[-0.05em] sm:text-5xl">
-                                            {formatClp(
-                                                content.totalPrice,
-                                            )}
-                                        </p>
-
-                                        <p className="mt-4 text-sm leading-6 text-white/65">
-                                            Valor final del paquete Constitución
-                                            de Empresa + Inicio de Actividades +
-                                            Oficina Virtual por 2 años.
-                                        </p>
-                                    </div>
-                                </article>
-                            </div>
-                        </div>
-                    </Container>
-                </section>
-
-                {/* =========================================================
-                 * INFORMACIÓN DEL SERVICIO
-                 * ======================================================= */}
-                <section className="bg-white py-12 sm:py-16 lg:py-20">
-                    <Container>
-                        <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                            <article className="rounded-card border border-deep-blue/10 bg-white p-7 shadow-card sm:p-9">
-                                <div className="flex size-14 items-center justify-center rounded-2xl bg-instinct-light text-instinct-dark">
-                                    <FileCheck2
-                                        className="size-7"
-                                        strokeWidth={2}
-                                        aria-hidden
-                                    />
-                                </div>
-
-                                <p className="mt-6 text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                                    {
-                                        content.serviceSection
-                                            .eyebrow
-                                    }
-                                </p>
-
-                                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-deep-blue sm:text-4xl">
-                                    {
-                                        content.serviceSection
-                                            .title
-                                    }
-                                </h2>
-
-                                <p className="mt-5 text-base leading-7 text-muted sm:text-lg">
-                                    {
-                                        content.serviceSection
-                                            .description
-                                    }
-                                </p>
-
-                                <div className="mt-7 rounded-2xl border border-energy-blue/15 bg-energy-blue/5 p-5">
-                                    <div className="flex items-start gap-3">
-                                        <ShieldCheck
-                                            className="mt-0.5 size-6 shrink-0 text-energy-blue"
-                                            strokeWidth={2}
-                                            aria-hidden
-                                        />
+                            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+                                {/* Información principal */}
+                                <article className="rounded-card border border-deep-blue/10 bg-white p-6 shadow-card sm:p-8">
+                                    <div className="flex items-start gap-4">
+                                        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-instinct-light text-instinct-dark">
+                                            <FileCheck2
+                                                className="size-5"
+                                                strokeWidth={2}
+                                                aria-hidden
+                                            />
+                                        </span>
 
                                         <div>
-                                            <p className="font-extrabold text-deep-blue">
-                                                Servicio adicional externo
+                                            <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
+                                                Servicio completo
                                             </p>
 
-                                            <p className="mt-2 text-sm leading-6 text-muted">
-                                                La constitución de empresa,
-                                                inicio de actividades,
-                                                verificación de actividades y
-                                                activación del proceso de
-                                                facturación corresponden a un
-                                                servicio externo con precio
-                                                convenio para clientes de
-                                                Animal Co-work.
+                                            <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
+                                                Todo lo que necesitas para
+                                                comenzar tu empresa
+                                            </h2>
+
+                                            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted sm:text-base">
+                                                Constituye tu empresa, realiza
+                                                el inicio de actividades ante el
+                                                SII y obtén tu Oficina Virtual
+                                                Animal Co-work por 2 años.
                                             </p>
                                         </div>
                                     </div>
-                                </div>
-                            </article>
 
-                            {/* Requisitos */}
-                            <article className="rounded-card bg-deep-blue p-7 text-white shadow-card sm:p-9">
-                                <div className="flex items-center gap-3">
-                                    <IdCard
-                                        className="size-7 text-instinct"
-                                        strokeWidth={2}
-                                        aria-hidden
-                                    />
+                                    {/* Qué incluye */}
+                                    <div className="mt-6 border-t border-deep-blue/8 pt-6">
+                                        <p className="text-sm font-extrabold text-deep-blue">
+                                            ¿Qué incluye?
+                                        </p>
 
-                                    <p className="text-sm font-extrabold tracking-[0.14em] text-white/65 uppercase">
-                                        Requisitos
-                                    </p>
-                                </div>
+                                        <div className="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">
+                                            {content.includedServices.items.map(
+                                                (item) => (
+                                                    <div
+                                                        key={item}
+                                                        className="flex items-start gap-2 text-sm leading-5 text-deep-blue/70"
+                                                    >
+                                                        <CheckCircle2
+                                                            className="mt-0.5 size-4 shrink-0 text-instinct"
+                                                            strokeWidth={2.3}
+                                                            aria-hidden
+                                                        />
 
-                                <h2 className="mt-6 text-2xl font-extrabold tracking-[-0.035em] sm:text-3xl">
-                                    ¿Qué necesitas para comenzar?
-                                </h2>
+                                                        <span>{item}</span>
+                                                    </div>
+                                                ),
+                                            )}
+                                        </div>
+                                    </div>
 
-                                <div className="mt-7 space-y-4">
-                                    {content.serviceSection.requirements.map(
-                                        (requirement, index) => (
-                                            <RequirementItem
-                                                key={requirement}
-                                                index={index}
-                                                text={
-                                                    requirement
-                                                }
-                                            />
-                                        ),
-                                    )}
-                                </div>
-                            </article>
-                        </div>
-
-                        {/* Extranjeros */}
-                        <div className="mt-6 rounded-card border border-instinct/35 bg-instinct-light p-6 sm:p-8">
-                            <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-                                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-white text-instinct-dark shadow-sm">
-                                    <UserRound
-                                        className="size-6"
-                                        strokeWidth={2}
-                                        aria-hidden
-                                    />
-                                </div>
-
-                                <div>
-                                    <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                                        Información para extranjeros
-                                    </p>
-
-                                    <p className="mt-3 max-w-4xl text-base leading-7 font-semibold text-deep-blue">
-                                        {
-                                            content.serviceSection
-                                                .foreignerNotice
-                                        }
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </Container>
-                </section>
-
-                {/* =========================================================
-                 * QUÉ INCLUYE
-                 * ======================================================= */}
-                <section className="bg-background py-12 sm:py-16 lg:py-20">
-                    <Container>
-                        <div className="mx-auto max-w-6xl">
-                            <div className="text-center">
-                                <p className="text-xs font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
-                                    Servicio completo
-                                </p>
-
-                                <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.045em] text-deep-blue sm:text-4xl">
-                                    {
-                                        content.includedServices
-                                            .title
-                                    }
-                                </h2>
-
-                                <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-muted">
-                                    Te acompañamos en los principales pasos
-                                    necesarios para que tu empresa pueda comenzar
-                                    a operar.
-                                </p>
-                            </div>
-
-                            <div className="mt-9 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {content.includedServices.items.map(
-                                    (item, index) => (
-                                        <IncludedService
-                                            key={item}
-                                            index={index}
-                                            text={item}
+                                    {/* Servicio externo */}
+                                    <div className="mt-6 flex items-start gap-3 rounded-xl bg-energy-blue/5 p-4">
+                                        <ShieldCheck
+                                            className="mt-0.5 size-5 shrink-0 text-energy-blue"
+                                            strokeWidth={2}
+                                            aria-hidden
                                         />
-                                    ),
-                                )}
+
+                                        <p className="text-sm leading-6 text-deep-blue/65">
+                                            La constitución, inicio de
+                                            actividades, verificación de
+                                            actividades y activación del proceso
+                                            de facturación corresponden a un{' '}
+                                            <strong className="font-extrabold text-deep-blue">
+                                                servicio externo
+                                            </strong>{' '}
+                                            con precio convenio para clientes
+                                            Animal Co-work.
+                                        </p>
+                                    </div>
+                                </article>
+
+                                {/* Requisitos + precio */}
+                                <article className="rounded-card bg-deep-blue p-6 text-white shadow-card sm:p-8">
+                                    <div className="flex items-center gap-3">
+                                        <IdCard
+                                            className="size-6 text-instinct"
+                                            strokeWidth={2}
+                                            aria-hidden
+                                        />
+
+                                        <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
+                                            Requisitos
+                                        </p>
+                                    </div>
+
+                                    <h3 className="mt-4 text-xl font-extrabold tracking-[-0.025em] sm:text-2xl">
+                                        Para comenzar necesitas
+                                    </h3>
+
+                                    <div className="mt-5 space-y-3">
+                                        {content.serviceSection.requirements.map(
+                                            (requirement) => (
+                                                <div
+                                                    key={requirement}
+                                                    className="flex items-start gap-2"
+                                                >
+                                                    <CheckCircle2
+                                                        className="mt-0.5 size-4 shrink-0 text-instinct"
+                                                        strokeWidth={2.3}
+                                                        aria-hidden
+                                                    />
+
+                                                    <p className="text-sm leading-5 text-white/70">
+                                                        {requirement}
+                                                    </p>
+                                                </div>
+                                            ),
+                                        )}
+                                    </div>
+
+                                    <div className="mt-5 border-t border-white/10 pt-5">
+                                        <p className="text-xs font-extrabold tracking-[0.12em] text-white/45 uppercase">
+                                            Personas extranjeras
+                                        </p>
+
+                                        <p className="mt-2 text-xs leading-5 text-white/55">
+                                            {
+                                                content.serviceSection
+                                                    .foreignerNotice
+                                            }
+                                        </p>
+                                    </div>
+
+                                    {/* Precio compacto */}
+                                    <div className="mt-6 border-t border-white/10 pt-5">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div>
+                                                <p className="text-xs font-bold text-white/45">
+                                                    Constitución + Inicio SII
+                                                </p>
+
+                                                <p className="mt-1 font-extrabold">
+                                                    {formatClp(
+                                                        content.externalService
+                                                            .price,
+                                                    )}
+                                                </p>
+                                            </div>
+
+                                            <span className="text-xl font-extrabold text-white/30">
+                                                +
+                                            </span>
+
+                                            <div className="text-right">
+                                                <p className="text-xs font-bold text-white/45">
+                                                    Oficina Virtual · 2 años
+                                                </p>
+
+                                                <p className="mt-1 font-extrabold">
+                                                    {formatClp(
+                                                        content.virtualOffice
+                                                            .price,
+                                                    )}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/10 pt-5">
+                                            <span className="text-sm font-extrabold">
+                                                Total
+                                            </span>
+
+                                            <span className="text-3xl font-extrabold tracking-[-0.045em] text-instinct">
+                                                {formatClp(content.totalPrice)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </article>
                             </div>
                         </div>
                     </Container>
@@ -388,11 +294,12 @@ export default function CompanyFormation() {
                  * ======================================================= */}
                 <section
                     id="contratar"
-                    className="scroll-mt-28 bg-white py-12 sm:py-16 lg:py-20"
+                    className="scroll-mt-28 bg-white py-10 sm:py-12 lg:py-14"
                 >
                     <Container>
                         <div className="mx-auto grid max-w-6xl overflow-hidden rounded-card bg-deep-blue shadow-card lg:grid-cols-[1fr_0.8fr]">
-                            <div className="p-7 text-white sm:p-10 lg:p-12">
+                            {/* CTA principal */}
+                            <div className="p-7 text-white sm:p-9 lg:p-10">
                                 <div className="flex items-center gap-3">
                                     <BadgeCheck
                                         className="size-7 text-instinct"
@@ -405,21 +312,19 @@ export default function CompanyFormation() {
                                     </p>
                                 </div>
 
-                                <h2 className="mt-6 max-w-2xl text-3xl font-extrabold tracking-[-0.045em] sm:text-4xl">
+                                <h2 className="mt-5 max-w-2xl text-3xl font-extrabold tracking-[-0.045em] sm:text-4xl">
                                     Comienza hoy la constitución de tu empresa
                                 </h2>
 
-                                <p className="mt-5 max-w-2xl text-base leading-7 text-white/70">
-                                    Contrata el servicio de Constitución de
-                                    Empresa + Inicio de Actividades junto con tu
-                                    Oficina Virtual Animal Co-work por 2 años.
+                                <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">
+                                    Contrata Constitución de Empresa + Inicio de
+                                    Actividades junto con tu Oficina Virtual
+                                    Animal Co-work por 2 años.
                                 </p>
 
-                                <div className="mt-8 flex flex-wrap items-end gap-x-3">
+                                <div className="mt-7 flex flex-wrap items-end gap-x-3">
                                     <span className="text-5xl font-extrabold tracking-[-0.055em] text-instinct sm:text-6xl">
-                                        {formatClp(
-                                            content.totalPrice,
-                                        )}
+                                        {formatClp(content.totalPrice)}
                                     </span>
 
                                     <span className="pb-2 text-sm font-bold text-white/55">
@@ -427,22 +332,18 @@ export default function CompanyFormation() {
                                     </span>
                                 </div>
 
-                                <div className="mt-8 max-w-md">
+                                <div className="mt-7 max-w-md">
                                     <ButtonArrow
                                         href={paymentHref}
                                         className="w-full justify-center sm:w-auto"
                                     >
-                                        PAGAR{' '}
-                                        {formatClp(
-                                            content.totalPrice,
-                                        )}
+                                        PAGAR {formatClp(content.totalPrice)}
                                     </ButtonArrow>
                                 </div>
-
                             </div>
 
                             {/* Resumen */}
-                            <div className="border-t border-white/10 bg-white/[0.06] p-7 sm:p-10 lg:border-t-0 lg:border-l lg:p-12">
+                            <div className="border-t border-white/10 bg-white/[0.06] p-7 sm:p-9 lg:border-t-0 lg:border-l lg:p-10">
                                 <p className="text-xs font-extrabold tracking-[0.14em] text-white/55 uppercase">
                                     Resumen
                                 </p>
@@ -451,31 +352,27 @@ export default function CompanyFormation() {
                                     <CheckoutSummaryItem
                                         label="Constitución + Inicio SII"
                                         value={formatClp(
-                                            content.externalService
-                                                .price,
+                                            content.externalService.price,
                                         )}
                                     />
 
                                     <CheckoutSummaryItem
                                         label={`Oficina Virtual · ${content.virtualOffice.duration}`}
                                         value={formatClp(
-                                            content.virtualOffice
-                                                .price,
+                                            content.virtualOffice.price,
                                         )}
                                     />
 
                                     <div className="border-t border-white/15 pt-5">
                                         <CheckoutSummaryItem
                                             label="Total"
-                                            value={formatClp(
-                                                content.totalPrice,
-                                            )}
+                                            value={formatClp(content.totalPrice)}
                                             highlighted
                                         />
                                     </div>
                                 </div>
 
-                                <div className="mt-8 flex items-start gap-3 rounded-2xl bg-white/8 p-4">
+                                <div className="mt-7 flex items-start gap-3 rounded-2xl bg-white/8 p-4">
                                     <ReceiptText
                                         className="mt-0.5 size-5 shrink-0 text-instinct"
                                         aria-hidden
@@ -484,8 +381,8 @@ export default function CompanyFormation() {
                                     <p className="text-sm leading-6 text-white/60">
                                         El valor de $35.000 corresponde al
                                         servicio externo de constitución e
-                                        inicio de actividades bajo convenio
-                                        para clientes Animal Co-work.
+                                        inicio de actividades bajo convenio para
+                                        clientes Animal Co-work.
                                     </p>
                                 </div>
                             </div>
@@ -496,24 +393,21 @@ export default function CompanyFormation() {
                 {/* =========================================================
                  * CONTACTO
                  * ======================================================= */}
-                <section className="bg-background py-12 sm:py-16">
+                <section className="bg-background py-10 sm:py-12">
                     <Container>
-                        <div className="mx-auto max-w-5xl rounded-card border border-deep-blue/10 bg-white p-7 shadow-card sm:p-9">
-                            <div className="grid gap-8 md:grid-cols-[1fr_auto] md:items-center">
+                        <div className="mx-auto max-w-5xl rounded-card border border-deep-blue/10 bg-white p-6 shadow-card sm:p-8">
+                            <div className="grid gap-7 md:grid-cols-[1fr_auto] md:items-center">
                                 <div>
                                     <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
                                         ¿Tienes dudas?
                                     </p>
 
-                                    <h2 className="mt-3 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
+                                    <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
                                         {content.contact.title}
                                     </h2>
 
                                     <p className="mt-3 max-w-2xl text-base leading-7 text-muted">
-                                        {
-                                            content.contact
-                                                .description
-                                        }
+                                        {content.contact.description}
                                     </p>
                                 </div>
 
@@ -543,8 +437,7 @@ export default function CompanyFormation() {
 
                                         WhatsApp{' '}
                                         {formatPhone(
-                                            content.contact
-                                                .whatsapp,
+                                            content.contact.whatsapp,
                                         )}
                                     </a>
                                 </div>
@@ -562,122 +455,6 @@ export default function CompanyFormation() {
 /* =========================================================
  * COMPONENTES AUXILIARES
  * ======================================================= */
-
-interface PriceCardProps {
-    eyebrow: string;
-    title: string;
-    price: number;
-    description: string;
-    icon: typeof FileText;
-}
-
-function PriceCard({
-    eyebrow,
-    title,
-    price,
-    description,
-    icon: Icon,
-}: PriceCardProps) {
-    return (
-        <article className="rounded-card border border-deep-blue/10 bg-white p-7 shadow-card sm:p-8">
-            <Icon
-                className="size-7 text-instinct"
-                strokeWidth={2}
-                aria-hidden
-            />
-
-            <p className="mt-5 text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                {eyebrow}
-            </p>
-
-            <h3 className="mt-3 text-xl font-extrabold tracking-[-0.025em] text-deep-blue">
-                {title}
-            </h3>
-
-            <p className="mt-5 text-4xl font-extrabold tracking-[-0.05em] text-deep-blue">
-                {formatClp(price)}
-            </p>
-
-            <p className="mt-4 text-sm leading-6 text-muted">
-                {description}
-            </p>
-        </article>
-    );
-}
-
-interface RequirementItemProps {
-    index: number;
-    text: string;
-}
-
-function RequirementItem({
-    index,
-    text,
-}: RequirementItemProps) {
-    const icons = [
-        KeyRound,
-        KeyRound,
-        IdCard,
-    ];
-
-    const Icon =
-        icons[index] ?? Check;
-
-    return (
-        <div className="flex items-start gap-3">
-            <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/10 text-instinct">
-                <Icon
-                    className="size-4.5"
-                    strokeWidth={2}
-                    aria-hidden
-                />
-            </span>
-
-            <p className="pt-1 text-sm leading-6 text-white/75">
-                {text}
-            </p>
-        </div>
-    );
-}
-
-interface IncludedServiceProps {
-    index: number;
-    text: string;
-}
-
-function IncludedService({
-    index,
-    text,
-}: IncludedServiceProps) {
-    const icons = [
-        FileText,
-        FileCheck2,
-        ShieldCheck,
-        ReceiptText,
-        Building2,
-    ];
-
-    const Icon =
-        icons[index] ?? Check;
-
-    return (
-        <article className="flex items-start gap-4 rounded-2xl border border-deep-blue/10 bg-white p-5 shadow-[0_8px_24px_rgba(13,27,61,0.04)]">
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-instinct-light text-instinct-dark">
-                <Icon
-                    className="size-5"
-                    strokeWidth={2}
-                    aria-hidden
-                />
-            </span>
-
-            <div>
-                <p className="text-sm font-bold leading-6 text-deep-blue">
-                    {text}
-                </p>
-            </div>
-        </article>
-    );
-}
 
 interface CheckoutSummaryItemProps {
     label: string;
@@ -771,8 +548,7 @@ function ServiceImage() {
                 </p>
 
                 <p className="mt-2 text-sm text-muted">
-                    Espacio preparado para contenido visual
-                    administrable.
+                    Espacio preparado para contenido visual administrable.
                 </p>
             </div>
         </div>

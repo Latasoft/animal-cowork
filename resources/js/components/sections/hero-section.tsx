@@ -18,30 +18,9 @@ export function HeroSection({
 }: HeroSectionProps) {
     return (
 <section className="relative overflow-hidden bg-white">
-    {/* Decoración lateral */}
-    <img
-        src="/images/hero/trazos.webp"
-        alt=""
-        aria-hidden="true"
-        className="
-            pointer-events-none
-            absolute
-            top-50
-            right-0
-            z-0
-            hidden
-            h-auto
-            w-40
-            select-none
-            opacity-90
-            md:block
-            lg:w-52
-            xl:w-64
-        "
-    />
 
             <Container>
-                <div className="relative z-10 grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-14 lg:py-16">
+                <div className="relative z-10 grid items-center gap-10 py-2 lg:grid-cols-2 lg:gap-14 lg:py-1">
                     {/* Columna izquierda */}
                     <div className="relative z-10">
                         <div>

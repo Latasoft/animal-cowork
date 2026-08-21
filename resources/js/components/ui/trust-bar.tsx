@@ -9,7 +9,7 @@ import type { ReactNode } from 'react';
 
 function TrustBar() {
     return (
-        <div className="mt-10 grid gap-0 overflow-hidden rounded-3xl border border-deep-blue/10 bg-white shadow-card sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 grid gap-0 overflow-hidden rounded-3xl border border-deep-blue/10 bg-white shadow-card sm:grid-cols-2 lg:grid-cols-4">
             <TrustItem
                 icon={
                     <ShieldCheck

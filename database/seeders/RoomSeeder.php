@@ -56,10 +56,16 @@ class RoomSeeder extends Seeder
 
         $sala2TimeSlots = [
             [
-                'id' => '18-20',
+                'id' => '18-19',
                 'start' => '18:00',
+                'end' => '19:00',
+                'billable_minutes' => 60,
+            ],
+            [
+                'id' => '19-20',
+                'start' => '19:00',
                 'end' => '20:00',
-                'billable_minutes' => 120,
+                'billable_minutes' => 60,
             ],
         ];
 
@@ -120,7 +126,12 @@ class RoomSeeder extends Seeder
 
                 'image_alt' => 'Sala 2 de Animal Coworking',
 
-                'features' => $commonFeatures,
+                'features' => [
+                    'Aire acondicionado',
+                    'Conexiones eléctricas',
+                    'Pizarra',
+                    'Cafetera',
+                ],
 
                 'normal_hour_price_net' => 20000,
                 'normal_hour_taxable' => true,

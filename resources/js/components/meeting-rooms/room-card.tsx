@@ -1,4 +1,11 @@
-import { Check, CheckCircle2, Images, Users } from 'lucide-react';
+import {
+    Check,
+    CheckCircle2,
+    ChevronLeft,
+    ChevronRight,
+    Images,
+    Users,
+} from 'lucide-react';
 import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -10,8 +17,30 @@ interface RoomCardProps {
     onSelect: () => void;
 }
 
-export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
+export function RoomCard({
+    room,
+    isSelected,
+    onSelect,
+}: RoomCardProps) {
     const [activeImageIndex, setActiveImageIndex] = useState(0);
+
+    const totalImages = room.images.length;
+
+    function showPreviousImage() {
+        setActiveImageIndex((current) =>
+            current === 0
+                ? totalImages - 1
+                : current - 1,
+        );
+    }
+
+    function showNextImage() {
+        setActiveImageIndex((current) =>
+            current === totalImages - 1
+                ? 0
+                : current + 1,
+        );
+    }
 
     return (
         <article
@@ -22,6 +51,7 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                     : 'border-deep-blue/8 hover:-translate-y-1 hover:border-instinct/35',
             ].join(' ')}
         >
+            {/* Carrusel de imágenes */}
             <div className="relative aspect-[16/10] overflow-hidden bg-deep-blue/5">
                 <img
                     src={room.images[activeImageIndex]}
@@ -30,46 +60,89 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                     loading="lazy"
                 />
 
-                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-deep-blue/80 via-deep-blue/15 to-transparent p-5 pt-16">
+                {/* Gradiente inferior */}
+                <div
+                    className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-deep-blue/80 via-deep-blue/25 to-transparent"
+                    aria-hidden
+                />
+
+                {/* Flecha izquierda */}
+                {totalImages > 1 && (
+                    <button
+                        type="button"
+                        aria-label="Ver fotografía anterior"
+                        onClick={showPreviousImage}
+                        className="absolute top-1/2 left-3 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-deep-blue/55 text-white backdrop-blur-sm transition hover:bg-deep-blue/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instinct"
+                    >
+                        <ChevronLeft
+                            className="size-5"
+                            aria-hidden
+                        />
+                    </button>
+                )}
+
+                {/* Flecha derecha */}
+                {totalImages > 1 && (
+                    <button
+                        type="button"
+                        aria-label="Ver fotografía siguiente"
+                        onClick={showNextImage}
+                        className="absolute top-1/2 right-3 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-deep-blue/55 text-white backdrop-blur-sm transition hover:bg-deep-blue/80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instinct"
+                    >
+                        <ChevronRight
+                            className="size-5"
+                            aria-hidden
+                        />
+                    </button>
+                )}
+
+                {/* Información inferior */}
+                <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-5">
                     <div className="flex items-center gap-2 text-xs font-bold text-white">
-                        <Images className="size-4" aria-hidden />
-                        {room.images.length} fotografías
+                        <Images
+                            className="size-4"
+                            aria-hidden
+                        />
+
+                        {activeImageIndex + 1} / {totalImages}
                     </div>
 
                     {isSelected && (
                         <span className="inline-flex items-center gap-2 rounded-full bg-instinct px-3 py-1.5 text-xs font-extrabold text-white">
-                            <CheckCircle2 className="size-4" aria-hidden />
+                            <CheckCircle2
+                                className="size-4"
+                                aria-hidden
+                            />
                             Seleccionada
                         </span>
                     )}
                 </div>
+
+                {/* Indicadores */}
+                {totalImages > 1 && (
+                    <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-1.5">
+                        {room.images.map((image, index) => (
+                            <button
+                                key={image}
+                                type="button"
+                                aria-label={`Ver fotografía ${index + 1} de ${room.name}`}
+                                aria-pressed={activeImageIndex === index}
+                                onClick={() =>
+                                    setActiveImageIndex(index)
+                                }
+                                className={[
+                                    'rounded-full transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instinct',
+                                    activeImageIndex === index
+                                        ? 'h-2 w-5 bg-instinct'
+                                        : 'size-2 bg-white/60 hover:bg-white',
+                                ].join(' ')}
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
-            <div className="grid grid-cols-3 gap-2 border-b border-deep-blue/8 p-3">
-                {room.images.map((image, index) => (
-                    <button
-                        key={image}
-                        type="button"
-                        aria-label={`Ver fotografía ${index + 1} de ${room.name}`}
-                        aria-pressed={activeImageIndex === index}
-                        onClick={() => setActiveImageIndex(index)}
-                        className={[
-                            'relative aspect-[16/10] overflow-hidden rounded-lg border-2 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-instinct',
-                            activeImageIndex === index
-                                ? 'border-instinct'
-                                : 'border-transparent opacity-65 hover:opacity-100',
-                        ].join(' ')}
-                    >
-                        <img
-                            src={image}
-                            alt=""
-                            className="h-full w-full object-cover"
-                            loading="lazy"
-                        />
-                    </button>
-                ))}
-            </div>
-
+            {/* Contenido */}
             <div className="p-6 sm:p-7">
                 <div className="flex items-start justify-between gap-4">
                     <div>
@@ -83,7 +156,10 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                     </div>
 
                     <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-instinct-light text-instinct-dark">
-                        <Users className="size-5" aria-hidden />
+                        <Users
+                            className="size-5"
+                            aria-hidden
+                        />
                     </span>
                 </div>
 
@@ -109,6 +185,7 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                                     strokeWidth={2.5}
                                     aria-hidden
                                 />
+
                                 {feature}
                             </li>
                         ))}
@@ -121,19 +198,29 @@ export function RoomCard({ room, isSelected, onSelect }: RoomCardProps) {
                         currency: 'CLP',
                         maximumFractionDigits: 0,
                     }).format(room.normalHourlyRate)}{' '}
-                    {room.normalHourlyRateTaxable ? '+ IVA ' : ''}por hora
+                    {room.normalHourlyRateTaxable
+                        ? '+ IVA '
+                        : ''}
+                    por hora
                 </p>
 
                 <Button
                     type="button"
-                    variant={isSelected ? 'outline' : 'primary'}
+                    variant={
+                        isSelected
+                            ? 'outline'
+                            : 'primary'
+                    }
                     aria-pressed={isSelected}
                     onClick={onSelect}
                     className="mt-6 w-full justify-center text-sm"
                 >
                     {isSelected ? (
                         <>
-                            <CheckCircle2 className="size-5" aria-hidden />
+                            <CheckCircle2
+                                className="size-5"
+                                aria-hidden
+                            />
                             Sala seleccionada
                         </>
                     ) : (

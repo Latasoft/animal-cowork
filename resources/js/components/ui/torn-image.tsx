@@ -6,7 +6,7 @@ function TornImage() {
                 alt="Fachada de Animal Co-work"
                 width={1086}
                 height={1448}
-                className="h-auto w-full object-contain"
+                className="h-[360px] w-full object-cover object-[50%_35%] sm:h-[420px] lg:h-[480px]"
                 loading="eager"
                 fetchPriority="high"
             />

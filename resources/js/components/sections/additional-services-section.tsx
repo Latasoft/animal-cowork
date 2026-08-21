@@ -33,6 +33,7 @@ export function AdditionalServicesSection({
             id="servicios-adicionales"
             className="relative overflow-hidden bg-white py-8 sm:py-10 lg:py-12"
         >
+            {/* Cards de servicios */}
             <Container>
                 <div className="mx-auto max-w-7xl">
                     <div className="grid gap-5 lg:grid-cols-[1.08fr_0.96fr_0.96fr]">
@@ -45,12 +46,17 @@ export function AdditionalServicesSection({
                             />
                         ))}
                     </div>
+                </div>
+            </Container>
 
-                    <div className="mt-10 border-t border-deep-blue pt-8 sm:mt-12 sm:pt-10">
+            {/* Bloque full-width de pasos */}
+            <div className="mt-10 bg-deep-blue py-10 sm:mt-12 sm:py-12 lg:py-14">
+                <Container>
+                    <div className="mx-auto max-w-7xl">
                         <div className="flex items-center justify-center gap-3 text-center">
                             <SketchAccent />
 
-                            <h3 className="text-2xl font-extrabold tracking-[-0.035em] text-balance text-deep-blue sm:text-3xl">
+                            <h3 className="text-2xl font-extrabold tracking-[-0.035em] text-balance text-white sm:text-3xl">
                                 En 3 simples pasos tendrás tu oficina virtual
                                 lista
                             </h3>
@@ -61,13 +67,15 @@ export function AdditionalServicesSection({
                                 <StepGroup
                                     key={step.id}
                                     step={step}
-                                    showConnector={index < steps.length - 1}
+                                    showConnector={
+                                        index < steps.length - 1
+                                    }
                                 />
                             ))}
                         </div>
                     </div>
-                </div>
-            </Container>
+                </Container>
+            </div>
         </section>
     );
 }

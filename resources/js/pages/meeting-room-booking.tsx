@@ -373,7 +373,7 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
             <PublicLayout>
                 <BookingHero />
 
-                <section className="bg-white py-16 sm:py-20">
+                <section className="bg-white py-6 sm:py-6">
                     <Container>
                         <div className="mx-auto max-w-3xl text-center">
                             <p className="text-xs font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
@@ -385,10 +385,6 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                             >
                                 Encuentra el espacio para tu próxima reunión
                             </h2>
-                            <p className="mt-4 text-base leading-7 text-deep-blue/65">
-                                Selecciona una sala y reserva usando
-                                disponibilidad real.
-                            </p>
                         </div>
 
                         <div className="mt-10 grid items-start gap-7 lg:grid-cols-2">
@@ -518,30 +514,45 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
 
 function BookingHero() {
     return (
-        <section className="relative overflow-hidden bg-deep-blue py-16 text-white sm:py-20 lg:py-24">
-            <Container className="relative grid items-center gap-10 lg:grid-cols-[1fr_0.8fr]">
+        <section className="relative overflow-hidden bg-deep-blue py-10 text-white sm:py-12 lg:py-14">
+            <Container className="relative grid items-center gap-7 lg:grid-cols-[1fr_0.8fr] lg:gap-10">
                 <div>
-                    <p className="text-xs font-extrabold tracking-[0.16em] text-instinct uppercase">
+                    <p className="text-[11px] font-extrabold tracking-[0.16em] text-instinct uppercase sm:text-xs">
                         Salas de reuniones
                     </p>
-                    <h1 className="mt-4 max-w-3xl text-4xl leading-tight font-extrabold tracking-[-0.05em] sm:text-5xl">
+
+                    <h1 className="mt-3 max-w-3xl text-3xl leading-tight font-extrabold tracking-[-0.045em] sm:text-4xl lg:text-[2.75rem]">
                         Tu próxima gran reunión comienza aquí.
                     </h1>
-                    <p className="mt-5 max-w-2xl text-base leading-7 text-white/70">
+
+                    <p className="mt-4 max-w-2xl text-sm leading-6 text-white/70 sm:text-base">
                         Reserva espacios equipados, consulta tus horas de plan y
                         confirma en línea.
                     </p>
-                    <ButtonArrow href="#rooms-heading" className="mt-8">
+
+                    <ButtonArrow
+                        href="#rooms-heading"
+                        className="mt-6"
+                    >
                         VER SALAS
                     </ButtonArrow>
                 </div>
-                <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
+
+                <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
                     <HeroBenefit
                         icon={CalendarDays}
                         text="Disponibilidad en tiempo real"
                     />
-                    <HeroBenefit icon={Check} text="Confirmación inmediata" />
-                    <HeroBenefit icon={Gift} text="Si eres cliente vigente de Oficina Virtual tienes derecho a 2 horas mensuales gratis." />
+
+                    <HeroBenefit
+                        icon={Check}
+                        text="Confirmación inmediata"
+                    />
+
+                    <HeroBenefit
+                        icon={Gift}
+                        text="Si eres cliente vigente de Oficina Virtual tienes derecho a 2 horas mensuales gratis."
+                    />
                 </div>
             </Container>
         </section>
