@@ -61,3 +61,8 @@ Route::inertia(
     '/constitucion-de-empresa',
     'company-formation',
 )->name('company_formation.index');
+
+Route::inertia(
+    '/oficinas-privadas',
+    'private-offices',
+)->name('private_offices.index');

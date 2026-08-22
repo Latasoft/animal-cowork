@@ -506,53 +506,10 @@ function ServiceImage() {
                     alt={content.image.alt}
                     className="relative aspect-[4/3] w-full rounded-card object-cover shadow-card"
                 />
-
-                <div className="absolute right-4 bottom-4 left-4 rounded-2xl border border-white/25 bg-deep-blue/85 p-4 text-white shadow-lg backdrop-blur-md sm:right-6 sm:bottom-6 sm:left-6">
-                    <div className="flex items-center gap-3">
-                        <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-instinct text-white">
-                            <BadgeCheck
-                                className="size-5"
-                                strokeWidth={2}
-                                aria-hidden
-                            />
-                        </span>
-
-                        <div>
-                            <p className="text-xs font-bold tracking-[0.1em] text-white/55 uppercase">
-                                Paquete completo
-                            </p>
-
-                            <p className="mt-0.5 font-extrabold">
-                                Empresa + SII + Oficina Virtual
-                            </p>
-                        </div>
-                    </div>
-                </div>
             </div>
         );
     }
 
-    return (
-        <div className="flex aspect-[4/3] min-h-72 items-center justify-center rounded-card border border-dashed border-deep-blue/25 bg-deep-blue/5 p-8 text-center">
-            <div>
-                <span className="mx-auto flex size-20 items-center justify-center rounded-full bg-white text-instinct shadow-card">
-                    <ImageIcon
-                        className="size-9"
-                        strokeWidth={1.8}
-                        aria-hidden
-                    />
-                </span>
-
-                <p className="mt-5 text-sm font-extrabold tracking-[0.12em] text-deep-blue uppercase">
-                    Imagen del servicio
-                </p>
-
-                <p className="mt-2 text-sm text-muted">
-                    Espacio preparado para contenido visual administrable.
-                </p>
-            </div>
-        </div>
-    );
 }
 
 function formatPhone(value: string): string {

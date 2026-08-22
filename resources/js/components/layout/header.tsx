@@ -32,6 +32,10 @@ const navigation: NavigationItem[] = [
         label: 'CONTACTO',
         href: '/#contacto',
     },
+    {
+        label: 'OF. PRIVADAS',
+        href: '/oficinas-privadas',
+    },
 ];
 
 export function Header() {

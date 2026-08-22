@@ -20,11 +20,11 @@ export function HeroSection({
 <section className="relative overflow-hidden bg-white">
 
             <Container>
-                <div className="relative z-10 grid items-center gap-10 py-2 lg:grid-cols-2 lg:gap-14 lg:py-1">
+                <div className="relative z-10 grid items-center gap-10 py-10 lg:grid-cols-2 lg:gap-14 lg:py-12">
                     {/* Columna izquierda */}
                     <div className="relative z-10">
                         <div>
-                            <h1 className="text-[clamp(2.3rem,6vw,2.4rem)] leading-[0.95] font-extrabold tracking-[-0.055em] text-deep-blue uppercase">
+                            <h1 className="text-[clamp(2.3rem,6vw,2.8rem)] leading-[0.95] font-extrabold tracking-[-0.055em] text-deep-blue uppercase">
                                 {content.title}
                             </h1>
                         </div>
