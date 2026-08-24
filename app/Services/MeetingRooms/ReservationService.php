@@ -30,7 +30,13 @@ class ReservationService
                 ->active()
                 ->where('slug', $data['room'])
                 ->lockForUpdate()
-                ->firstOrFail();
+                ->first();
+
+            if (! $room) {
+                throw ValidationException::withMessages([
+                    'room' => 'La sala seleccionada no está disponible.',
+                ]);
+            }
             $date = CarbonImmutable::parse($data['date']);
 
             try {

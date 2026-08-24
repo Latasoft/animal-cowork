@@ -3,7 +3,7 @@ export interface HeroContent {
     title2: string;
     subtitle: string;
     promotion: string;
-    price: string;
+    price: string | null;
     primaryAction: {
         label: string;
         href: string;

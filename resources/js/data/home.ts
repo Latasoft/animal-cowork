@@ -18,9 +18,9 @@ const heroContent: Omit<HeroContent, 'price'> = {
     communityMessage: 'Únete a la manada de Animal Co-work.',
 };
 
-export function createHeroContent(lowestPlanPrice: number): HeroContent {
+export function createHeroContent(lowestPlanPrice: number | null): HeroContent {
     return {
         ...heroContent,
-        price: formatClp(lowestPlanPrice),
+        price: lowestPlanPrice === null ? null : formatClp(lowestPlanPrice),
     };
 }

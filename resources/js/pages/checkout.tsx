@@ -4,6 +4,7 @@ import type { ComponentProps } from 'react';
 import { CheckoutForm } from '@/components/form/checkout-form';
 import { CheckoutSteps } from '@/components/ui/checkout-steps';
 import { Container } from '@/components/ui/container';
+import { DataStateCard } from '@/components/ui/data-state-card';
 import { NoticeCard } from '@/components/ui/notice-card';
 import { SummaryCard } from '@/components/ui/summary-card';
 import { PublicLayout } from '@/layouts/public-layout';
@@ -15,11 +16,53 @@ import type { Plan } from '@/types/plan';
 type FormSubmitHandler = NonNullable<ComponentProps<'form'>['onSubmit']>;
 
 interface CheckoutPageProps {
+    plan: Plan | null;
+    planUnavailable: boolean;
+    flow: CheckoutFlow;
+}
+
+export default function Checkout({
+    plan,
+    planUnavailable,
+    flow,
+}: CheckoutPageProps) {
+    if (!plan) {
+        return (
+            <PublicLayout>
+                <Head title="Contratación temporalmente no disponible" />
+
+                <section className="bg-white py-8 sm:py-10 lg:py-12">
+                    <Container>
+                        <CheckoutSteps currentStep={1} />
+                        <DataStateCard
+                            state={planUnavailable ? 'unavailable' : 'empty'}
+                            title={
+                                planUnavailable
+                                    ? 'No pudimos cargar el plan'
+                                    : 'El plan no está disponible'
+                            }
+                            description={
+                                planUnavailable
+                                    ? 'No es posible validar precios ni condiciones en este momento. La contratación permanece deshabilitada para proteger tus datos.'
+                                    : 'Selecciona otro plan disponible para continuar con la contratación.'
+                            }
+                            className="mx-auto mt-10 max-w-2xl"
+                        />
+                    </Container>
+                </section>
+            </PublicLayout>
+        );
+    }
+
+    return <AvailableCheckout plan={plan} flow={flow} />;
+}
+
+interface AvailableCheckoutProps {
     plan: Plan;
     flow: CheckoutFlow;
 }
 
-export default function Checkout({ plan, flow }: CheckoutPageProps) {
+function AvailableCheckout({ plan, flow }: AvailableCheckoutProps) {
     const { data, setData, post, processing, errors, clearErrors } =
         useForm<CheckoutFormData>({
             plan_id: plan.slug,

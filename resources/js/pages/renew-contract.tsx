@@ -2,6 +2,7 @@ import { Head, Link } from '@inertiajs/react';
 import { Check, Plus } from 'lucide-react';
 
 import { Container } from '@/components/ui/container';
+import { DataStateCard } from '@/components/ui/data-state-card';
 import { PlanImage } from '@/components/ui/plan-image';
 import { PublicLayout } from '@/layouts/public-layout';
 import { show as checkoutShow } from '@/routes/checkout';
@@ -10,9 +11,13 @@ import { formatClp } from '@/utils/currency';
 
 interface RenewContractPageProps {
     plans: Plan[];
+    plansUnavailable: boolean;
 }
 
-export default function RenewContract({ plans }: RenewContractPageProps) {
+export default function RenewContract({
+    plans,
+    plansUnavailable,
+}: RenewContractPageProps) {
     const phoenixPlan = plans.find((plan) => plan.slug === 'fenix');
     const patentPlans = plans.filter((plan) =>
         ['lobo', 'leon'].includes(plan.slug),
@@ -40,46 +45,66 @@ export default function RenewContract({ plans }: RenewContractPageProps) {
                             </p>
                         </header>
 
-                        <section className="mt-12 sm:mt-14">
-                            <div className="mb-6">
-                                <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                                    Opción principal
-                                </p>
-                                <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
-                                    Renovación de oficina virtual
-                                </h2>
-                                <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
-                                    Si solo necesitas renovar tu oficina
-                                    virtual, esta es la opción indicada.
-                                </p>
-                            </div>
+                        {plansUnavailable ? (
+                            <DataStateCard
+                                state="unavailable"
+                                title="No pudimos cargar las opciones de renovación"
+                                description="No es posible validar planes ni precios en este momento. Intenta nuevamente más tarde."
+                                className="mt-12 sm:mt-14"
+                            />
+                        ) : plans.length === 0 ? (
+                            <DataStateCard
+                                state="empty"
+                                title="No hay opciones de renovación disponibles"
+                                description="Actualmente no existen planes activos para renovar."
+                                className="mt-12 sm:mt-14"
+                            />
+                        ) : (
+                            <>
+                                <section className="mt-12 sm:mt-14">
+                                    <div className="mb-6">
+                                        <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
+                                            Opción principal
+                                        </p>
+                                        <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
+                                            Renovación de oficina virtual
+                                        </h2>
+                                        <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
+                                            Si solo necesitas renovar tu oficina
+                                            virtual, esta es la opción indicada.
+                                        </p>
+                                    </div>
 
-                            <div className="max-w-xl">
-                                {phoenixPlan && (
-                                    <RenewalPlanCard plan={phoenixPlan} />
-                                )}
-                            </div>
-                        </section>
+                                    <div className="max-w-xl">
+                                        {phoenixPlan && (
+                                            <RenewalPlanCard
+                                                plan={phoenixPlan}
+                                            />
+                                        )}
+                                    </div>
+                                </section>
 
-                        <section className="mt-14 border-t border-deep-blue/10 pt-12 sm:mt-16 sm:pt-14">
-                            <span className="text-xs font-extrabold tracking-[0.14em] text-energy-blue-dark uppercase">
-                                Oficina virtual + patente
-                            </span>
-                            <h2 className="max-w-4xl text-xl leading-8 font-extrabold tracking-[-0.02em] text-deep-blue sm:text-2xl">
-                                Si necesitas renovar tu oficina virtual y
-                                gestionar tu patente comercial, estas son las
-                                opciones que tenemos para ti:
-                            </h2>
+                                <section className="mt-14 border-t border-deep-blue/10 pt-12 sm:mt-16 sm:pt-14">
+                                    <span className="text-xs font-extrabold tracking-[0.14em] text-energy-blue-dark uppercase">
+                                        Oficina virtual + patente
+                                    </span>
+                                    <h2 className="max-w-4xl text-xl leading-8 font-extrabold tracking-[-0.02em] text-deep-blue sm:text-2xl">
+                                        Si necesitas renovar tu oficina virtual
+                                        y gestionar tu patente comercial, estas
+                                        son las opciones que tenemos para ti:
+                                    </h2>
 
-                            <div className="mt-7 grid gap-6 lg:grid-cols-2">
-                                {patentPlans.map((plan) => (
-                                    <RenewalPlanCard
-                                        key={plan.slug}
-                                        plan={plan}
-                                    />
-                                ))}
-                            </div>
-                        </section>
+                                    <div className="mt-7 grid gap-6 lg:grid-cols-2">
+                                        {patentPlans.map((plan) => (
+                                            <RenewalPlanCard
+                                                key={plan.slug}
+                                                plan={plan}
+                                            />
+                                        ))}
+                                    </div>
+                                </section>
+                            </>
+                        )}
                     </div>
                 </Container>
             </section>

@@ -4,7 +4,6 @@ namespace App\Http\Requests\MeetingRooms;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class CheckAvailabilityRequest extends FormRequest
 {
@@ -27,9 +26,7 @@ class CheckAvailabilityRequest extends FormRequest
             'room' => [
                 'required',
                 'string',
-                Rule::exists('rooms', 'slug')->where(fn ($query) => $query
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at')),
+                'max:50',
             ],
             'date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
         ];

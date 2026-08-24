@@ -1,9 +1,6 @@
 import { Users } from 'lucide-react';
 
-import {
-    ButtonArrow,
-    ButtonSecondary,
-} from '@/components/ui/button';
+import { ButtonArrow, ButtonSecondary } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
 import TornImage from '@/components/ui/torn-image';
 import TrustBar from '@/components/ui/trust-bar';
@@ -13,12 +10,9 @@ interface HeroSectionProps {
     content: HeroContent;
 }
 
-export function HeroSection({
-    content,
-}: HeroSectionProps) {
+export function HeroSection({ content }: HeroSectionProps) {
     return (
-<section className="relative overflow-hidden bg-white">
-
+        <section className="relative overflow-hidden bg-white">
             <Container>
                 <div className="relative z-10 grid items-center gap-10 py-10 lg:grid-cols-2 lg:gap-14 lg:py-12">
                     {/* Columna izquierda */}
@@ -43,42 +37,29 @@ export function HeroSection({
                             </p>
                         </div>
 
-                        <p className="mt-5 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
-                            {'Planes desde '}
+                        {content.price && (
+                            <p className="mt-5 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
+                                {'Planes desde '}
 
-                            <span className="text-instinct">
-                                {content.price}
-                            </span>
-                        </p>
+                                <span className="text-instinct">
+                                    {content.price}
+                                </span>
+                            </p>
+                        )}
 
                         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                             <ButtonArrow
-                                href={
-                                    content.primaryAction
-                                        .href
-                                }
+                                href={content.primaryAction.href}
                                 className="w-full min-w-[250px] sm:w-auto"
                             >
-                                {
-                                    content
-                                        .primaryAction
-                                        .label
-                                }
+                                {content.primaryAction.label}
                             </ButtonArrow>
 
                             <ButtonSecondary
-                                href={
-                                    content
-                                        .secondaryAction
-                                        .href
-                                }
+                                href={content.secondaryAction.href}
                                 className="flex w-full items-center justify-center gap-2 px-6 text-sm sm:w-auto"
                             >
-                                {
-                                    content
-                                        .secondaryAction
-                                        .label
-                                }
+                                {content.secondaryAction.label}
                             </ButtonSecondary>
                         </div>
 
@@ -94,16 +75,12 @@ export function HeroSection({
 
                                 <div>
                                     <p className="text-xs font-extrabold text-deep-blue sm:text-base">
-                                        {
-                                            content.socialProof
-                                        }
+                                        {content.socialProof}
                                     </p>
 
                                     <div className="mt-2 inline-flex items-center gap-2 rounded-md border border-instinct px-4 py-2">
                                         <p className="text-xs font-bold tracking-wide text-instinct-dark sm:text-sm">
-                                            {
-                                                content.communityMessage
-                                            }
+                                            {content.communityMessage}
                                         </p>
                                     </div>
                                 </div>

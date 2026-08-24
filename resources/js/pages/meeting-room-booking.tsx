@@ -3,7 +3,6 @@ import {
     CalendarDays,
     Check,
     Clock3,
-    CreditCard,
     Gift,
     MousePointerClick,
 } from 'lucide-react';
@@ -18,6 +17,7 @@ import { RoomCard } from '@/components/meeting-rooms/room-card';
 import { TimeSlotSelector } from '@/components/meeting-rooms/time-slot-selector';
 import { ButtonArrow } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
+import { DataStateCard } from '@/components/ui/data-state-card';
 import { PublicLayout } from '@/layouts/public-layout';
 import { availability, company_lookup } from '@/routes/meeting_rooms';
 import { store } from '@/routes/meeting_rooms/reservations';
@@ -37,6 +37,7 @@ import { normalizeRut } from '@/utils/rut';
 
 interface MeetingRoomBookingProps {
     rooms: MeetingRoom[];
+    roomsUnavailable: boolean;
 }
 
 const initialFormData: ReservationFormData = {
@@ -54,7 +55,10 @@ const initialFormData: ReservationFormData = {
     acceptsPrivacy: false,
 };
 
-export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
+export default function MeetingRoomBooking({
+    rooms,
+    roomsUnavailable,
+}: MeetingRoomBookingProps) {
     const [selectedRoomId, setSelectedRoomId] = useState<MeetingRoomId | null>(
         null,
     );
@@ -67,6 +71,9 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
     const [lookup, setLookup] = useState<CompanyLookupResult | null>(null);
     const [localErrors, setLocalErrors] = useState<ReservationFormErrors>({});
     const [generalError, setGeneralError] = useState<string | null>(null);
+    const [availabilityUnavailable, setAvailabilityUnavailable] =
+        useState(false);
+    const [lookupUnavailable, setLookupUnavailable] = useState(false);
 
     const availabilityRequest = useHttp<
         { room: string; date: string },
@@ -131,10 +138,31 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
         }));
         void lookupRequest
             .submit(company_lookup(), {
-                onSuccess: (response) => setLookup(response),
-                onError: () => setLookup(null),
-                onNetworkError: () =>
-                    setGeneralError('No pudimos conectar con el servidor.'),
+                onSuccess: (response) => {
+                    setLookup(response);
+                    setLookupUnavailable(false);
+                },
+                onError: () => {
+                    setLookup(null);
+                    setLookupUnavailable(false);
+                },
+                onHttpException: (response) => {
+                    if (response.status !== 503) {
+                        return false;
+                    }
+
+                    setLookup(null);
+                    setLookupUnavailable(true);
+                    setGeneralError(
+                        'No pudimos calcular la cotización en este momento.',
+                    );
+
+                    return true;
+                },
+                onNetworkError: () => {
+                    setLookupUnavailable(true);
+                    setGeneralError('No pudimos conectar con el servidor.');
+                },
             })
             .catch(() => undefined);
         // La cotización externa solo cambia con la selección de la reserva.
@@ -143,6 +171,7 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
 
     function invalidateQuote(): void {
         setLookup(null);
+        setLookupUnavailable(false);
         setGeneralError(null);
         setLocalErrors({});
         lookupRequest.clearErrors();
@@ -154,6 +183,7 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
         setSelectedDate(null);
         setSelectedSlotIds([]);
         setRoomAvailability(null);
+        setAvailabilityUnavailable(false);
         invalidateQuote();
 
         requestAnimationFrame(() =>
@@ -171,17 +201,38 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
         setSelectedDate(date);
         setSelectedSlotIds([]);
         setRoomAvailability(null);
+        setAvailabilityUnavailable(false);
         invalidateQuote();
         availabilityRequest.transform(() => ({ room: selectedRoomId, date }));
         void availabilityRequest
             .submit(availability(), {
-                onSuccess: (response) => setRoomAvailability(response),
-                onError: () =>
+                onSuccess: (response) => {
+                    setRoomAvailability(response);
+                    setAvailabilityUnavailable(false);
+                },
+                onError: () => {
+                    setAvailabilityUnavailable(false);
                     setGeneralError(
                         'No pudimos consultar la disponibilidad. Inténtalo nuevamente.',
-                    ),
-                onNetworkError: () =>
-                    setGeneralError('No pudimos conectar con el servidor.'),
+                    );
+                },
+                onHttpException: (response) => {
+                    if (response.status !== 503) {
+                        return false;
+                    }
+
+                    setRoomAvailability(null);
+                    setAvailabilityUnavailable(true);
+                    setGeneralError(
+                        'La disponibilidad de esta sala no se puede consultar en este momento.',
+                    );
+
+                    return true;
+                },
+                onNetworkError: () => {
+                    setAvailabilityUnavailable(true);
+                    setGeneralError('No pudimos conectar con el servidor.');
+                },
             })
             .catch(() => undefined);
     }
@@ -264,6 +315,7 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
     function continueWithoutPlan(): void {
         setCustomerType('external');
         setLookup(null);
+        setLookupUnavailable(false);
         setGeneralError(null);
         setLocalErrors({});
         lookupRequest.clearErrors();
@@ -296,6 +348,7 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
             .submit(company_lookup(), {
                 onSuccess: (response) => {
                     setLookup(response);
+                    setLookupUnavailable(false);
 
                     if (response.company.company_name) {
                         setFormData((current) => ({
@@ -306,9 +359,27 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                         }));
                     }
                 },
-                onError: () => setLookup(null),
-                onNetworkError: () =>
-                    setGeneralError('No pudimos conectar con el servidor.'),
+                onError: () => {
+                    setLookup(null);
+                    setLookupUnavailable(false);
+                },
+                onHttpException: (response) => {
+                    if (response.status !== 503) {
+                        return false;
+                    }
+
+                    setLookup(null);
+                    setLookupUnavailable(true);
+                    setGeneralError(
+                        'No pudimos validar los datos de la empresa en este momento.',
+                    );
+
+                    return true;
+                },
+                onNetworkError: () => {
+                    setLookupUnavailable(true);
+                    setGeneralError('No pudimos conectar con el servidor.');
+                },
             })
             .catch(() => undefined);
     }
@@ -357,10 +428,15 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                         void selectDate(selectedDate);
                     }
                 },
-                onHttpException: () =>
+                onHttpException: (response) => {
                     setGeneralError(
-                        'No pudimos confirmar la reserva. Inténtalo nuevamente.',
-                    ),
+                        response.status === 503
+                            ? 'No pudimos validar ni confirmar la reserva. No se realizó ningún cargo ni reserva.'
+                            : 'No pudimos confirmar la reserva. Inténtalo nuevamente.',
+                    );
+
+                    return true;
+                },
                 onNetworkError: () =>
                     setGeneralError('No pudimos conectar con el servidor.'),
             })
@@ -387,16 +463,32 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                             </h2>
                         </div>
 
-                        <div className="mt-10 grid items-start gap-7 lg:grid-cols-2">
-                            {rooms.map((room) => (
-                                <RoomCard
-                                    key={room.id}
-                                    room={room}
-                                    isSelected={selectedRoomId === room.id}
-                                    onSelect={() => selectRoom(room.id)}
-                                />
-                            ))}
-                        </div>
+                        {roomsUnavailable ? (
+                            <DataStateCard
+                                state="unavailable"
+                                title="No pudimos cargar las salas"
+                                description="La información de salas no está disponible en este momento. Intenta nuevamente más tarde."
+                                className="mt-10"
+                            />
+                        ) : rooms.length === 0 ? (
+                            <DataStateCard
+                                state="empty"
+                                title="No hay salas disponibles"
+                                description="Actualmente no existen salas activas para reservar."
+                                className="mt-10"
+                            />
+                        ) : (
+                            <div className="mt-10 grid items-start gap-7 lg:grid-cols-2">
+                                {rooms.map((room) => (
+                                    <RoomCard
+                                        key={room.id}
+                                        room={room}
+                                        isSelected={selectedRoomId === room.id}
+                                        onSelect={() => selectRoom(room.id)}
+                                    />
+                                ))}
+                            </div>
+                        )}
                     </Container>
                 </section>
 
@@ -405,7 +497,19 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                     className="scroll-mt-24 border-y border-deep-blue/8 bg-background py-16 sm:py-20 lg:py-24"
                 >
                     <Container>
-                        {!selectedRoomId ? (
+                        {roomsUnavailable ? (
+                            <DataStateCard
+                                state="unavailable"
+                                title="El agendamiento está temporalmente deshabilitado"
+                                description="No podemos validar salas, precios ni disponibilidad en este momento."
+                            />
+                        ) : rooms.length === 0 ? (
+                            <DataStateCard
+                                state="empty"
+                                title="No hay salas para agendar"
+                                description="Vuelve más tarde para revisar nuevas disponibilidades."
+                            />
+                        ) : !selectedRoomId ? (
                             <EmptySelection />
                         ) : (
                             <form
@@ -419,15 +523,25 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                                         selectedDate={selectedDate}
                                         onSelectDate={selectDate}
                                     />
-                                    {selectedDate ? (
+                                    {availabilityRequest.processing ? (
+                                        <DataStateCard
+                                            state="loading"
+                                            title="Consultando disponibilidad"
+                                            description="Estamos revisando los horarios de esta sala."
+                                        />
+                                    ) : availabilityUnavailable ? (
+                                        <DataStateCard
+                                            state="unavailable"
+                                            title="Disponibilidad no disponible"
+                                            description="No pudimos consultar los horarios de esta sala. Puedes seleccionar otra sala o intentar nuevamente."
+                                        />
+                                    ) : selectedDate ? (
                                         <TimeSlotSelector
                                             slots={
                                                 roomAvailability?.slots ?? []
                                             }
                                             selectedSlotIds={selectedSlotIds}
-                                            isLoading={
-                                                availabilityRequest.processing
-                                            }
+                                            isLoading={false}
                                             onToggleSlot={toggleSlot}
                                         />
                                     ) : (
@@ -478,6 +592,7 @@ export default function MeetingRoomBooking({ rooms }: MeetingRoomBookingProps) {
                                         lookup={lookup}
                                         canSubmit={
                                             Boolean(customerType && lookup) &&
+                                            !lookupUnavailable &&
                                             !(
                                                 customerType === 'plan' &&
                                                 !lookup?.company.has_active_plan
@@ -530,10 +645,7 @@ function BookingHero() {
                         confirma en línea.
                     </p>
 
-                    <ButtonArrow
-                        href="#rooms-heading"
-                        className="mt-6"
-                    >
+                    <ButtonArrow href="#rooms-heading" className="mt-6">
                         VER SALAS
                     </ButtonArrow>
                 </div>
@@ -544,10 +656,7 @@ function BookingHero() {
                         text="Disponibilidad en tiempo real"
                     />
 
-                    <HeroBenefit
-                        icon={Check}
-                        text="Confirmación inmediata"
-                    />
+                    <HeroBenefit icon={Check} text="Confirmación inmediata" />
 
                     <HeroBenefit
                         icon={Gift}

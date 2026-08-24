@@ -31,6 +31,7 @@ it('lists active rooms and their real availability from the database', function 
         ->assertSuccessful()
         ->assertInertia(fn ($page) => $page
             ->component('meeting-room-booking')
+            ->where('roomsUnavailable', false)
             ->has('rooms', 1)
             ->where('rooms.0.id', $room->slug)
             ->where('rooms.0.normalHourlyRate', 20000));

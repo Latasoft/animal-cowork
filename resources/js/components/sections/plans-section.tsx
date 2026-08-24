@@ -1,14 +1,16 @@
 import { ShieldCheck } from 'lucide-react';
 import { Container } from '@/components/ui/container';
+import { DataStateCard } from '@/components/ui/data-state-card';
 import { PlanCard } from '@/components/ui/plan-card';
 import { RenewalCard } from '@/components/ui/renewalCard';
 import type { Plan } from '@/types/plan';
 
 interface PlansSectionProps {
     plans: Plan[];
+    plansUnavailable: boolean;
 }
 
-export function PlansSection({ plans }: PlansSectionProps) {
+export function PlansSection({ plans, plansUnavailable }: PlansSectionProps) {
     return (
         <section
             id="planes"
@@ -36,11 +38,27 @@ export function PlansSection({ plans }: PlansSectionProps) {
                     />
                 </div>
 
-                <div className="mt-14 grid items-stretch gap-7 lg:grid-cols-3">
-                    {plans.map((plan) => (
-                        <PlanCard key={plan.slug} plan={plan} />
-                    ))}
-                </div>
+                {plansUnavailable ? (
+                    <DataStateCard
+                        state="unavailable"
+                        title="No pudimos cargar los planes"
+                        description="La información de contratación no está disponible en este momento. Intenta nuevamente más tarde."
+                        className="mt-14"
+                    />
+                ) : plans.length === 0 ? (
+                    <DataStateCard
+                        state="empty"
+                        title="No hay planes publicados"
+                        description="Actualmente no existen planes disponibles para contratación."
+                        className="mt-14"
+                    />
+                ) : (
+                    <div className="mt-14 grid items-stretch gap-7 lg:grid-cols-3">
+                        {plans.map((plan) => (
+                            <PlanCard key={plan.slug} plan={plan} />
+                        ))}
+                    </div>
+                )}
 
                 <div className="">
                     <p className="mt-10 text-center text-lg font-semibold text-deep-blue">

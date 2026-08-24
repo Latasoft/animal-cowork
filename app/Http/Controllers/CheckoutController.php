@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\PlanResource;
 use App\Models\Plan;
+use App\Support\DatabaseQueryResult;
+use App\Support\SafeDatabaseQuery;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -12,15 +14,20 @@ use Inertia\Response;
 
 class CheckoutController extends Controller
 {
+    public function __construct(private SafeDatabaseQuery $database) {}
+
     /**
      * Paso 1: muestra el plan, datos de contacto y pago.
      */
     public function show(Request $request, string $plan): Response
     {
-        $selectedPlan = $this->findActivePlan($plan);
+        $selectedPlan = $this->findActivePlan($plan, 'show_checkout');
 
         return Inertia::render('checkout', [
-            'plan' => (new PlanResource($selectedPlan))->resolve(),
+            'plan' => $selectedPlan->value instanceof Plan
+                ? (new PlanResource($selectedPlan->value))->resolve()
+                : null,
+            'planUnavailable' => $selectedPlan->unavailable,
             'flow' => $this->checkoutFlow($request),
         ]);
     }
@@ -35,7 +42,18 @@ class CheckoutController extends Controller
         Request $request,
         string $plan,
     ): RedirectResponse {
-        $selectedPlan = $this->findActivePlan($plan);
+        $planResult = $this->findActivePlan($plan, 'validate_checkout_payment');
+
+        if ($planResult->unavailable) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'plan_id' => 'No pudimos validar el plan en este momento. Intenta nuevamente más tarde.',
+                ]);
+        }
+
+        $selectedPlan = $planResult->value;
+        assert($selectedPlan instanceof Plan);
 
         $validated = $request->validate(
             [
@@ -181,7 +199,14 @@ class CheckoutController extends Controller
         Request $request,
         string $plan,
     ): Response|RedirectResponse {
-        $selectedPlan = $this->findActivePlan($plan);
+        $planResult = $this->findActivePlan($plan, 'show_contract_data');
+
+        if ($planResult->unavailable) {
+            return $this->redirectToUnavailableCheckout($plan);
+        }
+
+        $selectedPlan = $planResult->value;
+        assert($selectedPlan instanceof Plan);
 
         $checkout = $request->session()->get('checkout');
 
@@ -227,7 +252,14 @@ class CheckoutController extends Controller
         Request $request,
         string $plan,
     ): Response|RedirectResponse {
-        $selectedPlan = $this->findActivePlan($plan);
+        $planResult = $this->findActivePlan($plan, 'show_contract_preview');
+
+        if ($planResult->unavailable) {
+            return $this->redirectToUnavailableCheckout($plan);
+        }
+
+        $selectedPlan = $planResult->value;
+        assert($selectedPlan instanceof Plan);
 
         $checkout = $request->session()->get('checkout');
 
@@ -259,11 +291,25 @@ class CheckoutController extends Controller
             : 'checkout';
     }
 
-    private function findActivePlan(string $slug): Plan
+    /** @return DatabaseQueryResult<Plan|null> */
+    private function findActivePlan(string $slug, string $operation): DatabaseQueryResult
     {
-        return Plan::query()
-            ->active()
-            ->where('slug', $slug)
-            ->firstOrFail();
+        return $this->database->run(
+            callback: fn (): Plan => Plan::query()
+                ->active()
+                ->where('slug', $slug)
+                ->firstOrFail(),
+            fallback: null,
+            component: 'checkout.plan',
+            model: Plan::class,
+            operation: $operation,
+        );
+    }
+
+    private function redirectToUnavailableCheckout(string $plan): RedirectResponse
+    {
+        return redirect()
+            ->route('checkout.show', ['plan' => $plan])
+            ->with('error', 'No pudimos validar el plan en este momento. Intenta nuevamente más tarde.');
     }
 }

@@ -5,15 +5,35 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MeetingRooms\StoreReservationRequest;
 use App\Models\Reservation;
 use App\Services\MeetingRooms\ReservationService;
+use App\Support\SafeDatabaseQuery;
 use Illuminate\Http\JsonResponse;
 
 class MeetingRoomReservationController extends Controller
 {
-    public function store(
-        StoreReservationRequest $request,
-        ReservationService $reservationService,
-    ): JsonResponse {
-        $reservation = $reservationService->confirm($request->validated());
+    public function __construct(
+        private ReservationService $reservationService,
+        private SafeDatabaseQuery $database,
+    ) {}
+
+    public function store(StoreReservationRequest $request): JsonResponse
+    {
+        $result = $this->database->run(
+            callback: fn (): Reservation => $this->reservationService->confirm($request->validated()),
+            fallback: null,
+            component: 'meeting_rooms.reservation',
+            model: Reservation::class,
+            operation: 'confirm_reservation',
+        );
+
+        if ($result->unavailable) {
+            return response()->json([
+                'message' => 'No pudimos confirmar la reserva en este momento. No se realizó ningún cargo ni reserva.',
+                'unavailable' => true,
+            ], 503);
+        }
+
+        $reservation = $result->value;
+        assert($reservation instanceof Reservation);
 
         return response()->json([
             'message' => 'Tu reserva fue confirmada correctamente.',

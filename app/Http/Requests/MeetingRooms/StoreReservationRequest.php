@@ -29,9 +29,7 @@ class StoreReservationRequest extends FormRequest
             'room' => [
                 'required',
                 'string',
-                Rule::exists('rooms', 'slug')->where(fn ($query) => $query
-                    ->where('is_active', true)
-                    ->whereNull('deleted_at')),
+                'max:50',
             ],
             'date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
             'slot_ids' => ['required', 'array', 'min:1'],

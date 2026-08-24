@@ -16,13 +16,15 @@ import type { Plan } from '@/types/plan';
 
 interface WelcomePageProps {
     plans: Plan[];
+    plansUnavailable: boolean;
 }
 
-export default function Welcome({ plans }: WelcomePageProps) {
-    const lowestPlanPrice = Math.min(...plans.map((plan) => plan.totalPrice));
-    const heroContent = createHeroContent(
-        Number.isFinite(lowestPlanPrice) ? lowestPlanPrice : 0,
-    );
+export default function Welcome({ plans, plansUnavailable }: WelcomePageProps) {
+    const lowestPlanPrice =
+        plans.length > 0
+            ? Math.min(...plans.map((plan) => plan.totalPrice))
+            : null;
+    const heroContent = createHeroContent(lowestPlanPrice);
 
     return (
         <>
@@ -35,7 +37,10 @@ export default function Welcome({ plans }: WelcomePageProps) {
 
             <PublicLayout>
                 <HeroSection content={heroContent} />
-                <PlansSection plans={plans} />
+                <PlansSection
+                    plans={plans}
+                    plansUnavailable={plansUnavailable}
+                />
                 <AdditionalServicesSection
                     services={additionalServices}
                     steps={officeSetupSteps}

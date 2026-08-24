@@ -31,6 +31,7 @@ it('shows only active plans on the home page ordered by sort order', function ()
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('welcome')
+            ->where('plansUnavailable', false)
             ->has('plans', 2)
             ->where('plans.0.slug', 'first')
             ->where('plans.0.featured', true)
@@ -51,6 +52,7 @@ it('retrieves an active checkout plan by slug with its database total', function
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
             ->component('checkout')
+            ->where('planUnavailable', false)
             ->where('plan.slug', 'db-plan')
             ->where('plan.priceOffice', 47580)
             ->where('plan.priceAdditional', 42410)
@@ -94,6 +96,7 @@ it('keeps home checkout and renewal available when a configured image is missing
     $this->get(route('contract.renew'))
         ->assertSuccessful()
         ->assertInertia(fn (Assert $page) => $page
+            ->where('plansUnavailable', false)
             ->where('plans.0.fallbackImage', '/images/plans/fenix.webp'));
 });
 
