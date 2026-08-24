@@ -88,6 +88,24 @@ it('accepts only JPG, JPEG, PNG and WebP images', function () {
         ]);
 });
 
+it('automatically resizes plan images before they are uploaded', function () {
+    $this->actingAs(planManager());
+
+    $component = Livewire::test(CreatePlan::class);
+    $imageUpload = $component->instance()->form->getComponent('image_path');
+
+    expect($imageUpload)
+        ->toBeInstanceOf(FileUpload::class)
+        ->and($imageUpload->getAutomaticallyResizeImagesMode())
+        ->toBe('contain')
+        ->and($imageUpload->getAutomaticallyResizeImagesWidth())
+        ->toBe('1600')
+        ->and($imageUpload->getAutomaticallyResizeImagesHeight())
+        ->toBe('1200')
+        ->and($imageUpload->shouldAutomaticallyUpscaleImagesWhenResizing())
+        ->toBeFalse();
+});
+
 it('edits and deactivates a plan from Filament', function () {
     $this->actingAs(planManager());
     $plan = Plan::factory()->create([

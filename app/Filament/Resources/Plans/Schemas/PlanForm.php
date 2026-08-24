@@ -63,8 +63,12 @@ class PlanForm
                                 'image/webp',
                             ])
                             ->rules(['extensions:jpg,jpeg,png,webp'])
+                            ->automaticallyResizeImagesMode('contain')
+                            ->automaticallyResizeImagesToWidth('1600')
+                            ->automaticallyResizeImagesToHeight('1200')
+                            ->automaticallyUpscaleImagesWhenResizing(false)
                             ->maxSize(4096)
-                            ->helperText('Formatos permitidos: JPG, JPEG, PNG y WebP; máximo 4 MB.'),
+                            ->helperText('La imagen se optimiza automáticamente antes de subirla. Formatos: JPG, JPEG, PNG y WebP; máximo 4 MB.'),
                         TextInput::make('image_alt')
                             ->label('Texto alternativo')
                             ->maxLength(255),
