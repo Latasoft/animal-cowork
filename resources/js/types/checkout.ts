@@ -1,14 +1,3 @@
-export interface CheckoutPlan {
-    id: string;
-    name: string;
-    tagline: string;
-    price: number;
-    duration: string;
-    contractDurationMonths: number;
-    image: string;
-    imageAlt: string;
-}
-
 export interface CheckoutFormData {
     plan_id: string;
 

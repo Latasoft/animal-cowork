@@ -10,11 +10,20 @@ import {
     officeSetupSteps,
 } from '@/data/additional-services';
 import { faqItems } from '@/data/faq';
-import { heroContent } from '@/data/home';
-import { plans } from '@/data/plans';
+import { createHeroContent } from '@/data/home';
 import { PublicLayout } from '@/layouts/public-layout';
+import type { Plan } from '@/types/plan';
 
-export default function Welcome() {
+interface WelcomePageProps {
+    plans: Plan[];
+}
+
+export default function Welcome({ plans }: WelcomePageProps) {
+    const lowestPlanPrice = Math.min(...plans.map((plan) => plan.totalPrice));
+    const heroContent = createHeroContent(
+        Number.isFinite(lowestPlanPrice) ? lowestPlanPrice : 0,
+    );
+
     return (
         <>
             <Head title="Oficina virtual en Chile">

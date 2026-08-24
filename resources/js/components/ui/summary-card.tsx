@@ -1,11 +1,13 @@
 import { LockKeyhole, ShieldCheck, Tag } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { formatClp } from '@/data/plans';
-import type { CheckoutPlan } from '@/types/checkout';
+import { PlanImage } from '@/components/ui/plan-image';
+import type { Plan } from '@/types/plan';
+import { formatClp } from '@/utils/currency';
+import { formatPlanDuration, getPlanTagline } from '@/utils/plans';
 
 interface SummaryCardProps {
-    plan: CheckoutPlan;
+    plan: Plan;
 
     discountCode: string;
     discountError?: string;
@@ -47,8 +49,10 @@ export function SummaryCard({
             {/* Plan seleccionado */}
             <div className="mt-5 flex items-center gap-4 border-b border-deep-blue/10 pb-6">
                 <div className="size-20 shrink-0 overflow-hidden rounded-2xl bg-instinct/8">
-                    <img
+                    <PlanImage
                         src={plan.image}
+                        fallbackImage={plan.fallbackImage}
+                        slug={plan.slug}
                         alt={plan.imageAlt}
                         width={80}
                         height={80}
@@ -58,15 +62,15 @@ export function SummaryCard({
 
                 <div className="min-w-0">
                     <h2 className="text-xl font-extrabold tracking-[-0.025em] text-deep-blue">
-                        {plan.name}
+                        Plan {plan.name}
                     </h2>
 
                     <p className="mt-1 text-sm leading-5 text-deep-blue/60">
-                        {plan.tagline}
+                        {getPlanTagline(plan)}
                     </p>
 
                     <span className="mt-2 inline-flex rounded-full bg-instinct/10 px-3 py-1 text-xs font-bold text-instinct-dark">
-                        Vigencia: {plan.duration}
+                        Vigencia: {formatPlanDuration(plan.contractDurationMonths)}
                     </span>
                 </div>
             </div>
@@ -79,7 +83,7 @@ export function SummaryCard({
                     </span>
 
                     <span className="text-lg font-extrabold text-deep-blue">
-                        {formatClp(plan.price)}
+                        {formatClp(plan.totalPrice)}
                     </span>
                 </div>
 
@@ -89,7 +93,7 @@ export function SummaryCard({
                     </span>
 
                     <span className="text-4xl font-extrabold tracking-[-0.05em] text-instinct">
-                        {formatClp(plan.price)}
+                        {formatClp(plan.totalPrice)}
                     </span>
                 </div>
             </div>

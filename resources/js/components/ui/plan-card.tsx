@@ -1,6 +1,8 @@
 import { ButtonLink } from '@/components/ui/button';
-import { formatClp, getPlanTotalPrice } from '@/data/plans';
+import { PlanImage } from '@/components/ui/plan-image';
+import { show as checkoutShow } from '@/routes/checkout';
 import type { Plan, PlanTheme } from '@/types/plan';
+import { formatClp } from '@/utils/currency';
 import {
     Check,
     Star
@@ -63,8 +65,10 @@ export function PlanCard({ plan }: PlanCardProps) {
             )}
 
             <div className="relative h-72 overflow-hidden bg-background sm:h-80">
-                <img
+                <PlanImage
                     src={plan.image}
+                    fallbackImage={plan.fallbackImage}
+                    slug={plan.slug}
                     alt={plan.imageAlt}
                     className="h-full w-full object-cover object-center transition duration-500 hover:scale-105"
                     loading="lazy"
@@ -125,18 +129,18 @@ export function PlanCard({ plan }: PlanCardProps) {
                         Desde 
                     </p>
                     <p className="text-4xl font-bold tracking-[-0.04em] text-instinct sm:text-5xl text-center">
-                        {formatClp(getPlanTotalPrice(plan))}
+                        {formatClp(plan.totalPrice)}
                     </p>
 
 
                 </div>
 
                 <ButtonLink
-                    href={plan.action.href}
+                    href={checkoutShow.url(plan.slug)}
                     variant={theme.buttonVariant}
                     className="mt-8 w-full justify-center px-4"
                 >
-                    <span className="line-clamp-1 text-center">{plan.action.label}</span>
+                    <span className="line-clamp-1 text-center">ELIGIR PLAN</span>
                 </ButtonLink>
             </div>
         </article>

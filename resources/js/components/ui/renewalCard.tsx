@@ -1,4 +1,5 @@
 import { ButtonArrow } from '@/components/ui/button';
+import { renew as renewContract } from '@/routes/contract';
 import { Repeat } from 'lucide-react';
 
 function RenewalCard() {
@@ -88,7 +89,7 @@ function RenewalCard() {
 
                     <div className="flex shrink-0 items-center justify-center lg:justify-end">
                         <ButtonArrow
-                            href="/renovar"
+                            href={renewContract.url()}
                             className="h-14 w-full min-w-64 px-6 text-base font-extrabold shadow-[0_14px_30px_rgba(106,174,59,0.3)] hover:-translate-y-1 hover:shadow-[0_18px_36px_rgba(106,174,59,0.4)] sm:w-auto"
                         >
                             RENOVAR MI CONTRATO

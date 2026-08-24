@@ -1,6 +1,14 @@
 <?php
 
+use Database\Seeders\PlanSeeder;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+
+uses(LazilyRefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(PlanSeeder::class);
+});
 
 test('contract preview requires a confirmed payment', function () {
     $response = $this->get(route('checkout.contract_preview', [
@@ -31,8 +39,9 @@ test('contract preview renders the selected plan after payment', function () {
     $response->assertSuccessful();
     $response->assertInertia(fn (Assert $page) => $page
         ->component('contract-preview')
-        ->where('plan.id', 'fenix')
-        ->where('plan.name', 'Plan Fénix'));
+        ->where('plan.slug', 'fenix')
+        ->where('plan.name', 'Fénix')
+        ->where('plan.priceOffice', 59990));
 });
 
 test('renewal page is the plan selection entry point', function () {
@@ -42,7 +51,8 @@ test('renewal page is the plan selection entry point', function () {
 
     $response->assertSuccessful();
     $response->assertInertia(fn (Assert $page) => $page
-        ->component('renew-contract'));
+        ->component('renew-contract')
+        ->has('plans', 3));
 });
 
 test('contract preview rejects an unknown plan', function () {

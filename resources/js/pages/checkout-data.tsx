@@ -17,11 +17,11 @@ import type {
     ContractDataFormData,
     ContractGenerationData,
     CheckoutFlow,
-    CheckoutPlan,
 } from '@/types/checkout';
+import type { Plan } from '@/types/plan';
 
 interface CheckoutDataPageProps {
-    plan: CheckoutPlan;
+    plan: Plan;
     flow: CheckoutFlow;
     customer: {
         email: string;
@@ -53,15 +53,15 @@ export default function CheckoutData({
     const restoredPlanId = useRef<string | null>(null);
 
     useEffect(() => {
-        if (restoredPlanId.current === plan.id) {
+        if (restoredPlanId.current === plan.slug) {
             return;
         }
 
-        restoredPlanId.current = plan.id;
+        restoredPlanId.current = plan.slug;
 
         const storedData = readContractData();
 
-        if (storedData?.plan_id !== plan.id) {
+        if (storedData?.plan_id !== plan.slug) {
             return;
         }
 
@@ -77,7 +77,7 @@ export default function CheckoutData({
                 flow === 'renewal' ? false : storedData.company_in_progress,
             is_natural_person: storedData.is_natural_person,
         });
-    }, [flow, plan.id, setData]);
+    }, [flow, plan.slug, setData]);
 
     function validateForm(): boolean {
         clearErrors();
@@ -176,7 +176,7 @@ export default function CheckoutData({
             company_in_progress:
                 flow === 'renewal' ? false : data.company_in_progress,
             ...createAutomaticContractDates(plan.contractDurationMonths),
-            plan_id: plan.id,
+            plan_id: plan.slug,
             representative_email: customer.email,
             representative_whatsapp: customer.whatsapp,
             company_name: data.is_natural_person ? '' : data.company_name,
@@ -187,7 +187,7 @@ export default function CheckoutData({
 
         storeContractData(contractData);
 
-        router.visit(contractPreview.url(plan.id), {
+        router.visit(contractPreview.url(plan.slug), {
             onStart: () => setIsNavigating(true),
             onFinish: () => setIsNavigating(false),
         });
@@ -242,7 +242,7 @@ export default function CheckoutData({
                             onSubmit={submit}
                             onBack={() =>
                                 router.visit(
-                                    checkoutShow.url(plan.id, {
+                                    checkoutShow.url(plan.slug, {
                                         query:
                                             flow === 'renewal' ? { flow } : {},
                                     }),

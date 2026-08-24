@@ -9,23 +9,20 @@ import { SummaryCard } from '@/components/ui/summary-card';
 import { PublicLayout } from '@/layouts/public-layout';
 import { payment as checkoutPayment } from '@/routes/checkout';
 
-import type {
-    CheckoutFormData,
-    CheckoutFlow,
-    CheckoutPlan,
-} from '@/types/checkout';
+import type { CheckoutFormData, CheckoutFlow } from '@/types/checkout';
+import type { Plan } from '@/types/plan';
 
 type FormSubmitHandler = NonNullable<ComponentProps<'form'>['onSubmit']>;
 
 interface CheckoutPageProps {
-    plan: CheckoutPlan;
+    plan: Plan;
     flow: CheckoutFlow;
 }
 
 export default function Checkout({ plan, flow }: CheckoutPageProps) {
     const { data, setData, post, processing, errors, clearErrors } =
         useForm<CheckoutFormData>({
-            plan_id: plan.id,
+            plan_id: plan.slug,
             representative_email: '',
             representative_whatsapp: '',
             discount_code: '',
@@ -49,7 +46,7 @@ export default function Checkout({ plan, flow }: CheckoutPageProps) {
         event.preventDefault();
 
         post(
-            checkoutPayment.url(plan.id, {
+            checkoutPayment.url(plan.slug, {
                 query: flow === 'renewal' ? { flow } : {},
             }),
             {
@@ -173,7 +170,7 @@ export default function Checkout({ plan, flow }: CheckoutPageProps) {
 }
 
 interface CheckoutHeaderProps {
-    plan: CheckoutPlan;
+    plan: Plan;
 }
 
 function CheckoutHeader({ plan }: CheckoutHeaderProps) {
@@ -191,7 +188,7 @@ function CheckoutHeader({ plan }: CheckoutHeaderProps) {
                 Ingresa tu correo electrónico y número de WhatsApp. Luego revisa
                 el detalle del{' '}
                 <strong className="font-extrabold text-deep-blue">
-                    {plan.name}
+                    Plan {plan.name}
                 </strong>{' '}
                 y acepta las condiciones antes de realizar el pago.
             </p>

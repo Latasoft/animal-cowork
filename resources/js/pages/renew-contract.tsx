@@ -2,27 +2,22 @@ import { Head, Link } from '@inertiajs/react';
 import { Check, Plus } from 'lucide-react';
 
 import { Container } from '@/components/ui/container';
-import { formatClp, getPlanTotalPrice, plans } from '@/data/plans';
+import { PlanImage } from '@/components/ui/plan-image';
 import { PublicLayout } from '@/layouts/public-layout';
+import { show as checkoutShow } from '@/routes/checkout';
+import type { Plan, PlanTheme } from '@/types/plan';
+import { formatClp } from '@/utils/currency';
 
-import type { Plan } from '@/types/plan';
-
-type RenewalPlanId = 'fenix' | 'lobo' | 'leon';
-
-function getRenewalPlan(planId: RenewalPlanId): Plan {
-    const plan = plans.find((catalogPlan) => catalogPlan.id === planId);
-
-    if (!plan) {
-        throw new Error(`No se encontró el plan de renovación: ${planId}`);
-    }
-
-    return plan;
+interface RenewContractPageProps {
+    plans: Plan[];
 }
 
-const phoenixPlan = getRenewalPlan('fenix');
-const patentPlans = [getRenewalPlan('lobo'), getRenewalPlan('leon')];
+export default function RenewContract({ plans }: RenewContractPageProps) {
+    const phoenixPlan = plans.find((plan) => plan.slug === 'fenix');
+    const patentPlans = plans.filter((plan) =>
+        ['lobo', 'leon'].includes(plan.slug),
+    );
 
-export default function RenewContract() {
     return (
         <PublicLayout>
             <Head title="Renovación de oficina virtual" />
@@ -40,7 +35,8 @@ export default function RenewContract() {
                             </h1>
 
                             <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
-                                Selecciona la alternativa que mejor se adapte a lo que necesitas para continuar.
+                                Selecciona la alternativa que mejor se adapte a
+                                lo que necesitas para continuar.
                             </p>
                         </header>
 
@@ -52,13 +48,16 @@ export default function RenewContract() {
                                 <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
                                     Renovación de oficina virtual
                                 </h2>
-                            <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
-                                Si solo necesitas renovar tu oficina virtual, esta es la opción indicada.
-                            </p>
+                                <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
+                                    Si solo necesitas renovar tu oficina
+                                    virtual, esta es la opción indicada.
+                                </p>
                             </div>
 
                             <div className="max-w-xl">
-                                <RenewalPlanCard plan={phoenixPlan} featured />
+                                {phoenixPlan && (
+                                    <RenewalPlanCard plan={phoenixPlan} />
+                                )}
                             </div>
                         </section>
 
@@ -75,7 +74,7 @@ export default function RenewContract() {
                             <div className="mt-7 grid gap-6 lg:grid-cols-2">
                                 {patentPlans.map((plan) => (
                                     <RenewalPlanCard
-                                        key={plan.id}
+                                        key={plan.slug}
                                         plan={plan}
                                     />
                                 ))}
@@ -90,12 +89,30 @@ export default function RenewContract() {
 
 interface RenewalPlanCardProps {
     plan: Plan;
-    featured?: boolean;
 }
 
-function RenewalPlanCard({ plan, featured = false }: RenewalPlanCardProps) {
+const themes: Record<PlanTheme, { accent: string; badge: string }> = {
+    green: {
+        accent: 'text-instinct-dark',
+        badge: 'bg-instinct text-white',
+    },
+    orange: {
+        accent: 'text-orange-600',
+        badge: 'bg-orange-600 text-white',
+    },
+    gold: {
+        accent: 'text-amber-600',
+        badge: 'bg-amber-500 text-deep-blue',
+    },
+};
+
+function RenewalPlanCard({ plan }: RenewalPlanCardProps) {
+    const featured = plan.featured;
+    const theme = themes[plan.theme];
     const displayedFeatures = plan.features.slice(0, featured ? 1 : 2);
-    const checkoutUrl = `${plan.action.href}?flow=renewal`;
+    const checkoutUrl = checkoutShow.url(plan.slug, {
+        query: { flow: 'renewal' },
+    });
 
     return (
         <article
@@ -107,8 +124,10 @@ function RenewalPlanCard({ plan, featured = false }: RenewalPlanCardProps) {
             ].join(' ')}
         >
             <div className="relative min-h-48 overflow-hidden bg-background sm:min-h-full">
-                <img
+                <PlanImage
                     src={plan.image}
+                    fallbackImage={plan.fallbackImage}
+                    slug={plan.slug}
                     alt={plan.imageAlt}
                     className="absolute inset-0 size-full object-cover object-center"
                     loading="lazy"
@@ -122,7 +141,9 @@ function RenewalPlanCard({ plan, featured = false }: RenewalPlanCardProps) {
             <div className="flex min-w-0 flex-col p-6 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                        <p className="text-xs font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
+                        <p
+                            className={`text-xs font-extrabold tracking-[0.16em] uppercase ${theme.accent}`}
+                        >
                             Plan
                         </p>
                         <h3 className="mt-1 text-3xl font-extrabold tracking-[-0.04em] text-deep-blue">
@@ -130,9 +151,11 @@ function RenewalPlanCard({ plan, featured = false }: RenewalPlanCardProps) {
                         </h3>
                     </div>
 
-                    {featured && (
-                        <span className="rounded-full bg-instinct px-3 py-1 text-xs font-extrabold text-white uppercase">
-                            RECOMENDADA
+                    {plan.badge && (
+                        <span
+                            className={`rounded-full px-3 py-1 text-xs font-extrabold uppercase ${theme.badge}`}
+                        >
+                            {plan.badge}
                         </span>
                     )}
                 </div>
@@ -167,7 +190,7 @@ function RenewalPlanCard({ plan, featured = false }: RenewalPlanCardProps) {
                             Precio total
                         </p>
                         <p className="mt-1 text-3xl font-extrabold tracking-[-0.04em] text-instinct-dark">
-                            {formatClp(getPlanTotalPrice(plan))}
+                            {formatClp(plan.totalPrice)}
                         </p>
                     </div>
 

@@ -5,12 +5,11 @@ import {
     LoaderCircle,
     RotateCcw,
 } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { CheckoutSteps } from '@/components/ui/checkout-steps';
 import { Container } from '@/components/ui/container';
-import { plans } from '@/data/plans';
 import { PublicLayout } from '@/layouts/public-layout';
 import { readContractData } from '@/lib/checkout-storage';
 import {
@@ -23,13 +22,14 @@ import {
 } from '@/lib/contract-file';
 import { data as checkoutData } from '@/routes/checkout';
 
-import type { ContractGenerationData, CheckoutPlan } from '@/types/checkout';
+import type { ContractGenerationData } from '@/types/checkout';
+import type { Plan } from '@/types/plan';
 
 type GenerationStatus =
     'loading' | 'generating' | 'ready' | 'missing' | 'error';
 
 interface ContractPreviewPageProps {
-    plan: CheckoutPlan;
+    plan: Plan;
 }
 
 interface PreparedContract {
@@ -38,10 +38,6 @@ interface PreparedContract {
 }
 
 export default function ContractPreview({ plan }: ContractPreviewPageProps) {
-    const selectedPlan = useMemo(
-        () => plans.find((catalogPlan) => catalogPlan.id === plan.id),
-        [plan.id],
-    );
     const [status, setStatus] = useState<GenerationStatus>('loading');
     const [generationAttempt, setGenerationAttempt] = useState(0);
     const [contractData, setContractData] =
@@ -63,21 +59,10 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
 
             const storedContract = readContractData();
 
-            if (!storedContract || storedContract.plan_id !== plan.id) {
+            if (!storedContract || storedContract.plan_id !== plan.slug) {
                 if (isActive) {
                     setContractData(null);
                     setStatus('missing');
-                }
-
-                return;
-            }
-
-            if (!selectedPlan) {
-                if (isActive) {
-                    setStatus('error');
-                    setErrorMessage(
-                        'El plan seleccionado ya no está disponible.',
-                    );
                 }
 
                 return;
@@ -87,14 +72,14 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                 const generationData: ContractGenerationData = {
                     ...storedContract,
                     ...createAutomaticContractDates(
-                        selectedPlan.contractDurationMonths,
+                        plan.contractDurationMonths,
                     ),
                 };
                 const { generateContractPdf } =
                     await import('@/components/checkout/contracts/contract-pdf');
                 const generatedBlob = await generateContractPdf(
                     generationData,
-                    selectedPlan,
+                    plan,
                 );
 
                 if (!isActive) {
@@ -121,10 +106,10 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
         return () => {
             isActive = false;
         };
-    }, [generationAttempt, plan.id, selectedPlan]);
+    }, [generationAttempt, plan]);
 
     async function confirmContract(): Promise<void> {
-        if (isConfirming || !pdfBlob || !contractData || !selectedPlan) {
+        if (isConfirming || !pdfBlob || !contractData) {
             return;
         }
 
@@ -135,15 +120,11 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                 requestAnimationFrame(() => resolve()),
             );
 
-            const file = createContractFile(
-                pdfBlob,
-                contractData,
-                selectedPlan,
-            );
+            const file = createContractFile(pdfBlob, contractData, plan);
             const payload = createContractConfirmationPayload(
                 file,
                 contractData,
-                selectedPlan,
+                plan,
             );
 
             setPreparedContract({ file, payload });
@@ -153,7 +134,7 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
     }
 
     const isBusy = status === 'loading' || status === 'generating';
-    const returnUrl = checkoutData.url(plan.id);
+    const returnUrl = checkoutData.url(plan.slug);
 
     return (
         <PublicLayout>

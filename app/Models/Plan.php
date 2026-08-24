@@ -2,18 +2,34 @@
 
 namespace App\Models;
 
+use Database\Factories\PlanFactory;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 /**
  * @property int $id
  * @property string $slug
  * @property string $name
+ * @property string|null $image_path
+ * @property-read int $total_price
+ * @property-read string $image_url
+ * @property-read string $fallback_image_url
  */
 class Plan extends Model
 {
-    use SoftDeletes;
+    /** @use HasFactory<PlanFactory> */
+    use HasFactory, SoftDeletes;
+
+    public const THEMES = [
+        'green' => 'Verde',
+        'orange' => 'Naranjo',
+        'gold' => 'Dorado',
+    ];
 
     protected $fillable = [
         'slug',
@@ -67,6 +83,46 @@ class Plan extends Model
     public function getTotalPriceAttribute(): int
     {
         return $this->price_office + $this->price_additional;
+    }
+
+    public function getImageUrlAttribute(): string
+    {
+        if (blank($this->image_path)) {
+            return url($this->fallback_image_url);
+        }
+
+        if (Str::startsWith($this->image_path, '/')) {
+            return url($this->image_path);
+        }
+
+        return Storage::disk('public')->url($this->image_path);
+    }
+
+    public function getFallbackImageUrlAttribute(): string
+    {
+        $planImagePath = public_path("images/plans/{$this->slug}.webp");
+
+        return is_file($planImagePath)
+            ? "/images/plans/{$this->slug}.webp"
+            : '/images/plans/placeholder.svg';
+    }
+
+    /**
+     * @param  Builder<Plan>  $query
+     * @return Builder<Plan>
+     */
+    public function scopeActive(Builder $query): Builder
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * @param  Builder<Plan>  $query
+     * @return Builder<Plan>
+     */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('sort_order')->orderBy('id');
     }
 
     /** @return HasMany<Subscription, $this> */

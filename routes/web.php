@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\CompanyLookupController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MeetingRoomBookingController;
 use App\Http\Controllers\MeetingRoomReservationController;
+use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\RoomAvailabilityController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'welcome')->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 Route::inertia(
     '/gestion-patente-comercial',
@@ -54,7 +56,7 @@ Route::get(
     [CheckoutController::class, 'show'],
 )->name('checkout.show');
 
-Route::inertia('/renovar', 'renew-contract')
+Route::get('/renovar', RenewalController::class)
     ->name('contract.renew');
 
 Route::inertia(

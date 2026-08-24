@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" role="img" aria-labelledby="title description">
+  <title id="title">Imagen de plan no disponible</title>
+  <desc id="description">Fondo neutro con la marca Animal Co-work</desc>
+  <rect width="800" height="600" fill="#f2f7ed"/>
+  <circle cx="400" cy="260" r="104" fill="#6aae3b" opacity="0.16"/>
+  <path d="M346 270c0-30 24-54 54-54s54 24 54 54-24 54-54 54-54-24-54-54Zm-68-62c0-20 16-36 36-36s36 16 36 36-16 36-36 36-36-16-36-36Zm172 0c0-20 16-36 36-36s36 16 36 36-16 36-36 36-36-16-36-36Zm-126-70c0-18 14-32 32-32s32 14 32 32-14 32-32 32-32-14-32-32Zm88 0c0-18 14-32 32-32s32 14 32 32-14 32-32 32-32-14-32-32Z" fill="#6aae3b"/>
+  <text x="400" y="430" text-anchor="middle" font-family="Arial, sans-serif" font-size="38" font-weight="700" fill="#0d1b3d">Animal Co-work</text>
+  <text x="400" y="475" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#40506f">Imagen próximamente</text>
+</svg>

@@ -1,8 +1,8 @@
-import { formatClp } from '@/data/plans';
 import { formatContractDate } from '@/lib/contract-dates';
 
 import type { ContractGenerationData } from '@/types/checkout';
 import type { Plan } from '@/types/plan';
+import { formatClp } from '@/utils/currency';
 import type {
     ContractClause,
     ContractContent,

@@ -1,6 +1,14 @@
 <?php
 
+use Database\Seeders\PlanSeeder;
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+
+uses(LazilyRefreshDatabase::class);
+
+beforeEach(function () {
+    $this->seed(PlanSeeder::class);
+});
 
 test('checkout identifies renewal only from the renewal query parameter', function () {
     $this->withoutVite();
@@ -44,7 +52,7 @@ test('renewal context reaches the contract data step through checkout', function
     ]))
         ->assertInertia(fn (Assert $page) => $page
             ->component('checkout-data')
-            ->where('plan.id', 'lobo')
+            ->where('plan.slug', 'lobo')
             ->where('flow', 'renewal'));
 });
 

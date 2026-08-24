@@ -38,7 +38,7 @@ export function PlansSection({ plans }: PlansSectionProps) {
 
                 <div className="mt-14 grid items-stretch gap-7 lg:grid-cols-3">
                     {plans.map((plan) => (
-                        <PlanCard key={plan.id} plan={plan} />
+                        <PlanCard key={plan.slug} plan={plan} />
                     ))}
                 </div>
 

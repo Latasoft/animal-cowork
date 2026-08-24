@@ -22,6 +22,11 @@ class User extends Authenticatable implements FilamentUser
         'reception',
     ];
 
+    public const PLAN_MANAGER_ROLES = [
+        'super_admin',
+        'admin',
+    ];
+
     public const STATUS_ACTIVE = 'active';
 
     protected $fillable = [
@@ -52,6 +57,12 @@ class User extends Authenticatable implements FilamentUser
         return $panel->getId() === 'admin'
             && $this->status === self::STATUS_ACTIVE
             && in_array($this->role, self::ADMIN_ROLES, true);
+    }
+
+    public function canManagePlans(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE
+            && in_array($this->role, self::PLAN_MANAGER_ROLES, true);
     }
 
     /** @return HasMany<Reservation, $this> */

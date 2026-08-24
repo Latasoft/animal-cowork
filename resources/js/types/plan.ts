@@ -1,19 +1,25 @@
 export type PlanTheme = 'green' | 'orange' | 'gold';
 
 export interface Plan {
-    id: string;
+    id: number;
+    slug: string;
     name: string;
-    badge?: string;
+    badge: string | null;
     priceOffice: number;
     priceAdditional: number;
-    image: string;
-    imageAlt: string;
-    features: string[];
-    action: {
-        label: string;
-        href: string;
-    };
-    theme: PlanTheme;
-    featured?: boolean;
+    totalPrice: number;
     contractDurationMonths: number;
+    features: string[];
+    includesRoomAccess: boolean;
+    monthlyRoomMinutesIncluded: number;
+    roomMinutesRollover: boolean;
+    extraRoomHourPriceNet: number | null;
+    extraRoomHourTaxable: boolean;
+    image: string;
+    fallbackImage: string;
+    imageAlt: string;
+    theme: PlanTheme;
+    featured: boolean;
+    active: boolean;
+    sortOrder: number;
 }

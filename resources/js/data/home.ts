@@ -1,14 +1,11 @@
-import { formatClp, getPlanTotalPrice, plans } from '@/data/plans';
 import type { HeroContent } from '@/types/home';
+import { formatClp } from '@/utils/currency';
 
-const lowestPlanPrice = Math.min(...plans.map(getPlanTotalPrice));
-
-export const heroContent: HeroContent = {
+const heroContent: Omit<HeroContent, 'price'> = {
     title: 'TÚ NEGOCIO NECESITA MÁS QUE UNA DIRECCIÓN,',
     title2: 'NECESITA UN IMPULSO.',
     subtitle: 'La oficina virtual más conveniente de Chile.',
     promotion: '2 años por el precio de 1.',
-    price: formatClp(lowestPlanPrice),
     primaryAction: {
         label: 'QUIERO MI OFICINA VIRTUAL',
         href: '#planes',
@@ -20,3 +17,10 @@ export const heroContent: HeroContent = {
     socialProof: 'Más de +6.000 emprendedores confían en nosotros',
     communityMessage: 'Únete a la manada de Animal Co-work.',
 };
+
+export function createHeroContent(lowestPlanPrice: number): HeroContent {
+    return {
+        ...heroContent,
+        price: formatClp(lowestPlanPrice),
+    };
+}

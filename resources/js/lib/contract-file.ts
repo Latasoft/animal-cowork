@@ -20,7 +20,7 @@ export function createContractFile(
         : data.company_name;
     const fileName = [
         'contrato-animal-cowork',
-        sanitizeFileSegment(plan.id),
+        sanitizeFileSegment(plan.slug),
         sanitizeFileSegment(customerIdentifier),
     ]
         .filter(Boolean)
@@ -46,7 +46,7 @@ export function createContractConfirmationPayload(
         'contract_type',
         data.is_natural_person ? 'natural_person' : 'legal_entity',
     );
-    payload.append('plan_id', plan.id);
+    payload.append('plan_id', plan.slug);
     payload.append('contract_action', 'new');
     payload.append('contract_data', JSON.stringify(data));
     payload.append('contract_pdf', file);

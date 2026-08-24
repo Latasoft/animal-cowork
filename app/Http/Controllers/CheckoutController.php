@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\PlanResource;
+use App\Models\Plan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -15,12 +17,10 @@ class CheckoutController extends Controller
      */
     public function show(Request $request, string $plan): Response
     {
-        $plans = $this->plans();
-
-        abort_unless(isset($plans[$plan]), 404);
+        $selectedPlan = $this->findActivePlan($plan);
 
         return Inertia::render('checkout', [
-            'plan' => $plans[$plan],
+            'plan' => (new PlanResource($selectedPlan))->resolve(),
             'flow' => $this->checkoutFlow($request),
         ]);
     }
@@ -35,16 +35,14 @@ class CheckoutController extends Controller
         Request $request,
         string $plan,
     ): RedirectResponse {
-        $plans = $this->plans();
-
-        abort_unless(isset($plans[$plan]), 404);
+        $selectedPlan = $this->findActivePlan($plan);
 
         $validated = $request->validate(
             [
                 'plan_id' => [
                     'required',
                     'string',
-                    Rule::in(array_keys($plans)),
+                    Rule::in([$selectedPlan->slug]),
                 ],
 
                 'representative_email' => [
@@ -133,8 +131,7 @@ class CheckoutController extends Controller
          * El precio se obtiene siempre desde Laravel.
          * Nunca se utiliza un precio enviado desde React.
          */
-        $selectedPlan = $plans[$plan];
-        $subtotal = $selectedPlan['price'];
+        $subtotal = $selectedPlan->total_price;
         $flow = $this->checkoutFlow($request);
 
         /*
@@ -158,7 +155,7 @@ class CheckoutController extends Controller
          * 6. Permitir el acceso al Paso 2.
          */
         $request->session()->put('checkout', [
-            'plan_id' => $plan,
+            'plan_id' => $selectedPlan->slug,
             'email' => $validated['representative_email'],
             'whatsapp' => $validated['representative_whatsapp'],
             'discount_code' => $discountCode,
@@ -184,9 +181,7 @@ class CheckoutController extends Controller
         Request $request,
         string $plan,
     ): Response|RedirectResponse {
-        $plans = $this->plans();
-
-        abort_unless(isset($plans[$plan]), 404);
+        $selectedPlan = $this->findActivePlan($plan);
 
         $checkout = $request->session()->get('checkout');
 
@@ -207,7 +202,7 @@ class CheckoutController extends Controller
         }
 
         return Inertia::render('checkout-data', [
-            'plan' => $plans[$plan],
+            'plan' => (new PlanResource($selectedPlan))->resolve(),
             'flow' => $this->checkoutFlow($request),
 
             'customer' => [
@@ -232,9 +227,7 @@ class CheckoutController extends Controller
         Request $request,
         string $plan,
     ): Response|RedirectResponse {
-        $plans = $this->plans();
-
-        abort_unless(isset($plans[$plan]), 404);
+        $selectedPlan = $this->findActivePlan($plan);
 
         $checkout = $request->session()->get('checkout');
 
@@ -255,7 +248,7 @@ class CheckoutController extends Controller
         }
 
         return Inertia::render('contract-preview', [
-            'plan' => $plans[$plan],
+            'plan' => (new PlanResource($selectedPlan))->resolve(),
         ]);
     }
 
@@ -266,49 +259,11 @@ class CheckoutController extends Controller
             : 'checkout';
     }
 
-    /**
-     * Catálogo temporal de planes.
-     *
-     * Más adelante estos datos podrán obtenerse desde MySQL.
-     */
-    /**
-     * @return array<string, array{id: string, name: string, tagline: string, price: int, duration: string, contractDurationMonths: int, image: string, imageAlt: string}>
-     */
-    private function plans(): array
+    private function findActivePlan(string $slug): Plan
     {
-        return [
-            'fenix' => [
-                'id' => 'fenix',
-                'name' => 'Plan Fénix',
-                'tagline' => 'Oficina virtual por 2 años',
-                'price' => 59990,
-                'duration' => '2 años',
-                'contractDurationMonths' => 24,
-                'image' => '/images/plans/fenix.webp',
-                'imageAlt' => 'Ilustración del Plan Fénix',
-            ],
-
-            'lobo' => [
-                'id' => 'lobo',
-                'name' => 'Plan Lobo',
-                'tagline' => 'Oficina virtual y gestión de patente comercial',
-                'price' => 89990,
-                'duration' => '1 año',
-                'contractDurationMonths' => 12,
-                'image' => '/images/plans/lobo.webp',
-                'imageAlt' => 'Ilustración del Plan Lobo',
-            ],
-
-            'leon' => [
-                'id' => 'leon',
-                'name' => 'Plan León',
-                'tagline' => 'Oficina virtual por 2 años',
-                'price' => 98000,
-                'duration' => '2 años',
-                'contractDurationMonths' => 24,
-                'image' => '/images/plans/leon.webp',
-                'imageAlt' => 'Ilustración del Plan León',
-            ],
-        ];
+        return Plan::query()
+            ->active()
+            ->where('slug', $slug)
+            ->firstOrFail();
     }
 }
