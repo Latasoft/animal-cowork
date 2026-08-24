@@ -80,6 +80,30 @@ class Plan extends Model
         ];
     }
 
+    protected static function booted(): void
+    {
+        static::updated(function (Plan $plan): void {
+            $originalImagePath = $plan->getOriginal('image_path');
+
+            if ($originalImagePath !== $plan->image_path) {
+                self::deleteUploadedImage($originalImagePath);
+            }
+        });
+
+        static::forceDeleted(function (Plan $plan): void {
+            self::deleteUploadedImage($plan->image_path);
+        });
+    }
+
+    private static function deleteUploadedImage(mixed $imagePath): void
+    {
+        if (! is_string($imagePath) || blank($imagePath) || Str::startsWith($imagePath, '/')) {
+            return;
+        }
+
+        Storage::disk('public')->delete($imagePath);
+    }
+
     public function getTotalPriceAttribute(): int
     {
         return $this->price_office + $this->price_additional;

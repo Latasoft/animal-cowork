@@ -45,6 +45,7 @@ class PlanForm
                             ->disk('public')
                             ->directory('plans')
                             ->visibility('public')
+                            ->storeFiles()
                             ->preventFilePathTampering()
                             ->fetchFileInformation(fn (?Plan $record): bool => ! self::isBundledPlanImage($record?->image_path))
                             ->getUploadedFileUsing(
@@ -61,8 +62,9 @@ class PlanForm
                                 'image/png',
                                 'image/webp',
                             ])
+                            ->rules(['extensions:jpg,jpeg,png,webp'])
                             ->maxSize(4096)
-                            ->helperText('Se guarda una ruta relativa en el disk public. JPEG, PNG o WebP; máximo 4 MB.'),
+                            ->helperText('Formatos permitidos: JPG, JPEG, PNG y WebP; máximo 4 MB.'),
                         TextInput::make('image_alt')
                             ->label('Texto alternativo')
                             ->maxLength(255),

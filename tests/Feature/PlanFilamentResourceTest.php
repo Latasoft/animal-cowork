@@ -6,8 +6,11 @@ use App\Models\Client;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Models\User;
+use Filament\Actions\DeleteAction;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 
 uses(LazilyRefreshDatabase::class);
@@ -44,6 +47,45 @@ it('creates a plan from Filament', function () {
     expect(Plan::query()->where('slug', 'condor')->first())
         ->not->toBeNull()
         ->name->toBe('Cóndor');
+});
+
+it('stores a new plan image on the public disk and persists its relative path', function () {
+    Storage::fake('public');
+    $this->actingAs(planManager());
+
+    Livewire::test(CreatePlan::class)
+        ->fillForm(planFormData([
+            'slug' => 'condor-image',
+            'name' => 'Cóndor con imagen',
+            'image_path' => UploadedFile::fake()->image('condor.png', 800, 600),
+        ]))
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $plan = Plan::query()->where('slug', 'condor-image')->firstOrFail();
+
+    expect($plan->image_path)
+        ->toStartWith('plans/')
+        ->toEndWith('.png')
+        ->and($plan->image_url)->toBe(Storage::disk('public')->url($plan->image_path));
+
+    Storage::disk('public')->assertExists($plan->image_path);
+});
+
+it('accepts only JPG, JPEG, PNG and WebP images', function () {
+    $this->actingAs(planManager());
+
+    $component = Livewire::test(CreatePlan::class);
+    $imageUpload = $component->instance()->form->getComponent('image_path');
+
+    expect($imageUpload)
+        ->toBeInstanceOf(FileUpload::class)
+        ->and($imageUpload->getAcceptedFileTypes())
+        ->toBe([
+            'image/jpeg',
+            'image/png',
+            'image/webp',
+        ]);
 });
 
 it('edits and deactivates a plan from Filament', function () {
@@ -130,6 +172,22 @@ it('prevents deleting a plan that has subscription history', function () {
 
     expect($user->can('delete', $plan))->toBeFalse();
     expect(Plan::query()->find($plan->id))->not->toBeNull();
+});
+
+it('permanently deletes a plan without subscriptions and its uploaded image', function () {
+    Storage::fake('public');
+    $this->actingAs(planManager());
+    $imagePath = 'plans/deletable-plan.webp';
+    Storage::disk('public')->put($imagePath, 'image contents');
+    $plan = Plan::factory()->create(['image_path' => $imagePath]);
+
+    Livewire::test(EditPlan::class, ['record' => $plan->getRouteKey()])
+        ->callAction(DeleteAction::class)
+        ->assertNotified()
+        ->assertRedirect();
+
+    expect(Plan::withTrashed()->find($plan->getKey()))->toBeNull();
+    Storage::disk('public')->assertMissing($imagePath);
 });
 
 function planManager(): User

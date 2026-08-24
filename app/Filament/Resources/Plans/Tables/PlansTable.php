@@ -6,6 +6,7 @@ use App\Models\Plan;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
+use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\IconColumn;
@@ -43,7 +44,11 @@ class PlansTable
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->using(fn (Plan $record): ?bool => $record->forceDelete())
+                    ->successNotificationTitle('Plan eliminado definitivamente'),
+                ForceDeleteAction::make()
+                    ->successNotificationTitle('Plan eliminado definitivamente'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
