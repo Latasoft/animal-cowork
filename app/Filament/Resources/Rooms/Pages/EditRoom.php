@@ -7,6 +7,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Storage;
 
 class EditRoom extends EditRecord
 {
@@ -16,13 +17,10 @@ class EditRoom extends EditRecord
     {
         $newImages = $data['new_images'] ?? [];
 
-        // Nunca permitimos que el campo auxiliar llegue directamente al modelo.
         unset($data['new_images']);
 
-        // Imágenes que ya existen en la base de datos.
         $currentImages = $this->record->images ?? [];
 
-        // Aseguramos que siempre trabajemos con arrays.
         if (! is_array($currentImages)) {
             $currentImages = [];
         }
@@ -31,7 +29,6 @@ class EditRoom extends EditRecord
             $newImages = [];
         }
 
-        // Agregamos las nuevas imágenes a las existentes.
         $data['images'] = array_values(
             array_unique(
                 array_merge($currentImages, $newImages)
@@ -39,6 +36,39 @@ class EditRoom extends EditRecord
         );
 
         return $data;
+    }
+
+    public function removeImage(int $index): void
+    {
+        $images = $this->record->images ?? [];
+
+        if (! is_array($images) || ! array_key_exists($index, $images)) {
+            return;
+        }
+
+        $image = $images[$index];
+
+        // Si es una imagen subida al storage público,
+        // eliminamos también el archivo físico.
+        if (
+            is_string($image)
+            && ! str_starts_with($image, '/images/')
+            && Storage::disk('public')->exists($image)
+        ) {
+            Storage::disk('public')->delete($image);
+        }
+
+        // Eliminamos la imagen del array.
+        unset($images[$index]);
+
+        // Reindexamos el array para evitar índices discontinuos.
+        $this->record->images = array_values($images);
+
+        // Guardamos inmediatamente el cambio.
+        $this->record->save();
+
+        // Recargamos el registro para mantener el estado sincronizado.
+        $this->record->refresh();
     }
 
     protected function getHeaderActions(): array

@@ -1,4 +1,6 @@
 @php
+    use Illuminate\Support\Facades\Storage;
+
     $images = $images ?? [];
 @endphp
 
@@ -11,6 +13,12 @@
         "
     >
         @foreach ($images as $index => $image)
+            @php
+                $imageUrl = str_starts_with($image, '/images/')
+                    ? url($image)
+                    : Storage::disk('public')->url($image);
+            @endphp
+
             <div
                 style="
                     position: relative;
@@ -24,7 +32,7 @@
                 "
             >
                 <img
-                    src="{{ url($image) }}"
+                    src="{{ $imageUrl }}"
                     alt="Imagen de la sala"
                     style="
                         display: block;
