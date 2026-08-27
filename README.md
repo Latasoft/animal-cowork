@@ -2,9 +2,9 @@
 
 Plataforma web para la contratación y gestión de servicios de oficina virtual en Chile.
 
-Animal Co-work busca ofrecer una experiencia de contratación moderna, rápida y completamente digital, permitiendo que emprendedores, personas naturales y empresas seleccionen un plan, ingresen sus datos, revisen su contrato, realicen el pago y completen el proceso de firma electrónica desde una misma plataforma.
+Animal Co-work busca ofrecer una experiencia de contratación moderna, rápida y completamente digital, permitiendo que emprendedores, personas naturales y empresas seleccionen un plan, ingresen sus datos, revisen su contrato, realicen el pago y completen el proceso desde una misma plataforma. Tambien permitiendo reservas salas mediante el sistema de reservas de la aplicación
 
-El proyecto se está desarrollando inicialmente como una landing page web autoadministrable con panel administrativo, gestión de clientes, contratos, pagos, contenido y servicios.
+El proyecto se está desarrollando inicialmente como una landing page web autoadministrable con panel administrativo, gestión de clientes, contratos, pagos, contenido, servicios y sistema de reservas.
 
 ---
 
@@ -53,6 +53,8 @@ La aplicación permitirá que personas naturales y jurídicas puedan:
 * Realizar el pago del servicio.
 * Recibir comunicaciones relacionadas con su contratación.
 * Gestionar posteriormente renovaciones y servicios asociados.
+* Reservar una sala disponible con la posibilidad de cangear sus horas incluidas en el plan
+* Visualizar oficinas privadas
 
 La plataforma también contará con un sistema administrativo para gestionar el contenido de la página, planes, clientes, solicitudes, contratos y pagos.
 
@@ -75,6 +77,7 @@ Crear una plataforma digital que permita contratar una oficina virtual de manera
 * Centralizar la información de clientes y contratos.
 * Permitir que el contenido de la web sea administrado sin modificar código.
 * Mantener una experiencia visual coherente con la marca Animal Co-work.
+* Permitir reservar salas de manera virtual
 
 ---
 
@@ -167,7 +170,7 @@ La previsualización debe:
 * Reemplazar los campos dinámicos con los datos del cliente.
 * Mostrar los datos del plan seleccionado.
 * Mostrar la duración del servicio.
-* Mostrar el valor contratado.
+* Mostrar el valor contratado (Solamente el valor referente a oficina virtual "Price ofice").
 * Mostrar los datos de Animal Co-work.
 * Permitir revisar el contenido antes de confirmar.
 * Adaptarse correctamente a escritorio y dispositivos móviles.
@@ -185,9 +188,10 @@ Al confirmar:
 2. Se registra la aceptación del documento.
 3. Se guarda la versión exacta del contrato aceptado.
 4. Se registra la fecha y hora de confirmación.
-5. El contrato se envía al correo corporativo destinado a su procesamiento.
-6. Se informa al usuario que la solicitud fue recibida correctamente.
-7. Un ejecutivo toma contacto con el cliente en un plazo máximo de 2 horas hábiles.
+5. Se registra el cliente en la base de datos
+6. El contrato se envía al correo corporativo destinado a su procesamiento.
+7. Se informa al usuario que la solicitud fue recibida correctamente.
+8. Un ejecutivo toma contacto con el cliente en un plazo máximo de 2 horas hábiles.
 
 La confirmación del contrato debe evitar envíos duplicados.
 
@@ -207,20 +211,8 @@ El sistema deberá:
 
 ### Paso 5: Firma electrónica
 
-La plataforma deberá integrar un proceso de firma electrónica.
+La gestionará un ejecutivo
 
-El objetivo es permitir que el cliente firme el contrato sin abandonar la plataforma o mediante un flujo externo controlado.
-
-El sistema deberá registrar:
-
-* Estado de firma.
-* Fecha de envío.
-* Fecha de firma.
-* Identificador del proceso.
-* Documento firmado.
-* Evidencia o certificado de firma, cuando corresponda.
-
----
 
 ## Planes disponibles
 
@@ -239,7 +231,9 @@ Incluye:
 * Escaneo de documentos.
 * Acceso a sala de reuniones.
 
-**Precio:** $59.990
+**Precio oficina (se muestra en contrato):** $59.990
+**Precio adicional:** $0
+**Precio total:** $59.990
 
 ### LOBO
 
@@ -255,7 +249,9 @@ Incluye:
 * Escaneo de documentos.
 * Acceso a sala de reuniones.
 
-**Precio:** $89.990
+**Precio oficina (se muestra en contrato):** $47.580
+**Precio adicional:** $42.410
+**Precio total:** $89.990
 
 ### LEÓN
 
@@ -268,17 +264,19 @@ Incluye:
 * Escaneo de documentos.
 * Acceso a sala de reuniones.
 
-**Precio:** $98.000
+**Precio oficina (se muestra en contrato):** $59.990
+**Precio adicional:** $38.010
+**Precio total:** $98.000
 
 ### Renovación de contratos
 
-Después de la sección de planes se incorporará una sección específica para clientes existentes.
+Después de la sección de planes se incorporará una sección específica para clientes.
 
 Texto de referencia:
 
 > ¿Necesitas renovar tu contrato? Renueva aquí.
 
-Esta sección deberá dirigir a un flujo de renovación independiente o a un formulario específico.
+Esta sección deberá dirigir al flujo normal de contratación y guardar el plan seleccionado. en esta sección siempre vamos a recomendar renovar el plan fenix
 
 ---
 
@@ -314,7 +312,7 @@ Esta arquitectura evita mantener dos aplicaciones completamente separadas y perm
 * Preparar integraciones externas mediante servicios independientes.
 * Mantener control de versiones de los contratos.
 * Evitar dependencias innecesarias.
-* Priorizar compatibilidad con hosting tradicional.
+* Priorizar compatibilidad con hosting tradicional (Ihost).
 
 ---
 
@@ -330,7 +328,7 @@ Esta arquitectura evita mantener dos aplicaciones completamente separadas y perm
 * Laravel Mail.
 * Laravel Validation.
 * Laravel Queues para procesos que puedan ejecutarse de forma diferida.
-* Filament para el panel administrativo, sujeto a compatibilidad final con producción.
+* Filament 4 para el panel administrativo. 
 
 ### Frontend
 
@@ -351,8 +349,8 @@ Esta arquitectura evita mantener dos aplicaciones completamente separadas y perm
 * npm.
 * Git.
 * GitLab.
+* GitHub.
 * Visual Studio Code.
-* Codex como apoyo de desarrollo.
 * ImageMagick para optimización de imágenes.
 
 ### Versiones utilizadas durante el desarrollo
@@ -504,7 +502,6 @@ La página principal incluye o incluirá:
 * Mensaje comercial.
 * Llamado a la acción.
 * Información sobre domicilio tributario.
-* Información sobre Firma Electrónica Avanzada.
 * Indicador de más de 6.000 emprendedores.
 * Sección de planes.
 * Sección de renovación.
@@ -533,8 +530,8 @@ El header debe:
 ### Hero
 
 El hero actual utiliza:
-* Fonfo blanco.
-* Halo o elemento visual en verde.
+* Fondo blanco.
+* Imagen principal a la derecha
 * Texto principal.
 * Mensaje comunitario.
 * Llamado a la acción.
@@ -702,34 +699,35 @@ app/
 * Optimización de imágenes a WebP.
 * Repositorio Git configurado.
 * Pruebas iniciales de despliegue.
-
-### En desarrollo
-
 * Flujo completo de contratación.
 * Formulario para persona natural.
 * Formulario para persona jurídica.
-* Validaciones del backend.
-* Persistencia de solicitudes.
-* Previsualización de contratos.
 * Generación dinámica de contratos.
 * Confirmación del contrato.
-* Envío automático por correo.
-* Control de errores en frontend.
-* Mensajes de validación mediante Inertia.
 * Sección de renovación.
+* Gestión de planes.
+* Gestión de clientes.
+* Gestión de oficinas privadas
+* Gestión de salas de reuniones
+* Gestión de reservas (Bloqueo de fechas y horarios)
+* Control de errores en frontend.
+* Previsualización de contratos.
+
+### En desarrollo
+
+* Panel administrativo.
+* Envío automático por correo.
+* Registro de cliente al contratar un plan
 
 ### Pendiente
 
-* Panel administrativo.
-* Gestión de contenido.
-* Gestión de planes.
-* Gestión de clientes.
+* Validaciones del backend.
+* Persistencia de solicitudes.
 * Gestión de contratos.
+* Mensajes de validación mediante Inertia.
 * Pasarela de pagos.
-* Firma electrónica.
 * Historial de estados.
 * Notificaciones automáticas.
-* Sistema de renovación.
 * Despliegue definitivo en iHost.
 * Configuración de dominio definitivo.
 * Automatización de despliegue.
@@ -1038,17 +1036,20 @@ La base de datos de **Animal Co-work** está diseñada para soportar la gestión
 
 Actualmente, el modelo principal está compuesto por las siguientes tablas:
 
-* `plans`
-* `clients`
-* `subscriptions`
-* `users`
-* `rooms`
-* `reservations`
+- `plans`
+- `clients`
+- `subscriptions`
+- `users`
+- `rooms`
+- `rooms_blocks`
+- `reservations`
+- `private_offices`
 
 ## Diagrama Entidad-Relación
 
 ```mermaid
 erDiagram
+
     PLANS {
         bigint id PK
         string slug UK
@@ -1148,6 +1149,17 @@ erDiagram
         timestamp deleted_at
     }
 
+    ROOMS_BLOCKS {
+        bigint id PK
+        bigint room_id FK
+        datetime starts_at
+        datetime ends_at
+        string reason
+        boolean is_active
+        timestamp created_at
+        timestamp updated_at
+    }
+
     RESERVATIONS {
         bigint id PK
         bigint room_id FK
@@ -1181,11 +1193,31 @@ erDiagram
         timestamp updated_at
     }
 
+    PRIVATE_OFFICES {
+        string id PK
+        string name
+        string slug UK
+        string image
+        string image_alt
+        decimal area_m2
+        boolean is_available
+        decimal price
+        string currency
+        boolean expenses_included
+        json features
+        int sort_order
+        boolean is_visible
+        timestamp created_at
+        timestamp updated_at
+    }
+
     CLIENTS ||--o{ SUBSCRIPTIONS : has
     PLANS ||--o{ SUBSCRIPTIONS : defines
     SUBSCRIPTIONS o|--o{ SUBSCRIPTIONS : renews_from
 
+    ROOMS ||--o{ ROOMS_BLOCKS : has
     ROOMS ||--o{ RESERVATIONS : has
+
     CLIENTS o|--o{ RESERVATIONS : makes
     SUBSCRIPTIONS o|--o{ RESERVATIONS : applies_benefit
     USERS o|--o{ RESERVATIONS : created_by
@@ -1502,6 +1534,24 @@ La reserva debe realizarse obligatoriamente por las dos horas completas:
 ```
 
 ---
+### `rooms_blocks`
+
+Tabla utilizada para gestionar bloqueos de disponibilidad de las salas.
+
+Permite registrar períodos en los que una sala no puede ser reservada, independientemente de las reservas existentes.
+
+Se utiliza para situaciones como:
+
+- Mantención.
+- Reparaciones.
+- Eventos internos.
+- Uso administrativo.
+- Bloqueos temporales.
+- Cualquier período en que una sala deba quedar indisponible.
+
+La tabla mantiene una relación con `rooms` mediante `room_id`.
+
+---
 
 ### `reservations`
 
@@ -1651,7 +1701,7 @@ Esta tarifa se conserva como snapshot dentro de la suscripción.
 La tarifa normal actual es:
 
 ```text
-$12.000 netos + IVA por hora
+$20.000 netos + IVA por hora
 ```
 
 Esta tarifa pertenece a la configuración de la sala.
@@ -1702,16 +1752,16 @@ Reserva:
 120 minutos
 
 Tarifa:
-$12.000 netos por hora
+$20.000 netos por hora
 
 Subtotal:
-$24.000
+$40.000
 
 IVA:
-$4.560
+$7.600
 
 Total:
-$28.560
+$47.600
 ```
 
 ---
@@ -1853,7 +1903,7 @@ sin necesidad de modificar la estructura principal de clientes.
 
 ## Seeders de desarrollo
 
-El entorno de desarrollo incluye seeders iniciales para poder probar diferentes escenarios del sistema:
+El entorno de desarrollo incluye seeders iniciales para poder probar diferentes escenarios del sistema y para poblar tablas principales:
 
 ```text
 PlanSeeder
@@ -1976,31 +2026,21 @@ El panel administrativo permitirá gestionar el contenido y la operación del ne
 * Roles y permisos.
 * Dashboard.
 * Gestión de planes.
-* Gestión de beneficios.
-* Gestión de precios.
-* Gestión de contenido de la landing.
+* Gestión de salas
 * Gestión de clientes.
-* Gestión de empresas.
-* Gestión de solicitudes.
-* Gestión de contratos.
-* Gestión de renovaciones.
-* Gestión de pagos.
-* Gestión de estados.
-* Gestión de correos.
-* Descarga de documentos.
-* Historial de actividad.
+* Gestión de oficinas privadas.
+* Gestión de sala de reuniones.
+* Gestión de reservas y bloqueo de reservas.
+* Gestión de contenido de la landing.
 * Filtros y búsquedas.
-* Exportación de información.
-* Métricas comerciales.
 
 ### Roles sugeridos
 
 * Superadministrador.
 * Administrador.
 * Ejecutivo.
-* Finanzas.
-* Soporte.
-* Solo lectura.
+* Recepción.
+
 
 Cada acción sensible debe estar protegida por permisos.
 
@@ -2119,12 +2159,7 @@ Cuando exista un proxy inverso, Laravel debe confiar correctamente en los encabe
 
 Se realizaron pruebas de despliegue en Railway.
 
-Durante estas pruebas se detectaron:
-
-* Problemas de bloqueo dentro de `node_modules/.vite`.
-* Errores `EBUSY` durante la compilación.
-* Página en blanco por recursos generados con HTTP.
-* Bloqueo del navegador por contenido mixto.
+* La aplicación se encuentra funcional
 
 Railway se utilizó como entorno de prueba, pero el objetivo final continúa siendo iHost.
 
@@ -2172,64 +2207,58 @@ Antes de eliminar archivos originales se recomienda verificar que los WebP se ha
 * [x] Integrar imágenes definitivas.
 * [x] Crear preguntas frecuentes.
 * [x] Crear footer.
-* [ ] Crear sección de renovación.
-* [ ] Mejorar accesibilidad.
-* [ ] Mejorar rendimiento.
+* [x] Crear sección de renovación.
+* [x] Mejorar accesibilidad.
+* [x] Mejorar rendimiento.
 
 ### Fase 2: Contratación
 
 * [x] Crear selección de plan.
 * [x] Crear selector de persona natural o jurídica.
-* [ ] Crear formulario para persona natural.
-* [ ] Crear formulario para persona jurídica.
-* [ ] Crear validaciones.
+* [x] Crear formulario para persona natural.
+* [x] Crear formulario para persona jurídica.
+* [x] Crear validaciones.
 * [x] Mostrar mensajes de error correctamente.
-* [ ] Guardar solicitudes.
-* [ ] Crear resumen.
-* [ ] Crear navegación por pasos.
+* [x] Guardar solicitudes.
+* [x] Crear resumen.
+* [x] Crear navegación por pasos.
 * [ ] Evitar pérdida de datos al volver atrás.
 
 ### Fase 3: Contratos
 
-* [ ] Incorporar documentos de referencia.
-* [ ] Diseñar plantillas.
-* [ ] Crear sistema de variables.
-* [ ] Generar contrato de persona natural.
-* [ ] Generar contrato de persona jurídica.
-* [ ] Crear previsualización.
-* [ ] Crear confirmación.
+* [x] Incorporar documentos de referencia.
+* [x] Diseñar plantillas.
+* [x] Crear sistema de variables.
+* [x] Generar contrato de persona natural.
+* [x] Generar contrato de persona jurídica.
+* [x] Crear previsualización.
+* [x] Crear confirmación.
 * [ ] Guardar versión confirmada.
 * [ ] Enviar contrato por correo.
 * [ ] Prevenir confirmaciones duplicadas.
 * [ ] Crear estados.
-* [ ] Generar PDF.
+* [x] Generar PDF.
 
 ### Fase 4: Administración
 
-* [ ] Instalar y configurar Filament.
-* [ ] Crear autenticación administrativa.
-* [ ] Crear roles.
-* [ ] Crear permisos.
-* [ ] Gestionar planes.
+* [x] Instalar y configurar Filament.
+* [x] Crear autenticación administrativa.
+* [x] Crear roles.
+* [x] Crear permisos.
+* [x] Gestionar planes.
+* [x] Gestionar salas de reuniones
+* [x] Gestionar oficinas privadas
+* [x] Gestionar reservas
 * [ ] Gestionar contenidos.
-* [ ] Gestionar clientes.
-* [ ] Gestionar solicitudes.
-* [ ] Gestionar contratos.
-* [ ] Gestionar renovaciones.
-* [ ] Crear dashboard.
-* [ ] Crear reportes.
+* [x] Gestionar clientes.
+* [x] Crear dashboard.
 
-### Fase 5: Pagos y firma
+### Fase 5: Pagos
 
 * [ ] Seleccionar proveedor de pagos.
 * [ ] Implementar creación de transacciones.
 * [ ] Implementar Webhooks.
 * [ ] Registrar estados.
-* [ ] Seleccionar proveedor de firma electrónica.
-* [ ] Integrar envío a firma.
-* [ ] Consultar estado de firma.
-* [ ] Guardar documento firmado.
-* [ ] Notificar al cliente.
 
 ### Fase 6: Producción
 
@@ -2384,7 +2413,6 @@ La aplicación deberá mostrar y gestionar, según corresponda:
 * Condiciones del servicio.
 * Condiciones de renovación.
 * Identificación del proveedor.
-* Información sobre firma electrónica.
 * Autorización para comunicaciones.
 * Registro de aceptación.
 
@@ -2398,6 +2426,9 @@ Repositorio principal:
 
 ```text
 https://gitlab.com/latasoft-group/animal-cowork.git
+```
+```text
+https://github.com/Latasoft/animal-cowork.git
 ```
 
 ### Remoto local
@@ -2428,7 +2459,7 @@ Si GitLab rechaza la autenticación por contraseña, se debe utilizar un token d
 
 ## Autoría y desarrollo
 
-Proyecto desarrollado para Animal Co-work con apoyo técnico de Latasoft.
+Proyecto desarrollado para Animal Co-work por Latasoft.
 
 La aplicación se encuentra en desarrollo activo.
 
