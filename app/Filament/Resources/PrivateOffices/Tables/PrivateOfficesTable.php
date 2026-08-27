@@ -22,13 +22,20 @@ class PrivateOfficesTable
                 | Imagen
                 |--------------------------------------------------------------------------
                 */
-
                 ImageColumn::make('office_image')
                     ->label('Imagen')
                     ->getStateUsing(
-                        fn (PrivateOffice $record): ?string => ! empty($record->image)
-                            ? url($record->image)
-                            : null
+                        fn (PrivateOffice $record): ?string => match (true) {
+                            empty($record->image) => null,
+
+                            str_starts_with($record->image, '/images/') =>
+                                url($record->image),
+
+                            default =>
+                                \Illuminate\Support\Facades\Storage::disk('public')->url(
+                                    ltrim($record->image, '/')
+                                ),
+                        }
                     )
                     ->square()
                     ->size(56),

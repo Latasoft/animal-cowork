@@ -11,6 +11,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class PrivateOfficeForm
 {
@@ -76,7 +77,9 @@ class PrivateOfficeForm
                             ->view('filament.private-offices.current-image')
                             ->viewData(
                                 fn (?PrivateOffice $record): array => [
-                                    'image' => $record?->image,
+                                    'image' => self::resolveImageUrl(
+                                        $record?->image
+                                    ),
                                 ]
                             )
                             ->columnSpanFull(),
@@ -196,5 +199,42 @@ class PrivateOfficeForm
                     ])
                     ->columns(2),
             ]);
+    }
+
+    /**
+     * Resuelve la URL de la imagen independientemente de dónde
+     * esté almacenada.
+     *
+     * Imágenes existentes:
+     *   /images/...
+     *
+     * Imágenes subidas mediante Filament:
+     *   private-offices/archivo.webp
+     */
+    private static function resolveImageUrl(?string $image): ?string
+    {
+        if (empty($image)) {
+            return null;
+        }
+
+        /*
+         * Imagen estática dentro de public/images/...
+         */
+        if (str_starts_with($image, '/images/')) {
+            return url($image);
+        }
+
+        /*
+         * Imagen almacenada mediante el disk "public".
+         *
+         * DB:
+         * private-offices/archivo.webp
+         *
+         * URL:
+         * /storage/private-offices/archivo.webp
+         */
+        return Storage::disk('public')->url(
+            ltrim($image, '/')
+        );
     }
 }
