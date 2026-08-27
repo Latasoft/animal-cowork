@@ -62,6 +62,13 @@ class Room extends Model
     {
         return $this->hasMany(Reservation::class);
     }
+    /**
+     * @return HasMany<RoomBlock, $this>
+     */
+    public function blocks(): HasMany
+    {
+        return $this->hasMany(RoomBlock::class);
+    }
 
     /** @param Builder<Room> $query */
     public function scopeActive(Builder $query): void
