@@ -96,6 +96,7 @@ class RoomForm
                             ->disk('public')
                             ->directory('rooms')
                             ->visibility('public')
+                            ->storeFiles()
                             ->image()
                             ->multiple()
                             ->reorderable()
@@ -172,7 +173,7 @@ class RoomForm
 
                 /*
                 |--------------------------------------------------------------------------
-                | Horarios
+                | Horarios disponibles
                 |--------------------------------------------------------------------------
                 */
 
