@@ -91,10 +91,24 @@ class RoomForm
                             )
                             ->columnSpanFull(),
 
-FileUpload::make('test_image')
-    ->disk('public')
-    ->directory('test')
-    ->image()
+                        FileUpload::make('new_images')
+                            ->label('Agregar nuevas imágenes')
+                            ->disk('public')
+                            ->directory('rooms')
+                            ->visibility('public')
+                            ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->maxFiles(10)
+                            ->maxSize(5120)
+                            ->imagePreviewHeight('180')
+                            ->panelLayout('grid')
+                            ->downloadable()
+                            ->openable()
+                            ->helperText(
+                                'Selecciona una o varias imágenes nuevas para la sala.'
+                            )
+                            ->columnSpanFull(),
                     ]),
 
                 /*
