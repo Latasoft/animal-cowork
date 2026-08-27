@@ -8,6 +8,7 @@ use App\Http\Controllers\MeetingRoomReservationController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\RoomAvailabilityController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PrivateOfficeController;
 
 Route::get('/', HomeController::class)->name('home');
 
@@ -64,7 +65,7 @@ Route::inertia(
     'company-formation',
 )->name('company_formation.index');
 
-Route::inertia(
+Route::get(
     '/oficinas-privadas',
-    'private-offices',
+    PrivateOfficeController::class,
 )->name('private_offices.index');

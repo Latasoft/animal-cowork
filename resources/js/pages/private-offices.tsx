@@ -16,13 +16,46 @@ import { Footer } from '@/components/layout/footer';
 import { PrivateOfficeCard } from '@/components/private-offices/private-office-card';
 import { ButtonArrow, ButtonLink } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import {
-    privateOffices,
-    privateOfficesPageContent,
-} from '@/data/private-offices';
+import { privateOfficesPageContent } from '@/data/private-offices';
 import type { PrivateOfficeBenefitIcon } from '@/data/private-offices';
 import { PublicLayout } from '@/layouts/public-layout';
 import { createWhatsappUrl } from '@/lib/whatsapp';
+
+interface PrivateOfficeFromDatabase {
+    id: string;
+    name: string;
+    slug: string;
+    image: string | null;
+    image_alt: string | null;
+    area_m2: number;
+    is_available: boolean;
+    price: number | null;
+    currency: 'CLP' | 'UF';
+    expenses_included: boolean;
+    features: string[];
+    sort_order: number;
+    is_visible: boolean;
+}
+
+interface PrivateOfficeCardData {
+    id: string;
+    name: string;
+    slug: string;
+    image: string;
+    imageAlt: string;
+    areaM2: number;
+    isAvailable: boolean;
+    price: number | null;
+    currency: 'CLP' | 'UF';
+    expensesIncluded: boolean;
+    features: string[];
+    sortOrder: number;
+    isVisible: boolean;
+}
+
+interface PrivateOfficesProps {
+    offices: PrivateOfficeFromDatabase[];
+}
 
 const content = privateOfficesPageContent;
 
@@ -36,18 +69,40 @@ const benefitIcons: Record<PrivateOfficeBenefitIcon, LucideIcon> = {
     'flexible-rent': CalendarDays,
 };
 
-const visibleOffices = privateOffices
-    .filter((office) => office.isVisible)
-    .toSorted(
-        (firstOffice, secondOffice) =>
-            firstOffice.sortOrder - secondOffice.sortOrder,
-    );
-
-export default function PrivateOffices() {
+export default function PrivateOffices({
+    offices,
+}: PrivateOfficesProps) {
     const generalWhatsappUrl = createWhatsappUrl(
         content.whatsapp.phone,
         content.whatsapp.defaultMessage,
     );
+
+    const visibleOffices: PrivateOfficeCardData[] = offices
+        .filter((office) => office.is_visible)
+        .sort(
+            (firstOffice, secondOffice) =>
+                firstOffice.sort_order - secondOffice.sort_order,
+        )
+        .map((office) => ({
+            id: office.id,
+            name: office.name,
+            slug: office.slug,
+            image: office.image ?? '',
+            imageAlt:
+                office.image_alt ??
+                `Interior de ${office.name} de Animal Co-work`,
+            areaM2: Number(office.area_m2),
+            isAvailable: office.is_available,
+            price:
+                office.price !== null
+                    ? Number(office.price)
+                    : null,
+            currency: office.currency,
+            expensesIncluded: office.expenses_included,
+            features: office.features ?? [],
+            sortOrder: office.sort_order,
+            isVisible: office.is_visible,
+        }));
 
     return (
         <>
@@ -92,6 +147,7 @@ export default function PrivateOffices() {
                                                     strokeWidth={2.4}
                                                     aria-hidden
                                                 />
+
                                                 {highlight}
                                             </li>
                                         ),
@@ -105,7 +161,10 @@ export default function PrivateOffices() {
                                         rel="noreferrer"
                                         className="w-full sm:w-auto"
                                     >
-                                        {content.whatsapp.heroActionLabel}
+                                        {
+                                            content.whatsapp
+                                                .heroActionLabel
+                                        }
                                     </ButtonArrow>
                                 </div>
                             </div>
@@ -135,7 +194,8 @@ export default function PrivateOffices() {
                     <Container>
                         <ul className="grid grid-cols-2 gap-x-4 gap-y-5 sm:grid-cols-4 lg:grid-cols-7">
                             {content.benefits.map((benefit) => {
-                                const BenefitIcon = benefitIcons[benefit.icon];
+                                const BenefitIcon =
+                                    benefitIcons[benefit.icon];
 
                                 return (
                                     <li
@@ -149,6 +209,7 @@ export default function PrivateOffices() {
                                                 aria-hidden
                                             />
                                         </span>
+
                                         <span className="text-xs leading-4 font-bold text-deep-blue/70">
                                             {benefit.label}
                                         </span>
@@ -180,9 +241,12 @@ export default function PrivateOffices() {
                                 <PrivateOfficeCard
                                     key={office.id}
                                     office={office}
-                                    whatsappPhone={content.whatsapp.phone}
+                                    whatsappPhone={
+                                        content.whatsapp.phone
+                                    }
                                     actionLabel={
-                                        content.whatsapp.officeActionLabel
+                                        content.whatsapp
+                                            .officeActionLabel
                                     }
                                 />
                             ))}
@@ -207,19 +271,22 @@ export default function PrivateOffices() {
                                 </p>
 
                                 <ul className="mt-5 grid gap-2 sm:grid-cols-2">
-                                    {content.finalCta.details.map((detail) => (
-                                        <li
-                                            key={detail}
-                                            className="flex items-start gap-2 text-sm leading-6 text-white/65"
-                                        >
-                                            <CheckCircle2
-                                                className="mt-1 size-4 shrink-0 text-instinct"
-                                                strokeWidth={2.3}
-                                                aria-hidden
-                                            />
-                                            {detail}
-                                        </li>
-                                    ))}
+                                    {content.finalCta.details.map(
+                                        (detail) => (
+                                            <li
+                                                key={detail}
+                                                className="flex items-start gap-2 text-sm leading-6 text-white/65"
+                                            >
+                                                <CheckCircle2
+                                                    className="mt-1 size-4 shrink-0 text-instinct"
+                                                    strokeWidth={2.3}
+                                                    aria-hidden
+                                                />
+
+                                                {detail}
+                                            </li>
+                                        ),
+                                    )}
                                 </ul>
 
                                 <div className="mt-7">
@@ -229,7 +296,10 @@ export default function PrivateOffices() {
                                         rel="noreferrer"
                                         className="w-full sm:w-auto"
                                     >
-                                        {content.whatsapp.finalActionLabel}
+                                        {
+                                            content.whatsapp
+                                                .finalActionLabel
+                                        }
                                     </ButtonArrow>
                                 </div>
                             </div>
@@ -252,14 +322,20 @@ export default function PrivateOffices() {
                                 </p>
 
                                 <ButtonLink
-                                    href={content.requirements.documentUrl}
+                                    href={
+                                        content.requirements
+                                            .documentUrl
+                                    }
                                     target="_blank"
                                     rel="noreferrer"
                                     download
                                     variant="outline"
                                     className="mt-6 w-full justify-center border-white bg-white text-deep-blue hover:border-white hover:bg-white/90"
                                 >
-                                    {content.requirements.actionLabel}
+                                    {
+                                        content.requirements
+                                            .actionLabel
+                                    }
                                 </ButtonLink>
                             </aside>
                         </div>

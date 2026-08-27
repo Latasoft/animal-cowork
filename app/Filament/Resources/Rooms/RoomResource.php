@@ -25,7 +25,7 @@ class RoomResource extends Resource
 
     protected static ?string $recordTitleAttribute = 'name';
 
-    protected static ?string $navigationLabel = 'Salas';
+    protected static ?string $navigationLabel = 'Salas de reuniones';
 
     protected static ?string $modelLabel = 'sala';
 
