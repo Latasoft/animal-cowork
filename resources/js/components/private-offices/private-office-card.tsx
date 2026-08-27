@@ -49,19 +49,23 @@ function resolveImageUrl(image: string | null): string | null {
     }
 
     /*
-     * Imágenes existentes directamente en public/images/...
+     * Imagen estática existente en public/images/...
+     *
+     * Ejemplo:
+     * /images/plans/ofice4.jpg
      */
     if (image.startsWith('/images/')) {
         return image;
     }
 
     /*
-     * Imágenes cargadas mediante Filament.
+     * Imagen almacenada mediante Filament
      *
-     * El valor almacenado en DB normalmente será:
-     * private-offices/archivo.webp
+     * Ejemplo en DB:
+     * private-offices/oficina-4.webp
      *
-     * y debe resolverse mediante /storage/...
+     * Resultado:
+     * /storage/private-offices/oficina-4.webp
      */
     if (image.startsWith('storage/')) {
         return `/${image}`;
@@ -91,7 +95,7 @@ export function PrivateOfficeCard({
                     <img
                         src={imageUrl}
                         alt={
-                            office.image_alt ??
+                            office.image_alt ||
                             `Interior de ${office.name} de Animal Co-work`
                         }
                         className="h-full w-full object-cover transition-transform duration-500 hover:scale-[1.03]"
@@ -141,9 +145,9 @@ export function PrivateOfficeCard({
                 </div>
 
                 {/* Características */}
-                {office.features.length > 0 && (
+                {office.features?.length > 0 && (
                     <ul className="mt-5 grid grid-cols-2 gap-x-3 gap-y-2.5">
-                        {office.features.map((feature: string) => (
+                        {office.features.map((feature) => (
                             <li
                                 key={feature}
                                 className="flex min-w-0 items-start gap-2 text-xs leading-5 text-deep-blue/65"
