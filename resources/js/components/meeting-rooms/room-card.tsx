@@ -26,6 +26,18 @@ export function RoomCard({
 
     const totalImages = room.images.length;
 
+    function getImageUrl(image: string): string {
+        if (image.startsWith('/images/')) {
+            return image;
+        }
+
+        if (image.startsWith('/storage/')) {
+            return image;
+        }
+
+        return `/storage/${image}`;
+    }
+
     function showPreviousImage() {
         setActiveImageIndex((current) =>
             current === 0
@@ -54,7 +66,7 @@ export function RoomCard({
             {/* Carrusel de imágenes */}
             <div className="relative aspect-[16/10] overflow-hidden bg-deep-blue/5">
                 <img
-                    src={room.images[activeImageIndex]}
+                    src={getImageUrl(room.images[activeImageIndex])}
                     alt={`${room.imageAlt}, vista ${activeImageIndex + 1}`}
                     className="h-full w-full object-cover transition duration-500"
                     loading="lazy"
@@ -126,7 +138,9 @@ export function RoomCard({
                                 key={image}
                                 type="button"
                                 aria-label={`Ver fotografía ${index + 1} de ${room.name}`}
-                                aria-pressed={activeImageIndex === index}
+                                aria-pressed={
+                                    activeImageIndex === index
+                                }
                                 onClick={() =>
                                     setActiveImageIndex(index)
                                 }
