@@ -18,7 +18,7 @@ import { PublicLayout } from '@/layouts/public-layout';
  * Estos campos corresponden directamente a las columnas
  * de la tabla `patent_management_services`.
  *
- * La página ya no depende de contenido estático.
+ * `image_url` es generado por el Model de Laravel.
  */
 interface PatentManagementService {
     id: number;
@@ -135,10 +135,10 @@ export default function PatentManagement({
                                 </div>
                             </div>
 
-                    <ServiceImage 
-                        image={service.image_url} 
-                        alt={service.image_alt} 
-                    />
+                            <ServiceImage
+                                image={service.image_url}
+                                alt={service.image_alt}
+                            />
                         </div>
                     </Container>
                 </section>
@@ -150,6 +150,7 @@ export default function PatentManagement({
                     <Container>
                         <div className="mx-auto max-w-6xl">
                             <div className="overflow-hidden rounded-card border border-deep-blue/10 bg-white shadow-card">
+
                                 {/* =================================================
                                  * QUÉ GESTIONAMOS
                                  * =============================================== */}
@@ -268,9 +269,31 @@ function ServiceImage({
         return null;
     }
 
+    /**
+     * Laravel puede entregar:
+     *
+     * 1. URL absoluta:
+     *    https://dominio.com/storage/services/image.jpg
+     *
+     * 2. Imagen antigua:
+     *    /images/services/image.jpg
+     *
+     * 3. Imagen nueva almacenada mediante Filament:
+     *    services/image.jpg
+     *
+     * En el tercer caso agregamos /storage/.
+     */
+    const imageUrl =
+        image.startsWith('http://') ||
+        image.startsWith('https://')
+            ? image
+            : image.startsWith('/')
+                ? image
+                : `/storage/${image}`;
+
     return (
         <img
-            src={image}
+            src={imageUrl}
             alt={
                 alt ??
                 'Gestión de patente comercial de oficina virtual'
