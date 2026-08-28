@@ -63,7 +63,7 @@ interface CompanyFormationService {
     contact_whatsapp: string | null;
 
     // Imagen
-    image: string | null;
+    image_url: string | null;
     image_alt: string | null;
 
     // CTA
@@ -194,7 +194,7 @@ export default function CompanyFormation({
                             </div>
 
                             <ServiceImage
-                                image={service.image}
+                                image={service.image_url}
                                 alt={service.image_alt}
                             />
                         </div>

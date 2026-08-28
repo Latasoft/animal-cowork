@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CompanyFormationService extends Model
 {
@@ -49,15 +51,47 @@ class CompanyFormationService extends Model
         'sort_order',
     ];
 
+    protected $appends = [
+        'image_url',
+    ];
+
     protected function casts(): array
     {
         return [
             'external_service_price' => 'integer',
             'virtual_office_price' => 'integer',
+
             'requirements' => 'array',
             'included_services' => 'array',
+
             'is_active' => 'boolean',
             'sort_order' => 'integer',
         ];
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        if (blank($this->image)) {
+            return null;
+        }
+
+        /*
+         * Imagen antigua incluida directamente
+         * dentro de public/
+         *
+         * Ejemplo:
+         * /images/company-formation/empresa.webp
+         */
+        if (Str::startsWith($this->image, '/')) {
+            return url($this->image);
+        }
+
+        /*
+         * Imagen subida desde Filament.
+         *
+         * Ejemplo:
+         * company-formation/01M....jpg
+         */
+        return Storage::disk('public')->url($this->image);
     }
 }
