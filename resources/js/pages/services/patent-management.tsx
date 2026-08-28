@@ -39,7 +39,7 @@ interface PatentManagementService {
     municipal_payment_detail: string | null;
     exclusive_notice: string | null;
 
-    image: string | null;
+    image_url: string | null;
     image_alt: string | null;
 
     primary_action_label: string | null;
@@ -135,10 +135,10 @@ export default function PatentManagement({
                                 </div>
                             </div>
 
-                            <ServiceImage
-                                image={service.image}
-                                alt={service.image_alt}
-                            />
+                    <ServiceImage 
+                        image={service.image_url} 
+                        alt={service.image_alt} 
+                    />
                         </div>
                     </Container>
                 </section>
