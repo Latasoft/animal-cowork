@@ -9,12 +9,14 @@ use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\RoomAvailabilityController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PrivateOfficeController;
+use App\Http\Controllers\CompanyFormationController;
+use App\Http\Controllers\PatentManagementController;
 
 Route::get('/', HomeController::class)->name('home');
 
-Route::inertia(
+Route::get(
     '/gestion-patente-comercial',
-    'services/patent-management',
+    PatentManagementController::class,
 )->name('services.patent_management');
 
 Route::get(
@@ -60,9 +62,9 @@ Route::get(
 Route::get('/renovar', RenewalController::class)
     ->name('contract.renew');
 
-Route::inertia(
+Route::get(
     '/constitucion-de-empresa',
-    'company-formation',
+    CompanyFormationController::class,
 )->name('company_formation.index');
 
 Route::get(

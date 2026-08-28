@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             RoomSeeder::class,
             ReservationSeeder::class,
             PrivateOfficeSeeder::class,
+            CompanyFormationServiceSeeder::class,
+            PatentManagementServiceSeeder::class,
         ]);
     }
 }

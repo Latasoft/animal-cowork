@@ -4,7 +4,6 @@ import {
     CheckCircle2,
     FileCheck2,
     IdCard,
-    ImageIcon,
     Mail,
     MessageCircle,
     ReceiptText,
@@ -14,19 +13,77 @@ import {
 import { Footer } from '@/components/layout/footer';
 import { ButtonArrow } from '@/components/ui/button';
 import { Container } from '@/components/ui/container';
-import { companyFormationContent } from '@/data/company-formation';
 import { PublicLayout } from '@/layouts/public-layout';
 
-const content = companyFormationContent;
+/**
+ * =========================================================
+ * DATOS RECIBIDOS DESDE LARAVEL
+ * =========================================================
+ *
+ * Estos nombres corresponden directamente a las columnas
+ * de la tabla `company_formation_services`.
+ *
+ * No usamos aquí la estructura del contenido estático anterior.
+ */
+interface CompanyFormationService {
+    id: number;
+    slug: string;
+
+    eyebrow: string | null;
+    title: string;
+    description: string;
+
+    // Servicio externo
+    external_service_label: string | null;
+    external_service_title: string | null;
+    external_service_price: number | null;
+    external_service_description: string | null;
+
+    // Oficina Virtual
+    virtual_office_label: string | null;
+    virtual_office_title: string | null;
+    virtual_office_price: number | null;
+    virtual_office_duration: string | null;
+
+    // Sección del servicio
+    service_section_eyebrow: string | null;
+    service_section_title: string | null;
+    service_section_description: string | null;
+    requirements: string[] | null;
+    foreigner_notice: string | null;
+
+    // Servicios incluidos
+    included_services_title: string | null;
+    included_services: string[] | null;
+
+    // Contacto
+    contact_title: string | null;
+    contact_description: string | null;
+    contact_email: string | null;
+    contact_whatsapp: string | null;
+
+    // Imagen
+    image: string | null;
+    image_alt: string | null;
+
+    // CTA
+    primary_action_label: string | null;
+    primary_action_href: string | null;
+
+    // Publicación
+    is_active: boolean;
+    sort_order: number;
+}
+
+interface CompanyFormationProps {
+    service: CompanyFormationService;
+}
 
 /**
- * Temporal mientras no exista la integración real
- * con la pasarela de pagos.
- *
- * Posteriormente este valor debería provenir
- * desde Laravel / CMS / backend.
+ * =========================================================
+ * UTILIDADES
+ * =========================================================
  */
-const paymentHref = '#';
 
 function formatClp(value: number): string {
     return new Intl.NumberFormat('es-CL', {
@@ -36,13 +93,47 @@ function formatClp(value: number): string {
     }).format(value);
 }
 
-export default function CompanyFormation() {
+function formatPhone(value: string): string {
+    if (value === '+56990556983') {
+        return '+56 9 9055 6983';
+    }
+
+    return value;
+}
+
+/**
+ * =========================================================
+ * PÁGINA
+ * =========================================================
+ */
+
+export default function CompanyFormation({
+    service,
+}: CompanyFormationProps) {
+    /**
+     * El total ya no viene almacenado en BD.
+     *
+     * Se calcula a partir de:
+     * - external_service_price
+     * - virtual_office_price
+     *
+     * Esto evita inconsistencias si posteriormente
+     * modificamos alguno de los precios desde el panel admin.
+     */
+    const externalServicePrice = service.external_service_price ?? 0;
+    const virtualOfficePrice = service.virtual_office_price ?? 0;
+
+    const totalPrice = externalServicePrice + virtualOfficePrice;
+
+    const requirements = service.requirements ?? [];
+    const includedServices = service.included_services ?? [];
+
     return (
         <>
             <Head title="Constitución de Empresa + Oficina Virtual">
                 <meta
                     name="description"
-                    content="Constitución de empresa, inicio de actividades ante el SII y Oficina Virtual Animal Co-work por 2 años."
+                    content={service.description}
                 />
             </Head>
 
@@ -55,15 +146,15 @@ export default function CompanyFormation() {
                         <div className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16">
                             <div>
                                 <p className="text-sm font-extrabold tracking-[0.16em] text-instinct uppercase">
-                                    {content.eyebrow}
+                                    {service.eyebrow}
                                 </p>
 
                                 <h1 className="mt-4 max-w-3xl text-[clamp(2.4rem,6vw,2.5rem)] leading-[0.95] font-extrabold tracking-[-0.055em] text-balance text-deep-blue uppercase">
-                                    {content.title}
+                                    {service.title}
                                 </h1>
 
                                 <p className="mt-6 max-w-2xl text-base leading-7 text-muted sm:text-lg">
-                                    {content.description}
+                                    {service.description}
                                 </p>
 
                                 <div className="mt-7 flex flex-wrap items-end gap-x-3 gap-y-1">
@@ -74,7 +165,7 @@ export default function CompanyFormation() {
                                     <div className="w-full" />
 
                                     <span className="text-4xl font-extrabold tracking-[-0.05em] text-instinct sm:text-5xl">
-                                        {formatClp(content.totalPrice)}
+                                        {formatClp(totalPrice)}
                                     </span>
 
                                     <span className="pb-1 text-sm font-bold text-deep-blue/55">
@@ -83,21 +174,29 @@ export default function CompanyFormation() {
                                 </div>
 
                                 <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-                                    Constitución e inicio de actividades +
-                                    Oficina Virtual Animal Co-work por 2 años.
+                                    {service.external_service_title} +
+                                    Oficina Virtual Animal Co-work por{' '}
+                                    {service.virtual_office_duration}.
                                 </p>
 
                                 <div className="mt-8">
                                     <ButtonArrow
-                                        href="#contratar"
+                                        href={
+                                            service.primary_action_href ??
+                                            '#contratar'
+                                        }
                                         className="w-full sm:w-auto"
                                     >
-                                        CONTRATAR AHORA
+                                        {service.primary_action_label ??
+                                            'CONTRATAR AHORA'}
                                     </ButtonArrow>
                                 </div>
                             </div>
 
-                            <ServiceImage />
+                            <ServiceImage
+                                image={service.image}
+                                alt={service.image_alt}
+                            />
                         </div>
                     </Container>
                 </section>
@@ -122,19 +221,19 @@ export default function CompanyFormation() {
 
                                         <div>
                                             <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                                                Servicio completo
+                                                {
+                                                    service.external_service_label
+                                                }
                                             </p>
 
                                             <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
-                                                Todo lo que necesitas para
-                                                comenzar tu empresa
+                                                {service.included_services_title}
                                             </h2>
 
                                             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted sm:text-base">
-                                                Constituye tu empresa, realiza
-                                                el inicio de actividades ante el
-                                                SII y obtén tu Oficina Virtual
-                                                Animal Co-work por 2 años.
+                                                {
+                                                    service.service_section_description
+                                                }
                                             </p>
                                         </div>
                                     </div>
@@ -146,22 +245,20 @@ export default function CompanyFormation() {
                                         </p>
 
                                         <div className="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">
-                                            {content.includedServices.items.map(
-                                                (item) => (
-                                                    <div
-                                                        key={item}
-                                                        className="flex items-start gap-2 text-sm leading-5 text-deep-blue/70"
-                                                    >
-                                                        <CheckCircle2
-                                                            className="mt-0.5 size-4 shrink-0 text-instinct"
-                                                            strokeWidth={2.3}
-                                                            aria-hidden
-                                                        />
+                                            {includedServices.map((item) => (
+                                                <div
+                                                    key={item}
+                                                    className="flex items-start gap-2 text-sm leading-5 text-deep-blue/70"
+                                                >
+                                                    <CheckCircle2
+                                                        className="mt-0.5 size-4 shrink-0 text-instinct"
+                                                        strokeWidth={2.3}
+                                                        aria-hidden
+                                                    />
 
-                                                        <span>{item}</span>
-                                                    </div>
-                                                ),
-                                            )}
+                                                    <span>{item}</span>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
 
@@ -174,15 +271,9 @@ export default function CompanyFormation() {
                                         />
 
                                         <p className="text-sm leading-6 text-deep-blue/65">
-                                            La constitución, inicio de
-                                            actividades, verificación de
-                                            actividades y activación del proceso
-                                            de facturación corresponden a un{' '}
-                                            <strong className="font-extrabold text-deep-blue">
-                                                servicio externo
-                                            </strong>{' '}
-                                            con precio convenio para clientes
-                                            Animal Co-work.
+                                            {
+                                                service.external_service_description
+                                            }
                                         </p>
                                     </div>
                                 </article>
@@ -197,33 +288,33 @@ export default function CompanyFormation() {
                                         />
 
                                         <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
-                                            Requisitos
+                                            {
+                                                service.service_section_eyebrow
+                                            }
                                         </p>
                                     </div>
 
                                     <h3 className="mt-4 text-xl font-extrabold tracking-[-0.025em] sm:text-2xl">
-                                        Para comenzar necesitas
+                                        {service.service_section_title}
                                     </h3>
 
                                     <div className="mt-5 space-y-3">
-                                        {content.serviceSection.requirements.map(
-                                            (requirement) => (
-                                                <div
-                                                    key={requirement}
-                                                    className="flex items-start gap-2"
-                                                >
-                                                    <CheckCircle2
-                                                        className="mt-0.5 size-4 shrink-0 text-instinct"
-                                                        strokeWidth={2.3}
-                                                        aria-hidden
-                                                    />
+                                        {requirements.map((requirement) => (
+                                            <div
+                                                key={requirement}
+                                                className="flex items-start gap-2"
+                                            >
+                                                <CheckCircle2
+                                                    className="mt-0.5 size-4 shrink-0 text-instinct"
+                                                    strokeWidth={2.3}
+                                                    aria-hidden
+                                                />
 
-                                                    <p className="text-sm leading-5 text-white/70">
-                                                        {requirement}
-                                                    </p>
-                                                </div>
-                                            ),
-                                        )}
+                                                <p className="text-sm leading-5 text-white/70">
+                                                    {requirement}
+                                                </p>
+                                            </div>
+                                        ))}
                                     </div>
 
                                     <div className="mt-5 border-t border-white/10 pt-5">
@@ -232,10 +323,7 @@ export default function CompanyFormation() {
                                         </p>
 
                                         <p className="mt-2 text-xs leading-5 text-white/55">
-                                            {
-                                                content.serviceSection
-                                                    .foreignerNotice
-                                            }
+                                            {service.foreigner_notice}
                                         </p>
                                     </div>
 
@@ -244,13 +332,14 @@ export default function CompanyFormation() {
                                         <div className="flex items-center justify-between gap-4">
                                             <div>
                                                 <p className="text-xs font-bold text-white/45">
-                                                    Constitución + Inicio SII
+                                                    {
+                                                        service.external_service_title
+                                                    }
                                                 </p>
 
                                                 <p className="mt-1 font-extrabold">
                                                     {formatClp(
-                                                        content.externalService
-                                                            .price,
+                                                        externalServicePrice,
                                                     )}
                                                 </p>
                                             </div>
@@ -261,13 +350,18 @@ export default function CompanyFormation() {
 
                                             <div className="text-right">
                                                 <p className="text-xs font-bold text-white/45">
-                                                    Oficina Virtual · 2 años
+                                                    {
+                                                        service.virtual_office_title
+                                                    }{' '}
+                                                    ·{' '}
+                                                    {
+                                                        service.virtual_office_duration
+                                                    }
                                                 </p>
 
                                                 <p className="mt-1 font-extrabold">
                                                     {formatClp(
-                                                        content.virtualOffice
-                                                            .price,
+                                                        virtualOfficePrice,
                                                     )}
                                                 </p>
                                             </div>
@@ -279,7 +373,7 @@ export default function CompanyFormation() {
                                             </span>
 
                                             <span className="text-3xl font-extrabold tracking-[-0.045em] text-instinct">
-                                                {formatClp(content.totalPrice)}
+                                                {formatClp(totalPrice)}
                                             </span>
                                         </div>
                                     </div>
@@ -308,7 +402,7 @@ export default function CompanyFormation() {
                                     />
 
                                     <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
-                                        Precio exclusivo Animal Co-work
+                                        {service.eyebrow}
                                     </p>
                                 </div>
 
@@ -317,14 +411,12 @@ export default function CompanyFormation() {
                                 </h2>
 
                                 <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">
-                                    Contrata Constitución de Empresa + Inicio de
-                                    Actividades junto con tu Oficina Virtual
-                                    Animal Co-work por 2 años.
+                                    {service.description}
                                 </p>
 
                                 <div className="mt-7 flex flex-wrap items-end gap-x-3">
                                     <span className="text-5xl font-extrabold tracking-[-0.055em] text-instinct sm:text-6xl">
-                                        {formatClp(content.totalPrice)}
+                                        {formatClp(totalPrice)}
                                     </span>
 
                                     <span className="pb-2 text-sm font-bold text-white/55">
@@ -334,10 +426,13 @@ export default function CompanyFormation() {
 
                                 <div className="mt-7 max-w-md">
                                     <ButtonArrow
-                                        href={paymentHref}
+                                        href={
+                                            service.primary_action_href ??
+                                            '#contratar'
+                                        }
                                         className="w-full justify-center sm:w-auto"
                                     >
-                                        PAGAR {formatClp(content.totalPrice)}
+                                        PAGAR {formatClp(totalPrice)}
                                     </ButtonArrow>
                                 </div>
                             </div>
@@ -350,23 +445,26 @@ export default function CompanyFormation() {
 
                                 <div className="mt-6 space-y-5">
                                     <CheckoutSummaryItem
-                                        label="Constitución + Inicio SII"
+                                        label={
+                                            service.external_service_title ??
+                                            'Servicio externo'
+                                        }
                                         value={formatClp(
-                                            content.externalService.price,
+                                            externalServicePrice,
                                         )}
                                     />
 
                                     <CheckoutSummaryItem
-                                        label={`Oficina Virtual · ${content.virtualOffice.duration}`}
+                                        label={`${service.virtual_office_title ?? 'Oficina Virtual'} · ${service.virtual_office_duration ?? ''}`}
                                         value={formatClp(
-                                            content.virtualOffice.price,
+                                            virtualOfficePrice,
                                         )}
                                     />
 
                                     <div className="border-t border-white/15 pt-5">
                                         <CheckoutSummaryItem
                                             label="Total"
-                                            value={formatClp(content.totalPrice)}
+                                            value={formatClp(totalPrice)}
                                             highlighted
                                         />
                                     </div>
@@ -379,10 +477,9 @@ export default function CompanyFormation() {
                                     />
 
                                     <p className="text-sm leading-6 text-white/60">
-                                        El valor de $35.000 corresponde al
-                                        servicio externo de constitución e
-                                        inicio de actividades bajo convenio para
-                                        clientes Animal Co-work.
+                                        {
+                                            service.external_service_description
+                                        }
                                     </p>
                                 </div>
                             </div>
@@ -403,43 +500,47 @@ export default function CompanyFormation() {
                                     </p>
 
                                     <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
-                                        {content.contact.title}
+                                        {service.contact_title}
                                     </h2>
 
                                     <p className="mt-3 max-w-2xl text-base leading-7 text-muted">
-                                        {content.contact.description}
+                                        {service.contact_description}
                                     </p>
                                 </div>
 
                                 <div className="flex flex-col gap-3">
-                                    <a
-                                        href={`mailto:${content.contact.email}`}
-                                        className="flex items-center gap-3 rounded-xl border border-deep-blue/10 px-5 py-3 text-sm font-bold text-deep-blue transition hover:border-instinct hover:text-instinct-dark"
-                                    >
-                                        <Mail
-                                            className="size-5 text-instinct"
-                                            aria-hidden
-                                        />
+                                    {service.contact_email && (
+                                        <a
+                                            href={`mailto:${service.contact_email}`}
+                                            className="flex items-center gap-3 rounded-xl border border-deep-blue/10 px-5 py-3 text-sm font-bold text-deep-blue transition hover:border-instinct hover:text-instinct-dark"
+                                        >
+                                            <Mail
+                                                className="size-5 text-instinct"
+                                                aria-hidden
+                                            />
 
-                                        {content.contact.email}
-                                    </a>
+                                            {service.contact_email}
+                                        </a>
+                                    )}
 
-                                    <a
-                                        href={`https://wa.me/${content.contact.whatsapp.replace(/\D/g, '')}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="flex items-center gap-3 rounded-xl bg-instinct px-5 py-3 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
-                                    >
-                                        <MessageCircle
-                                            className="size-5"
-                                            aria-hidden
-                                        />
+                                    {service.contact_whatsapp && (
+                                        <a
+                                            href={`https://wa.me/${service.contact_whatsapp.replace(/\D/g, '')}`}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="flex items-center gap-3 rounded-xl bg-instinct px-5 py-3 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
+                                        >
+                                            <MessageCircle
+                                                className="size-5"
+                                                aria-hidden
+                                            />
 
-                                        WhatsApp{' '}
-                                        {formatPhone(
-                                            content.contact.whatsapp,
-                                        )}
-                                    </a>
+                                            WhatsApp{' '}
+                                            {formatPhone(
+                                                service.contact_whatsapp,
+                                            )}
+                                        </a>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -452,9 +553,11 @@ export default function CompanyFormation() {
     );
 }
 
-/* =========================================================
+/**
+ * =========================================================
  * COMPONENTES AUXILIARES
- * ======================================================= */
+ * =========================================================
+ */
 
 interface CheckoutSummaryItemProps {
     label: string;
@@ -492,30 +595,28 @@ function CheckoutSummaryItem({
     );
 }
 
-function ServiceImage() {
-    if (content.image.src) {
-        return (
-            <div className="relative">
-                <div
-                    className="absolute -top-4 -left-4 size-28 rounded-full bg-instinct/10 blur-2xl"
-                    aria-hidden
-                />
-
-                <img
-                    src={content.image.src}
-                    alt={content.image.alt}
-                    className="relative aspect-[4/3] w-full rounded-card object-cover shadow-card"
-                />
-            </div>
-        );
-    }
-
+interface ServiceImageProps {
+    image: string | null;
+    alt: string | null;
 }
 
-function formatPhone(value: string): string {
-    if (value === '+56990556983') {
-        return '+56 9 9055 6983';
+function ServiceImage({ image, alt }: ServiceImageProps) {
+    if (!image) {
+        return null;
     }
 
-    return value;
+    return (
+        <div className="relative">
+            <div
+                className="absolute -top-4 -left-4 size-28 rounded-full bg-instinct/10 blur-2xl"
+                aria-hidden
+            />
+
+            <img
+                src={image}
+                alt={alt ?? 'Servicio Animal Co-work'}
+                className="relative aspect-[4/3] w-full rounded-card object-cover shadow-card"
+            />
+        </div>
+    );
 }
