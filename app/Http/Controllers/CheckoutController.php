@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ConfirmContractRequest;
 use App\Http\Resources\PlanResource;
+use App\Models\Client;
 use App\Models\Plan;
+use App\Services\Contracts\ContractConfirmationService;
 use App\Support\DatabaseQueryResult;
 use App\Support\SafeDatabaseQuery;
 use Illuminate\Http\RedirectResponse;
@@ -14,7 +17,10 @@ use Inertia\Response;
 
 class CheckoutController extends Controller
 {
-    public function __construct(private SafeDatabaseQuery $database) {}
+    public function __construct(
+        private SafeDatabaseQuery $database,
+        private ContractConfirmationService $contractService,
+    ) {}
 
     /**
      * Paso 1: muestra el plan, datos de contacto y pago.
@@ -281,7 +287,76 @@ class CheckoutController extends Controller
 
         return Inertia::render('contract-preview', [
             'plan' => (new PlanResource($selectedPlan))->resolve(),
+            'flow' => $this->checkoutFlow($request),
+            'confirmation' => (bool) $request->session()->get('contract_confirmation'),
         ]);
+    }
+
+    /**
+     * Confirma el contrato: guarda el cliente y su suscripción,
+     * y envía el contrato PDF por correo a la empresa y al cliente.
+     */
+    public function confirm(
+        ConfirmContractRequest $request,
+        string $plan,
+    ): RedirectResponse {
+        $planResult = $this->findActivePlan($plan, 'confirm_contract');
+
+        if ($planResult->unavailable) {
+            return back()->withErrors([
+                'contract' => $this->unavailableMessage(),
+            ]);
+        }
+
+        $selectedPlan = $planResult->value;
+        assert($selectedPlan instanceof Plan);
+
+        $checkout = $request->session()->get('checkout');
+
+        $hasConfirmedPayment =
+            is_array($checkout) &&
+            ($checkout['plan_id'] ?? null) === $plan &&
+            ($checkout['payment_confirmed'] ?? false) === true;
+
+        if (! $hasConfirmedPayment) {
+            return redirect()
+                ->route('checkout.show', ['plan' => $plan])
+                ->with(
+                    'error',
+                    'Debes confirmar el pago antes de confirmar el contrato.',
+                );
+        }
+
+        $result = $this->database->run(
+            callback: fn (): array => $this->contractService->confirm(
+                $request->validated(),
+                $selectedPlan,
+            ),
+            fallback: null,
+            component: 'checkout.contract',
+            model: Client::class,
+            operation: 'confirm_contract',
+        );
+
+        if ($result->unavailable) {
+            return back()->withErrors([
+                'contract' => $this->unavailableMessage(),
+            ]);
+        }
+
+        $flow = $this->checkoutFlow($request);
+
+        return redirect()
+            ->route('checkout.contract_preview', [
+                'plan' => $plan,
+                ...($flow === 'renewal' ? ['flow' => 'renewal'] : []),
+            ])
+            ->with('contract_confirmation', true);
+    }
+
+    private function unavailableMessage(): string
+    {
+        return 'No fue posible completar la contratación en este momento. Por favor, inténtalo nuevamente.';
     }
 
     private function checkoutFlow(Request $request): string

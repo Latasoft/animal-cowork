@@ -4,8 +4,8 @@ namespace App\Filament\Resources\PatentManagementServices\Schemas;
 
 use App\Models\PatentManagementService;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -62,10 +62,9 @@ class PatentManagementServiceForm
                             ->imagePreviewHeight('250')
                             ->panelLayout('integrated')
                             ->fetchFileInformation(
-                                fn (?PatentManagementService $record): bool =>
-                                    ! self::isBundledServiceImage(
-                                        $record?->image,
-                                    ),
+                                fn (?PatentManagementService $record): bool => ! self::isBundledServiceImage(
+                                    $record?->image,
+                                ),
                             )
                             ->getUploadedFileUsing(
                                 fn (
@@ -82,8 +81,7 @@ class PatentManagementServiceForm
                                 fn (
                                     ?PatentManagementService $record,
                                     mixed $state,
-                                ): bool =>
-                                    filled($state)
+                                ): bool => filled($state)
                                     || blank($record?->image),
                             )
                             ->automaticallyResizeImagesMode('contain')
@@ -200,7 +198,7 @@ class PatentManagementServiceForm
      * imágenes existentes dentro de public/images/ además
      * de las imágenes almacenadas en storage/app/public.
      *
-     * @param string|array<string, string>|null $storedFileNames
+     * @param  string|array<string, string>|null  $storedFileNames
      * @return array{
      *     name: string,
      *     size: int,

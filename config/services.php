@@ -39,4 +39,8 @@ return [
         'reception_email' => env('RESERVATION_RECEPTION_EMAIL'),
     ],
 
+    'contracts' => [
+        'reception_email' => env('CONTRACT_SEND_MAIL'),
+    ],
+
 ];

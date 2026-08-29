@@ -860,7 +860,7 @@ También se puede utilizar:
 php artisan migrate --seed
 ```
 
-### 8. Crear el enlace de almacenamiento
+### 8. Crear el enlace de almacenamiento (Siempre hacerlo en cada despliegue de railway)
 
 ```bash
 php artisan storage:link
@@ -872,6 +872,9 @@ En una terminal:
 
 ```bash
 php artisan serve
+```
+```bash
+Composer run dev
 ```
 
 En otra terminal:

@@ -17,12 +17,16 @@ import {
     formatContractDate,
 } from '@/lib/contract-dates';
 import {
+    blobToBase64,
     createContractConfirmationPayload,
-    createContractFile,
+    createContractFileName,
 } from '@/lib/contract-file';
-import { data as checkoutData } from '@/routes/checkout';
+import {
+    confirm as checkoutConfirm,
+    data as checkoutData,
+} from '@/routes/checkout';
 
-import type { ContractGenerationData } from '@/types/checkout';
+import type { CheckoutFlow, ContractGenerationData } from '@/types/checkout';
 import type { Plan } from '@/types/plan';
 
 type GenerationStatus =
@@ -30,23 +34,36 @@ type GenerationStatus =
 
 interface ContractPreviewPageProps {
     plan: Plan;
+    flow: CheckoutFlow;
+    confirmation?: boolean;
 }
 
-interface PreparedContract {
-    file: File;
-    payload: FormData;
+export default function ContractPreview({
+    plan,
+    flow,
+    confirmation = false,
+}: ContractPreviewPageProps) {
+    if (confirmation) {
+        return <ContractConfirmation plan={plan} />;
+    }
+
+    return <ContractPreviewFlow plan={plan} flow={flow} />;
 }
 
-export default function ContractPreview({ plan }: ContractPreviewPageProps) {
+interface ContractPreviewFlowProps {
+    plan: Plan;
+    flow: CheckoutFlow;
+}
+
+function ContractPreviewFlow({ plan, flow }: ContractPreviewFlowProps) {
     const [status, setStatus] = useState<GenerationStatus>('loading');
     const [generationAttempt, setGenerationAttempt] = useState(0);
     const [contractData, setContractData] =
         useState<ContractGenerationData | null>(null);
     const [pdfBlob, setPdfBlob] = useState<Blob | null>(null);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [submitError, setSubmitError] = useState<string | null>(null);
     const [isConfirming, setIsConfirming] = useState(false);
-    const [preparedContract, setPreparedContract] =
-        useState<PreparedContract | null>(null);
 
     useEffect(() => {
         let isActive = true;
@@ -55,7 +72,6 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
             setStatus('generating');
             setErrorMessage(null);
             setPdfBlob(null);
-            setPreparedContract(null);
 
             const storedContract = readContractData();
 
@@ -114,21 +130,46 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
         }
 
         setIsConfirming(true);
+        setSubmitError(null);
 
         try {
-            await new Promise<void>((resolve) =>
-                requestAnimationFrame(() => resolve()),
-            );
+            const pdfBase64 = await blobToBase64(pdfBlob);
 
-            const file = createContractFile(pdfBlob, contractData, plan);
             const payload = createContractConfirmationPayload(
-                file,
                 contractData,
-                plan,
+                pdfBase64,
+                createContractFileName(contractData, plan),
             );
 
-            setPreparedContract({ file, payload });
-        } finally {
+            router.post(
+                checkoutConfirm.url(plan.slug, {
+                    query: flow === 'renewal' ? { flow } : {},
+                }),
+                payload,
+                {
+                    preserveScroll: true,
+                    onError: (errors) => {
+                        const specificMessage = Object.values(
+                            errors ?? {},
+                        ).find(
+                            (message) =>
+                                typeof message === 'string' && message.trim(),
+                        );
+
+                        setSubmitError(
+                            specificMessage ??
+                                'No fue posible completar la contratación en este momento. Por favor, inténtalo nuevamente.',
+                        );
+                    },
+                    onFinish: () => setIsConfirming(false),
+                },
+            );
+        } catch (error) {
+            console.error('Contract confirmation failed.', error);
+
+            setSubmitError(
+                'No fue posible completar la contratación en este momento. Por favor, inténtalo nuevamente.',
+            );
             setIsConfirming(false);
         }
     }
@@ -252,43 +293,90 @@ export default function ContractPreview({ plan }: ContractPreviewPageProps) {
                                         </p>
                                     </section>
 
-                                    {preparedContract ? (
-                                        <ConfirmationState
-                                            fileName={
-                                                preparedContract.file.name
-                                            }
-                                        />
-                                    ) : (
-                                        <div className="mt-8 flex flex-col-reverse gap-3 border-t border-deep-blue/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
-                                            <Button
-                                                type="button"
-                                                variant="outline"
-                                                disabled={isConfirming}
-                                                onClick={() =>
-                                                    router.visit(returnUrl)
-                                                }
-                                                className="h-12 justify-center px-7"
-                                            >
-                                                Volver y corregir datos
-                                            </Button>
-
-                                            <Button
-                                                type="button"
-                                                disabled={isConfirming}
-                                                aria-busy={isConfirming}
-                                                onClick={() =>
-                                                    void confirmContract()
-                                                }
-                                                className="h-12 justify-center px-7"
-                                            >
-                                                {isConfirming
-                                                    ? 'Confirmando...'
-                                                    : 'Confirmar contrato'}
-                                            </Button>
+                                    {submitError && (
+                                        <div
+                                            role="alert"
+                                            className="mt-8 border border-red-200 bg-red-50 px-6 py-5"
+                                        >
+                                            <p className="font-extrabold text-red-700">
+                                                {submitError}
+                                            </p>
                                         </div>
                                     )}
+
+                                    <div className="mt-8 flex flex-col-reverse gap-3 border-t border-deep-blue/10 pt-8 sm:flex-row sm:items-center sm:justify-between">
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            disabled={isConfirming}
+                                            onClick={() =>
+                                                router.visit(returnUrl)
+                                            }
+                                            className="h-12 justify-center px-7"
+                                        >
+                                            Volver y corregir datos
+                                        </Button>
+
+                                        <Button
+                                            type="button"
+                                            disabled={isConfirming}
+                                            aria-busy={isConfirming}
+                                            onClick={() =>
+                                                void confirmContract()
+                                            }
+                                            className="h-12 justify-center px-7"
+                                        >
+                                            {isConfirming
+                                                ? 'Confirmando...'
+                                                : 'Confirmar contrato'}
+                                        </Button>
+                                    </div>
                                 </>
                             )}
+                        </div>
+                    </div>
+                </Container>
+            </section>
+        </PublicLayout>
+    );
+}
+
+interface ContractConfirmationProps {
+    plan: Plan;
+}
+
+function ContractConfirmation({ plan }: ContractConfirmationProps) {
+    return (
+        <PublicLayout>
+            <Head title={`Contratación registrada - ${plan.name}`} />
+
+            <section className="bg-white py-8 sm:py-10 lg:py-12">
+                <Container>
+                    <CheckoutSteps currentStep={3} />
+
+                    <div className="mx-auto mt-10 max-w-3xl">
+                        <div
+                            role="status"
+                            className="border border-instinct/25 bg-instinct/7 px-6 py-10 text-center sm:px-10"
+                        >
+                            <span className="mx-auto flex size-14 items-center justify-center rounded-full bg-instinct/10 text-instinct-dark">
+                                <CheckCircle2
+                                    className="size-7"
+                                    strokeWidth={2.2}
+                                    aria-hidden
+                                />
+                            </span>
+
+                            <h1 className="mt-6 text-3xl font-extrabold tracking-[-0.04em] text-deep-blue sm:text-4xl">
+                                ¡Contratación registrada correctamente!
+                            </h1>
+
+                            <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-deep-blue/70 sm:text-lg">
+                                Recibimos tus datos y hemos generado tu
+                                documentación. En breve uno de nuestros
+                                ejecutivos se pondrá en contacto contigo para
+                                continuar con el proceso de firma electrónica.
+                            </p>
                         </div>
                     </div>
                 </Container>
@@ -400,45 +488,6 @@ function GenerationErrorState({ message, onRetry }: GenerationErrorStateProps) {
                 <RotateCcw className="size-4" aria-hidden />
                 Intentar nuevamente
             </Button>
-        </div>
-    );
-}
-
-interface ConfirmationStateProps {
-    fileName: string;
-}
-
-function ConfirmationState({ fileName }: ConfirmationStateProps) {
-    return (
-        <div
-            role="status"
-            className="mt-8 border border-instinct/25 bg-instinct/7 px-6 py-7 sm:px-8"
-        >
-            <div className="flex items-start gap-4">
-                <CheckCircle2
-                    className="mt-1 size-6 shrink-0 text-instinct-dark"
-                    strokeWidth={2.2}
-                    aria-hidden
-                />
-                <div>
-                    <h2 className="text-2xl font-extrabold text-deep-blue">
-                        Contrato confirmado
-                    </h2>
-                    <p className="mt-3 text-sm leading-7 text-deep-blue/70 sm:text-base">
-                        Tu contrato fue generado correctamente y quedó listo
-                        para su procesamiento.
-                    </p>
-                    <p className="mt-2 text-sm leading-7 text-deep-blue/70 sm:text-base">
-                        Una vez aceptado el contrato, un ejecutivo tomará
-                        contacto contigo en un plazo máximo de 2 horas hábiles.
-                    </p>
-                    <p className="mt-4 text-xs leading-5 text-deep-blue/55">
-                        Archivo preparado: {fileName}. En la integración final,
-                        este documento será enviado automáticamente al correo
-                        corporativo destinado a su procesamiento.
-                    </p>
-                </div>
-            </div>
         </div>
     );
 }

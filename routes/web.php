@@ -1,16 +1,16 @@
 <?php
 
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\CompanyFormationController;
 use App\Http\Controllers\CompanyLookupController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MeetingRoomBookingController;
 use App\Http\Controllers\MeetingRoomReservationController;
+use App\Http\Controllers\PatentManagementController;
+use App\Http\Controllers\PrivateOfficeController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\RoomAvailabilityController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PrivateOfficeController;
-use App\Http\Controllers\CompanyFormationController;
-use App\Http\Controllers\PatentManagementController;
 
 Route::get('/', HomeController::class)->name('home');
 
@@ -53,6 +53,11 @@ Route::post(
     '/checkout/{plan}/payment',
     [CheckoutController::class, 'processPayment'],
 )->name('checkout.payment');
+
+Route::post(
+    '/checkout/{plan}/confirm',
+    [CheckoutController::class, 'confirm'],
+)->middleware('throttle:10,1')->name('checkout.confirm');
 
 Route::get(
     '/checkout/{plan}',

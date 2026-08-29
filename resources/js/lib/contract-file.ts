@@ -10,11 +10,10 @@ function sanitizeFileSegment(value: string): string {
         .replace(/^-|-$/g, '');
 }
 
-export function createContractFile(
-    blob: Blob,
+export function createContractFileName(
     data: ContractGenerationData,
     plan: Plan,
-): File {
+): string {
     const customerIdentifier = data.is_natural_person
         ? data.representative_rut
         : data.company_name;
@@ -26,30 +25,67 @@ export function createContractFile(
         .filter(Boolean)
         .join('-');
 
-    return new File([blob], `${fileName}.pdf`, {
-        type: 'application/pdf',
+    return `${fileName}.pdf`;
+}
+
+export function blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+            const result = reader.result;
+
+            if (typeof result !== 'string') {
+                reject(new Error('No fue posible leer el contrato.'));
+
+                return;
+            }
+
+            resolve(result.slice(result.indexOf(',') + 1));
+        };
+
+        reader.onerror = () =>
+            reject(
+                reader.error ?? new Error('No fue posible leer el contrato.'),
+            );
+
+        reader.readAsDataURL(blob);
     });
 }
 
 /**
- * El backend deberá volver a validar todos los datos y regenerar o verificar
- * el documento antes de considerarlo definitivo.
+ * El backend vuelve a validar todos los datos y consulta el plan real
+ * desde la base de datos antes de considerarlo definitivo.
+ *
+ * El PDF viaja como base64 (y no como archivo multipart) para evitar
+ * depender del mecanismo de subida de archivos del servidor de desarrollo.
  */
 export function createContractConfirmationPayload(
-    file: File,
     data: ContractGenerationData,
-    plan: Plan,
+    pdfBase64: string,
+    pdfName: string,
 ): FormData {
     const payload = new FormData();
 
     payload.append(
         'contract_type',
-        data.is_natural_person ? 'natural_person' : 'legal_entity',
+        data.is_natural_person ? 'natural' : 'legal',
     );
-    payload.append('plan_id', plan.slug);
-    payload.append('contract_action', 'new');
-    payload.append('contract_data', JSON.stringify(data));
-    payload.append('contract_pdf', file);
+    payload.append('email', data.representative_email);
+    payload.append('phone', data.representative_whatsapp);
+    payload.append('representative_name', data.representative_name);
+    payload.append('representative_rut', data.representative_rut);
+    payload.append('address', data.representative_address);
+    payload.append('commune', data.representative_commune);
+    payload.append('region', data.representative_region);
+
+    if (!data.is_natural_person) {
+        payload.append('company_name', data.company_name);
+        payload.append('company_rut', data.company_rut);
+    }
+
+    payload.append('contract_pdf_base64', pdfBase64);
+    payload.append('contract_pdf_name', pdfName);
 
     return payload;
 }
