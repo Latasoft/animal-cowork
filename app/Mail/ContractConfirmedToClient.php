@@ -30,7 +30,7 @@ class ContractConfirmedToClient extends Mailable
             with: [
                 'displayName' => $this->client->representative_name,
                 'planName' => $this->plan->name,
-                'priceOffice' => $this->plan->price_office,
+                'totalPrice' => $this->plan->total_price,
                 'durationMonths' => $this->plan->contract_duration_months,
             ],
         );

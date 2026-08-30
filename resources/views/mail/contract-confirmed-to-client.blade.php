@@ -57,8 +57,8 @@
                                                             <td align="right" style="padding:6px 0; font-size:14px; font-weight:700; color:#0D1B3D;">{{ $durationMonths }} meses</td>
                                                         </tr>
                                                         <tr>
-                                                            <td style="padding:6px 0; font-size:14px; color:#3d4a6b;">Renta</td>
-                                                            <td align="right" style="padding:6px 0; font-size:14px; font-weight:700; color:#0D1B3D;">${{ number_format($priceOffice, 0, ',', '.') }}</td>
+                                                            <td style="padding:6px 0; font-size:14px; color:#3d4a6b;">Total pagado</td>
+                                                            <td align="right" style="padding:6px 0; font-size:14px; font-weight:700; color:#0D1B3D;">${{ number_format($totalPrice, 0, ',', '.') }}</td>
                                                         </tr>
                                                     </table>
                                                 </td>

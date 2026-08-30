@@ -53,7 +53,7 @@ La aplicación permitirá que personas naturales y jurídicas puedan:
 * Realizar el pago del servicio.
 * Recibir comunicaciones relacionadas con su contratación.
 * Gestionar posteriormente renovaciones y servicios asociados.
-* Reservar una sala disponible con la posibilidad de cangear sus horas incluidas en el plan
+* Reservar una sala disponible con la posibilidad de reclamar sus horas incluidas en el plan
 * Visualizar oficinas privadas
 
 La plataforma también contará con un sistema administrativo para gestionar el contenido de la página, planes, clientes, solicitudes, contratos y pagos.
@@ -177,6 +177,7 @@ La previsualización debe:
 * Mantener una presentación clara y similar a un documento formal.
 * Mostrar páginas o secciones de forma legible.
 * Evitar modificar el contenido legal que no sea dinámico.
+* Evitar descargar la previsualización del contrato
 
 En la parte inferior de la página se mostrará el botón:
 
@@ -190,8 +191,8 @@ Al confirmar:
 4. Se registra la fecha y hora de confirmación.
 5. Se registra el cliente en la base de datos
 6. El contrato se envía al correo corporativo destinado a su procesamiento.
-7. Se informa al usuario que la solicitud fue recibida correctamente.
-8. Un ejecutivo toma contacto con el cliente en un plazo máximo de 2 horas hábiles.
+7. Se informa al usuario que la solicitud fue recibida correctamente (Por correo).
+8. Un ejecutivo toma contacto con el cliente.
 
 La confirmación del contrato debe evitar envíos duplicados.
 
@@ -505,7 +506,9 @@ La página principal incluye o incluirá:
 * Indicador de más de 6.000 emprendedores.
 * Sección de planes.
 * Sección de renovación.
-* Sección de beneficios.
+* Sección de servicios
+* Pasos para contratar oficina virtual
+* Sección de servicios de salas
 * Sección de preguntas frecuentes.
 * Footer.
 * Enlaces legales.
@@ -542,7 +545,7 @@ El hero actual utiliza:
 La información sobre domicilio tributario y firma electrónica se presenta en una tarjeta con:
 
 * Fondo transparente o blanco.
-* Borde verde.
+* Borde azul.
 * Texto azul profundo.
 * Separación visual clara.
 * Diseño adaptable.
@@ -698,7 +701,7 @@ app/
 * Imágenes conceptuales de Fénix, Lobo y León.
 * Optimización de imágenes a WebP.
 * Repositorio Git configurado.
-* Pruebas iniciales de despliegue.
+* Pruebas iniciales de despliegue (En railway).
 * Flujo completo de contratación.
 * Formulario para persona natural.
 * Formulario para persona jurídica.
@@ -712,22 +715,19 @@ app/
 * Gestión de reservas (Bloqueo de fechas y horarios)
 * Control de errores en frontend.
 * Previsualización de contratos.
-
-### En desarrollo
-
-* Panel administrativo.
 * Envío automático por correo.
 * Registro de cliente al contratar un plan
 
+### En desarrollo
+
 ### Pendiente
 
+* Convertir landing en CMS
+* Sistema de cupones de descuento
 * Validaciones del backend.
 * Persistencia de solicitudes.
-* Gestión de contratos.
-* Mensajes de validación mediante Inertia.
 * Pasarela de pagos.
 * Historial de estados.
-* Notificaciones automáticas.
 * Despliegue definitivo en iHost.
 * Configuración de dominio definitivo.
 * Automatización de despliegue.
@@ -776,6 +776,9 @@ En Windows se recomienda utilizar Laravel Herd.
 
 ```bash
 git clone https://gitlab.com/latasoft-group/animal-cowork.git
+```
+```bash
+git clone https://github.com/Latasoft/animal-cowork.git
 ```
 
 Ingresar al proyecto:
@@ -1047,6 +1050,8 @@ Actualmente, el modelo principal está compuesto por las siguientes tablas:
 - `rooms_blocks`
 - `reservations`
 - `private_offices`
+- `CompanyFormationService`
+- `PatentManagementService`
 
 ## Diagrama Entidad-Relación
 
@@ -1212,6 +1217,74 @@ erDiagram
         boolean is_visible
         timestamp created_at
         timestamp updated_at
+    }
+
+    COMPANY_FORMATION_SERVICES (
+        id bigint PRIMARY KEY,
+        slug string UNIQUE,
+        eyebrow string,
+        title string,
+        description text,
+        external_service_label string,
+        external_service_title string,
+        external_service_price int,
+        external_service_description text,
+        virtual_office_label string,
+        virtual_office_title string,
+        virtual_office_price int,
+        virtual_office_duration string,
+        service_section_eyebrow string,
+        service_section_title string,
+        service_section_description text,
+        requirements json,
+        foreigner_notice text,
+        included_services_title string,
+        included_services json,
+        contact_title string,
+        contact_description text,
+        contact_email string,
+        contact_whatsapp string,
+        image string,
+        image_alt string,
+        primary_action_label string,
+        primary_action_href string,
+        is_active boolean,
+        sort_order int,
+        created_at timestamp,
+        updated_at timestamp,
+        deleted_at timestamp
+    );
+
+    PATENT_MANAGEMENT_SERVICES {
+        bigint id PK
+        string slug UK
+        string eyebrow
+        string title
+        text description
+
+        string service_section_title
+        text service_section_description
+
+        text legal_notice
+
+        int service_price
+        string currency
+
+        text municipal_payment_detail
+        text exclusive_notice
+
+        string image
+        string image_alt
+
+        string primary_action_label
+        string primary_action_href
+
+        boolean is_active
+        int sort_order
+
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
     }
 
     CLIENTS ||--o{ SUBSCRIPTIONS : has
@@ -1517,26 +1590,9 @@ Los 10 minutos destinados a limpieza no se cobran ni descuentan del beneficio de
 Actualmente la Sala 2 tiene únicamente disponible:
 
 ```text
-18:00 → 20:00
-```
-
-Este bloque es indivisible.
-
-Por lo tanto, no es posible reservar:
-
-```text
 18:00 → 19:00
 19:00 → 20:00
 ```
-
-La reserva debe realizarse obligatoriamente por las dos horas completas:
-
-```text
-18:00 → 20:00
-120 minutos
-```
-
----
 ### `rooms_blocks`
 
 Tabla utilizada para gestionar bloqueos de disponibilidad de las salas.
@@ -1915,6 +1971,9 @@ SubscriptionSeeder
 UserSeeder
 RoomSeeder
 ReservationSeeder
+CompanyFormationServiceSeeder
+PatentManagementServiceSeeder
+PrivateOfficeSeeder
 ```
 
 Estos permiten disponer de:
@@ -1927,6 +1986,9 @@ Estos permiten disponer de:
 * Salas configuradas.
 * Reservas gratuitas y pagadas.
 * Reservas de público general.
+* Page de manejo de patente
+* Oficinas privadas
+* Page de formacion de empresa
 
 Los datos ficticios utilizan dominios como:
 
@@ -2001,6 +2063,7 @@ Los contratos pueden incluir variables como:
 * Permitir exportar a PDF en una etapa posterior.
 * Permitir descargar o enviar el documento.
 * Mantener trazabilidad.
+* Solamente usar el precio price_office en el contraro, pero mostrar el total al cliente
 
 ### Estados sugeridos
 
@@ -2133,8 +2196,79 @@ Ejemplo de cron:
 ```bash
 * * * * * cd /ruta/al/proyecto && php artisan schedule:run >> /dev/null 2>&1
 ```
+11. Envío de correos
+Actualmente la aplicación utiliza Laravel Mail + SMTP de Gmail.
 
-11. Configurar procesamiento de colas si el hosting lo permite.
+Configuración:
+
+MAIL_MAILER=smtp
+MAIL_SCHEME=null
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=ejemplo@gmail.com
+MAIL_PASSWORD=<google-app-password>
+MAIL_FROM_ADDRESS="ejemplo@gmail.com"
+MAIL_FROM_NAME="Animal Coworking"
+
+CONTRACT_SEND_MAIL=ejemplo@gmail.com
+RESERVATION_RECEPTION_EMAIL=ejemplo@gmail.com
+
+MAIL_PASSWORD corresponde a una contraseña de aplicación de Google, no a la contraseña normal de Gmail.
+
+Railway
+
+El envío funciona correctamente en local, pero en Railway falla por bloqueo/restricción de SMTP saliente.
+
+Se comprobó directamente desde el contenedor:
+
+fsockopen("smtp.gmail.com", 587)
+# Connection timed out
+
+fsockopen("smtp.gmail.com", 465)
+# Connection timed out
+
+El error de Laravel:
+
+Maximum execution time of 30 seconds exceeded
+Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream.php
+
+es consecuencia del timeout de conexión SMTP y no de un problema con las credenciales o el código de Laravel.
+
+Producción
+
+En Railway se debe mantener:
+
+APP_ENV=production
+APP_DEBUG=false
+BOOST_ENABLED=false
+
+para evitar que Laravel Boost quede activo en producción.
+
+Migración futura
+
+Recomendación de envío de correos en iHost
+
+Para el despliegue definitivo en iHost, se recomienda utilizar el mismo método implementado en INV Paredones: envío mediante la función nativa mail() de PHP, utilizando el servicio de correo del propio hosting.
+
+De esta forma, se elimina la dependencia de:
+
+SMTP de Gmail.
+Contraseñas de aplicación.
+Puertos SMTP externos.
+
+El flujo será:
+
+Laravel / PHP
+    ↓
+mail()
+    ↓
+Servidor de correo de iHost
+    ↓
+Correo del destinatario
+
+La configuración SMTP de Gmail utilizada actualmente se mantiene únicamente para el entorno donde funciona correctamente. Al migrar a iHost, se deberá adaptar el envío para utilizar mail() como en INV Paredones.
+
+12. Configurar procesamiento de colas si el hosting lo permite.
 
 ### HTTPS
 
@@ -2162,7 +2296,7 @@ Cuando exista un proxy inverso, Laravel debe confiar correctamente en los encabe
 
 Se realizaron pruebas de despliegue en Railway.
 
-* La aplicación se encuentra funcional
+* La aplicación se encuentra funcional, con el dallo en envio de correos del paso 11 (SMPT funciona en local) y se dea una recomendacion para despliegue en ihost
 
 Railway se utilizó como entorno de prueba, pero el objetivo final continúa siendo iHost.
 
@@ -2225,7 +2359,7 @@ Antes de eliminar archivos originales se recomienda verificar que los WebP se ha
 * [x] Guardar solicitudes.
 * [x] Crear resumen.
 * [x] Crear navegación por pasos.
-* [ ] Evitar pérdida de datos al volver atrás.
+* [x] Evitar pérdida de datos al volver atrás.
 
 ### Fase 3: Contratos
 
@@ -2236,11 +2370,11 @@ Antes de eliminar archivos originales se recomienda verificar que los WebP se ha
 * [x] Generar contrato de persona jurídica.
 * [x] Crear previsualización.
 * [x] Crear confirmación.
-* [ ] Guardar versión confirmada.
-* [ ] Enviar contrato por correo.
-* [ ] Prevenir confirmaciones duplicadas.
-* [ ] Crear estados.
+* [x] Guardar versión confirmada.
+* [x] Enviar contrato por correo.
+* [x] Prevenir confirmaciones duplicadas.
 * [x] Generar PDF.
+* [ ] Crear estados.
 
 ### Fase 4: Administración
 
@@ -2252,9 +2386,9 @@ Antes de eliminar archivos originales se recomienda verificar que los WebP se ha
 * [x] Gestionar salas de reuniones
 * [x] Gestionar oficinas privadas
 * [x] Gestionar reservas
-* [ ] Gestionar contenidos.
 * [x] Gestionar clientes.
-* [x] Crear dashboard.
+* [ ] Crear dashboard.
+* [ ] Gestionar contenidos de la landing.
 
 ### Fase 5: Pagos
 
@@ -2360,6 +2494,8 @@ Se deben implementar pruebas para las funcionalidades críticas.
 * Envío de correo.
 * Estados de pago.
 * Permisos administrativos.
+* Reservas
+* CRUD de paneles administrativos
 
 ### Pruebas de frontend
 
@@ -2446,6 +2582,9 @@ Agregar remoto:
 
 ```bash
 git remote add origin https://gitlab.com/latasoft-group/animal-cowork.git
+```
+```bash
+git remote add origin https://github.com/Latasoft/animal-cowork.git
 ```
 
 Subir cambios:
