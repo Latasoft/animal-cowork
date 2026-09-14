@@ -3,7 +3,9 @@
 namespace App\Services\Contracts;
 
 use App\Models\Client;
+use App\Models\Payment;
 use App\Models\Plan;
+use App\Models\Purchase;
 use App\Models\Subscription;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\DB;
@@ -22,12 +24,24 @@ class ContractConfirmationService
      * @param  array<string, mixed>  $data
      * @return array{client: Client, subscription: Subscription}
      */
-    public function confirm(array $data, Plan $plan): array
+    public function confirm(array $data, Plan $plan, Purchase $purchase): array
     {
-        [$client, $subscription] = DB::transaction(function () use ($data, $plan): array {
+        $pdfBytes = base64_decode($data['contract_pdf_base64'], true);
+        if ($pdfBytes === false) {
+            throw ValidationException::withMessages(['contract_pdf_base64' => 'El contrato debe ser un PDF válido.']);
+        }
+        [$client, $subscription] = DB::transaction(function () use ($data, $plan, $purchase, $pdfBytes): array {
+            $purchase = Purchase::query()->lockForUpdate()->findOrFail($purchase->id);
+            if (! $purchase->payments()->where('status', Payment::PAID)->exists()) {
+                throw ValidationException::withMessages(['payment' => 'Debes completar el pago.']);
+            }
+            if ($existing = $purchase->subscription) {
+                return [$existing->client, $existing];
+            }
             $client = $this->upsertClient($data);
 
             $subscription = $client->subscriptions()->create([
+                'purchase_id' => $purchase->id,
                 'plan_id' => $plan->id,
 
                 'starts_at' => $this->startsAt(),
@@ -45,23 +59,11 @@ class ContractConfirmationService
                 'extra_room_hour_taxable' => $plan->extra_room_hour_taxable,
             ]);
 
+            $purchase->update(['client_id' => $client->id, 'status' => 'fulfilled']);
+            $this->notificationService->send($client, $plan, $pdfBytes, $data['contract_pdf_name'], $subscription);
+
             return [$client, $subscription];
         });
-
-        $pdfBytes = base64_decode($data['contract_pdf_base64'], true);
-
-        if ($pdfBytes === false) {
-            throw ValidationException::withMessages([
-                'contract_pdf_base64' => 'El contrato debe ser un documento PDF válido.',
-            ]);
-        }
-
-        $this->notificationService->send(
-            $client,
-            $plan,
-            $pdfBytes,
-            $data['contract_pdf_name'],
-        );
 
         return [
             'client' => $client,

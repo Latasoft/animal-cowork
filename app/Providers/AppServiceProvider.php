@@ -2,9 +2,16 @@
 
 namespace App\Providers;
 
-use App\Contracts\MeetingRooms\ReservationPaymentGateway;
-use App\Services\MeetingRooms\SimulatedReservationPaymentGateway;
+use App\Contracts\PaymentGateway;
+use App\Models\CompanyFormationService;
+use App\Models\PatentManagementService;
+use App\Models\Plan;
+use App\Models\Purchase;
+use App\Models\Reservation;
+use App\Models\Subscription;
+use App\Services\Payments\TransbankService;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\ServiceProvider;
@@ -20,8 +27,8 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(
-            ReservationPaymentGateway::class,
-            SimulatedReservationPaymentGateway::class,
+            PaymentGateway::class,
+            TransbankService::class,
         );
     }
 
@@ -30,6 +37,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Relation::morphMap([
+            'plan' => Plan::class,
+            'patent' => PatentManagementService::class,
+            'formation' => CompanyFormationService::class,
+            'purchase' => Purchase::class,
+            'reservation' => Reservation::class,
+            'subscription' => Subscription::class,
+        ]);
         $this->configureDefaults();
         $this->configureProductionExceptionResponses();
     }

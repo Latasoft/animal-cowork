@@ -3,11 +3,16 @@
 namespace App\Models;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 /**
  * @property int $id
+ * @property int|null $client_id
+ * @property array<string, mixed>|null $pending_client_data
+ * @property CarbonImmutable|null $expires_at
  * @property CarbonImmutable $starts_at
  * @property CarbonImmutable $ends_at
  * @property int $duration_minutes
@@ -62,6 +67,10 @@ class Reservation extends Model
     ];
 
     protected $fillable = [
+        'operation_key',
+        'request_hash',
+        'expires_at',
+        'pending_client_data',
         'room_id',
         'client_id',
         'subscription_id',
@@ -104,6 +113,8 @@ class Reservation extends Model
     protected function casts(): array
     {
         return [
+            'expires_at' => 'immutable_datetime',
+            'pending_client_data' => 'encrypted:array',
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
 
@@ -125,6 +136,23 @@ class Reservation extends Model
 
             'terms_accepted_at' => 'datetime',
         ];
+    }
+
+    protected $hidden = ['pending_client_data', 'operation_key', 'request_hash'];
+
+    /** @return MorphMany<Payment, $this> */
+    public function payments(): MorphMany
+    {
+        return $this->morphMany(Payment::class, 'payable');
+    }
+
+    /** @param Builder<Reservation> $query */
+    public function scopeHolding(Builder $query): void
+    {
+        $query->where(function ($query) {
+            $query->where('status', '!=', self::STATUS_PENDING)
+                ->orWhereNull('expires_at')->orWhere('expires_at', '>', now());
+        });
     }
 
     /** @return BelongsTo<Room, $this> */

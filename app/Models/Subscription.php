@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property int $monthly_room_minutes_included
  * @property int|null $extra_room_hour_price_net
  * @property bool $extra_room_hour_taxable
+ * @property CarbonImmutable $starts_at
+ * @property CarbonImmutable $ends_at
  * @property-read Plan $plan
  */
 class Subscription extends Model
@@ -18,6 +21,7 @@ class Subscription extends Model
     public const STATUS_ACTIVE = 'active';
 
     protected $fillable = [
+        'purchase_id',
         'client_id',
         'plan_id',
 
@@ -66,6 +70,12 @@ class Subscription extends Model
     public function plan(): BelongsTo
     {
         return $this->belongsTo(Plan::class);
+    }
+
+    /** @return BelongsTo<Purchase, $this> */
+    public function purchase(): BelongsTo
+    {
+        return $this->belongsTo(Purchase::class);
     }
 
     /** @return BelongsTo<Subscription, $this> */

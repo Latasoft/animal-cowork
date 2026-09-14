@@ -421,7 +421,13 @@ export default function MeetingRoomBooking({
         );
         void reservationRequest
             .submit(store(), {
-                onSuccess: () => setLocalErrors({}),
+                onSuccess: (response) => {
+                    setLocalErrors({});
+
+                    if (response.redirect_url) {
+                        window.location.assign(response.redirect_url);
+                    }
+                },
                 onError: (errors) => {
                     if (errors.slot_ids) {
                         setLookup(null);
@@ -431,7 +437,7 @@ export default function MeetingRoomBooking({
                 onHttpException: (response) => {
                     setGeneralError(
                         response.status === 503
-                            ? 'No pudimos validar ni confirmar la reserva. No se realizó ningún cargo ni reserva.'
+                            ? 'No pudimos verificar la reserva. Consulta el estado antes de iniciar otro pago.'
                             : 'No pudimos confirmar la reserva. Inténtalo nuevamente.',
                     );
 
@@ -603,7 +609,11 @@ export default function MeetingRoomBooking({
                                         }
                                         confirmedReservation={
                                             reservationRequest.response
-                                                ?.reservation ?? null
+                                                ?.reservation.status ===
+                                            'confirmed'
+                                                ? reservationRequest.response
+                                                      .reservation
+                                                : null
                                         }
                                     />
                                 </div>

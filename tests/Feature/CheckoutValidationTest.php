@@ -1,13 +1,17 @@
 <?php
 
+use App\Contracts\PaymentGateway;
+use App\Models\Payment;
 use Database\Seeders\PlanSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+use Tests\FakePaymentGateway;
 
 uses(LazilyRefreshDatabase::class);
 
 beforeEach(function () {
     $this->seed(PlanSeeder::class);
+    app()->instance(PaymentGateway::class, new FakePaymentGateway);
 });
 
 test('checkout identifies renewal only from the renewal query parameter', function () {
@@ -41,10 +45,10 @@ test('renewal context reaches the contract data step through checkout', function
         'accept_data_policy' => true,
     ]);
 
-    $response->assertRedirect(route('checkout.data', [
-        'plan' => 'lobo',
-        'flow' => 'renewal',
-    ]));
+    $payment = Payment::firstOrFail();
+    $response->assertRedirect(route('payments.redirect', $payment));
+    $this->post(route('payments.return'), ['token_ws' => $payment->token])->assertRedirect();
+    $this->get(route('payments.result', $payment))->assertSuccessful();
 
     $this->get(route('checkout.data', [
         'plan' => 'lobo',

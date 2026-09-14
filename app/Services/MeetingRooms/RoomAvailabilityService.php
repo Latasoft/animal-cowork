@@ -39,6 +39,7 @@ class RoomAvailabilityService
             ])
             ->where('room_id', $room->id)
             ->whereIn('status', Reservation::BLOCKING_STATUSES)
+            ->holding()
             ->where('starts_at', '<', $date->endOfDay())
             ->where('ends_at', '>', $date->startOfDay())
             ->get();
@@ -118,8 +119,7 @@ class RoomAvailabilityService
 
                     'billable_minutes' => $billableMinutes,
 
-                    'available' =>
-                        ! $blockedByReservation
+                    'available' => ! $blockedByReservation
                         && ! $blockedByRoomBlock,
                 ];
             })
@@ -128,8 +128,7 @@ class RoomAvailabilityService
     }
 
     /**
-     * @param array<int, string> $slotIds
-     *
+     * @param  array<int, string>  $slotIds
      * @return array{
      *     starts_at: CarbonImmutable,
      *     ends_at: CarbonImmutable,
@@ -164,8 +163,7 @@ class RoomAvailabilityService
 
         if ($selectedSlots->count() !== count($slotIds)) {
             throw ValidationException::withMessages([
-                'slot_ids' =>
-                    'Uno de los horarios seleccionados no pertenece a esta sala.',
+                'slot_ids' => 'Uno de los horarios seleccionados no pertenece a esta sala.',
             ]);
         }
 
@@ -184,8 +182,7 @@ class RoomAvailabilityService
             )
         ) {
             throw ValidationException::withMessages([
-                'slot_ids' =>
-                    'Este horario no está disponible. Puede haber sido reservado o bloqueado recientemente. Selecciona otro horario.',
+                'slot_ids' => 'Este horario no está disponible. Puede haber sido reservado o bloqueado recientemente. Selecciona otro horario.',
             ]);
         }
 
@@ -214,8 +211,7 @@ class RoomAvailabilityService
                 !== $selectedIndexes->count()
         ) {
             throw ValidationException::withMessages([
-                'slot_ids' =>
-                    'Los horarios seleccionados deben ser consecutivos.',
+                'slot_ids' => 'Los horarios seleccionados deben ser consecutivos.',
             ]);
         }
 
@@ -262,8 +258,7 @@ class RoomAvailabilityService
     ): void {
         if ($date->isWeekend()) {
             throw ValidationException::withMessages([
-                'date' =>
-                    'Las salas no están disponibles los fines de semana.',
+                'date' => 'Las salas no están disponibles los fines de semana.',
             ]);
         }
     }
@@ -275,7 +270,7 @@ class RoomAvailabilityService
     */
 
     /**
-     * @param Collection<int, object> $items
+     * @param  Collection<int, object>  $items
      */
     private function overlaps(
         Collection $items,
@@ -283,8 +278,7 @@ class RoomAvailabilityService
         CarbonImmutable $endsAt
     ): bool {
         return $items->contains(
-            fn ($item): bool =>
-                $item->starts_at->lt($endsAt)
+            fn ($item): bool => $item->starts_at->lt($endsAt)
                 && $item->ends_at->gt($startsAt)
         );
     }

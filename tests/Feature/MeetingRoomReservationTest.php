@@ -1,22 +1,28 @@
 <?php
 
-use App\Contracts\MeetingRooms\ReservationPaymentGateway;
+use App\Contracts\PaymentGateway;
 use App\Mail\MeetingRoomReservationConfirmed;
 use App\Models\Client;
+use App\Models\Payment;
+use App\Models\PaymentNotification;
 use App\Models\Plan;
 use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\Subscription;
+use App\Services\MeetingRooms\CompanyLookupService;
+use App\Services\Payments\PaymentService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\Mail;
+use Tests\FakePaymentGateway;
 
 uses(LazilyRefreshDatabase::class);
 
 beforeEach(function (): void {
     Date::setTestNow(CarbonImmutable::parse('2026-09-01 09:00:00'));
     Mail::fake();
+    app()->instance(PaymentGateway::class, new FakePaymentGateway);
     config()->set('services.reservations.reception_email', 'reservas@animal.test');
 });
 
@@ -186,12 +192,15 @@ it('registers an external client without a plan only after approval', function (
     $this->postJson(route('meeting_rooms.reservations.store'), externalReservationPayload($room))
         ->assertCreated();
 
+    expect(Client::query()->where('company_rut', '12345678-5')->exists())->toBeFalse();
+    app(PaymentService::class)->resolve(Payment::query()->latest('id')->firstOrFail(), true);
     $client = Client::query()->where('company_rut', '12345678-5')->firstOrFail();
 
     expect($client->subscriptions()->count())->toBe(0)
         ->and($client->notes)->toContain('No posee plan de oficina virtual asignado.');
 
-    Mail::assertQueued(MeetingRoomReservationConfirmed::class, 2);
+    deliverPaymentNotificationsForTest();
+    Mail::assertSent(MeetingRoomReservationConfirmed::class, 2);
 });
 
 it('does not duplicate clients when the same RUT uses a different format', function () {
@@ -207,6 +216,7 @@ it('does not duplicate clients when the same RUT uses a different format', funct
     $this->postJson(route('meeting_rooms.reservations.store'), $secondPayload)
         ->assertCreated();
 
+    Payment::all()->each(fn ($payment) => app(PaymentService::class)->resolve($payment, true));
     expect(Client::query()->where('company_rut', '12345678-5')->count())->toBe(1);
 });
 
@@ -278,15 +288,12 @@ it('quotes the external flow without performing a company lookup', function () {
 
 it('does not create an external client when payment approval fails', function () {
     $room = createMeetingRoomForTest();
-    $gateway = Mockery::mock(ReservationPaymentGateway::class);
-    $gateway->shouldReceive('approve')->once()->andThrow(new RuntimeException('Pago rechazado'));
-    app()->instance(ReservationPaymentGateway::class, $gateway);
-
-    $this->postJson(route('meeting_rooms.reservations.store'), externalReservationPayload($room))
-        ->assertServerError();
-
+    $gateway = app(PaymentGateway::class);
+    $gateway->resultStatus = 'FAILED';
+    $this->postJson(route('meeting_rooms.reservations.store'), externalReservationPayload($room))->assertCreated();
+    app(PaymentService::class)->resolve(Payment::firstOrFail(), true);
     expect(Client::query()->where('company_rut', '12345678-5')->exists())->toBeFalse()
-        ->and(Reservation::query()->count())->toBe(0);
+        ->and(Reservation::firstOrFail()->status)->toBe(Reservation::STATUS_CANCELLED);
 });
 
 it('does not grant a client rate when the frontend claims a plan that does not exist', function () {
@@ -497,3 +504,89 @@ function baseReservationDataForTest(Room $room, array $overrides = []): array
         ...$overrides,
     ];
 }
+
+it('reuses an identical reservation submission without a second payment', function () {
+    $room = createMeetingRoomForTest();
+    $payload = externalReservationPayload($room);
+    $this->postJson(route('meeting_rooms.reservations.store'), $payload)->assertCreated();
+    $this->postJson(route('meeting_rooms.reservations.store'), $payload)->assertCreated();
+    expect(Reservation::count())->toBe(1)->and(Payment::count())->toBe(1)
+        ->and(app(PaymentGateway::class)->creates)->toBe(1);
+});
+
+it('releases expired reservation holds without relying on the scheduler', function () {
+    $room = createMeetingRoomForTest();
+    $this->postJson(route('meeting_rooms.reservations.store'), externalReservationPayload($room))->assertCreated();
+    Reservation::firstOrFail()->update(['expires_at' => now()->subMinute()]);
+    $this->getJson(route('meeting_rooms.availability', ['room' => $room->slug, 'date' => '2026-09-07']))
+        ->assertSuccessful()->assertJsonPath('slots.0.available', true);
+});
+
+it('retains plan minutes across rooms and releases them when a hold expires', function () {
+    $room = createMeetingRoomForTest();
+    [$client, $subscription] = createPlanClientForTest();
+    consumeIncludedMinutesForTest($room, $client, $subscription, 60, '2026-09-02 10:00:00');
+    $this->postJson(route('meeting_rooms.reservations.store'), planReservationPayload($room, $client, ['10-11', '11-12']))
+        ->assertCreated()->assertJsonPath('reservation.included_minutes_used', 60);
+    $otherRoom = createMeetingRoomForTest(slug: 'sala-3');
+    $context = app(CompanyLookupService::class)->context($client->company_rut, CarbonImmutable::parse('2026-09-07'));
+    expect($context['available_included_minutes'])->toBe(0);
+    Reservation::query()->where('status', 'pending')->firstOrFail()->update(['expires_at' => now()->subMinute()]);
+    $context = app(CompanyLookupService::class)->context($client->company_rut, CarbonImmutable::parse('2026-09-07'));
+    expect($context['available_included_minutes'])->toBe(60);
+});
+
+it('records a late approved payment for manual review when the room is no longer available', function () {
+    $room = createMeetingRoomForTest();
+    $this->postJson(route('meeting_rooms.reservations.store'), externalReservationPayload($room))->assertCreated();
+    $reservation = Reservation::firstOrFail();
+    $reservation->update(['expires_at' => now()->subMinute()]);
+    Reservation::query()->create(baseReservationDataForTest($room, ['starts_at' => $reservation->starts_at, 'ends_at' => $reservation->ends_at]));
+    $payment = Payment::firstOrFail();
+    app(PaymentService::class)->resolve($payment, true);
+    expect($payment->refresh()->status)->toBe(Payment::PAID)
+        ->and($payment->review_reason)->toBe('reservation_requires_review')
+        ->and($reservation->refresh()->status)->toBe(Reservation::STATUS_CANCELLED)
+        ->and(PaymentNotification::count())->toBe(0);
+});
+
+it('confirms late approval when the room and benefits remain available', function () {
+    $room = createMeetingRoomForTest();
+    $this->postJson(route('meeting_rooms.reservations.store'), externalReservationPayload($room))->assertCreated();
+    $reservation = Reservation::firstOrFail();
+    $reservation->update(['expires_at' => now()->subMinute()]);
+    $payment = Payment::firstOrFail();
+    $payment->update(['expires_at' => now()->subMinute()]);
+    app(PaymentGateway::class)->resultStatus = 'INITIALIZED';
+    app(PaymentService::class)->resolve($payment);
+    expect($payment->refresh()->status)->toBe(Payment::EXPIRED);
+    app(PaymentGateway::class)->resultStatus = 'AUTHORIZED';
+    app(PaymentService::class)->resolve($payment, true);
+    expect($payment->refresh()->status)->toBe(Payment::PAID);
+    expect($reservation->refresh()->status)->toBe(Reservation::STATUS_CONFIRMED);
+});
+
+it('does not call webpay or duplicate mail for a free reservation', function () {
+    $room = createMeetingRoomForTest();
+    [$client] = createPlanClientForTest();
+    $payload = planReservationPayload($room, $client);
+    $this->postJson(route('meeting_rooms.reservations.store'), $payload)->assertCreated()->assertJsonPath('redirect_url', null);
+    $this->postJson(route('meeting_rooms.reservations.store'), $payload)->assertCreated();
+    deliverPaymentNotificationsForTest();
+    expect(Payment::count())->toBe(0)->and(Reservation::count())->toBe(1)->and(app(PaymentGateway::class)->creates)->toBe(0);
+    Mail::assertSent(MeetingRoomReservationConfirmed::class, 2);
+});
+
+it('requires review when plan eligibility changes before the payment is approved', function () {
+    $room = createMeetingRoomForTest();
+    [$client, $subscription] = createPlanClientForTest();
+    consumeIncludedMinutesForTest($room, $client, $subscription, 60, '2026-09-02 10:00:00');
+    $this->postJson(route('meeting_rooms.reservations.store'), planReservationPayload($room, $client, ['10-11', '11-12']))->assertCreated();
+    $subscription->update(['includes_room_access' => false]);
+    $payment = Payment::firstOrFail();
+    app(PaymentService::class)->resolve($payment, true);
+    expect($payment->refresh()->status)->toBe(Payment::PAID)
+        ->and($payment->review_reason)->toBe('reservation_requires_review')
+        ->and($payment->payable->status)->toBe(Reservation::STATUS_CANCELLED)
+        ->and(PaymentNotification::count())->toBe(0);
+});

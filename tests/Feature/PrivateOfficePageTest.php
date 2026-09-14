@@ -1,6 +1,9 @@
 <?php
 
+use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
+
+uses(LazilyRefreshDatabase::class);
 
 test('the private offices page is public', function () {
     $response = $this->get(route('private_offices.index'));

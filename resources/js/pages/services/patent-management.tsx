@@ -1,12 +1,8 @@
 import { Head } from '@inertiajs/react';
-import {
-    FileCheck2,
-    Scale,
-    ShieldCheck,
-} from 'lucide-react';
+import { FileCheck2, Scale, ShieldCheck } from 'lucide-react';
 
 import { Footer } from '@/components/layout/footer';
-import { ButtonArrow } from '@/components/ui/button';
+import { ServicePaymentForm } from '@/components/service-payment-form';
 import { Container } from '@/components/ui/container';
 import { PublicLayout } from '@/layouts/public-layout';
 
@@ -59,10 +55,7 @@ interface PatentManagementProps {
  * =========================================================
  */
 
-function formatCurrency(
-    value: number,
-    currency: string = 'CLP',
-): string {
+function formatCurrency(value: number, currency: string = 'CLP'): string {
     return new Intl.NumberFormat('es-CL', {
         style: 'currency',
         currency,
@@ -76,18 +69,13 @@ function formatCurrency(
  * =========================================================
  */
 
-export default function PatentManagement({
-    service,
-}: PatentManagementProps) {
+export default function PatentManagement({ service }: PatentManagementProps) {
     const servicePrice = service.service_price ?? 0;
 
     return (
         <>
             <Head title={service.title}>
-                <meta
-                    name="description"
-                    content={service.description}
-                />
+                <meta name="description" content={service.description} />
             </Head>
 
             <PublicLayout>
@@ -122,16 +110,11 @@ export default function PatentManagement({
                                 </p>
 
                                 <div className="mt-8">
-                                    <ButtonArrow
-                                        href={
-                                            service.primary_action_href ??
-                                            '#'
-                                        }
-                                        className="w-full sm:w-auto"
-                                    >
-                                        {service.primary_action_label ??
-                                            'CONTRATAR'}
-                                    </ButtonArrow>
+                                    <ServicePaymentForm
+                                        type="patent"
+                                        slug={service.slug}
+                                        amount={servicePrice}
+                                    />
                                 </div>
                             </div>
 
@@ -150,7 +133,6 @@ export default function PatentManagement({
                     <Container>
                         <div className="mx-auto max-w-6xl">
                             <div className="overflow-hidden rounded-card border border-deep-blue/10 bg-white shadow-card">
-
                                 {/* =================================================
                                  * QUÉ GESTIONAMOS
                                  * =============================================== */}
@@ -169,9 +151,7 @@ export default function PatentManagement({
                                         </p>
 
                                         <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.04em] text-deep-blue sm:text-3xl">
-                                            {
-                                                service.service_section_title
-                                            }
+                                            {service.service_section_title}
                                         </h2>
 
                                         <p className="mt-4 max-w-4xl text-base leading-7 text-muted sm:text-lg">
@@ -233,9 +213,7 @@ export default function PatentManagement({
                                         </h2>
 
                                         <p className="mt-4 max-w-4xl text-base leading-7 text-muted sm:text-lg">
-                                            {
-                                                service.municipal_payment_detail
-                                            }
+                                            {service.municipal_payment_detail}
                                         </p>
                                     </div>
                                 </article>
@@ -261,10 +239,7 @@ interface ServiceImageProps {
     alt: string | null;
 }
 
-function ServiceImage({
-    image,
-    alt,
-}: ServiceImageProps) {
+function ServiceImage({ image, alt }: ServiceImageProps) {
     if (!image) {
         return null;
     }
@@ -284,20 +259,16 @@ function ServiceImage({
      * En el tercer caso agregamos /storage/.
      */
     const imageUrl =
-        image.startsWith('http://') ||
-        image.startsWith('https://')
+        image.startsWith('http://') || image.startsWith('https://')
             ? image
             : image.startsWith('/')
-                ? image
-                : `/storage/${image}`;
+              ? image
+              : `/storage/${image}`;
 
     return (
         <img
             src={imageUrl}
-            alt={
-                alt ??
-                'Gestión de patente comercial de oficina virtual'
-            }
+            alt={alt ?? 'Gestión de patente comercial de oficina virtual'}
             className="aspect-[4/3] w-full rounded-card object-cover shadow-card"
             loading="lazy"
         />

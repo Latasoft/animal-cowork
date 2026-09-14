@@ -117,6 +117,7 @@ export interface ConfirmedReservation {
 }
 
 export interface ReservationResponse {
+    redirect_url: string | null;
     message: string;
     reservation: ConfirmedReservation;
 }

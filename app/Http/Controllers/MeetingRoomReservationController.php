@@ -5,20 +5,32 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MeetingRooms\StoreReservationRequest;
 use App\Models\Reservation;
 use App\Services\MeetingRooms\ReservationService;
+use App\Services\Payments\PaymentService;
 use App\Support\SafeDatabaseQuery;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class MeetingRoomReservationController extends Controller
 {
     public function __construct(
         private ReservationService $reservationService,
         private SafeDatabaseQuery $database,
+        private PaymentService $payments,
     ) {}
 
     public function store(StoreReservationRequest $request): JsonResponse
     {
+        $data = $request->validated();
+        $operation = PaymentController::operation($request, 'reservation_'.hash('sha256', json_encode($data, JSON_THROW_ON_ERROR)));
         $result = $this->database->run(
-            callback: fn (): Reservation => $this->reservationService->confirm($request->validated()),
+            callback: fn (): Reservation => DB::transaction(function () use ($data, $operation): Reservation {
+                $reservation = $this->reservationService->confirm($data, $operation);
+                if ($reservation->total_amount > 0) {
+                    $this->payments->pending($reservation, $reservation->total_amount, $operation);
+                }
+
+                return $reservation;
+            }, attempts: 5),
             fallback: null,
             component: 'meeting_rooms.reservation',
             model: Reservation::class,
@@ -27,7 +39,7 @@ class MeetingRoomReservationController extends Controller
 
         if ($result->unavailable) {
             return response()->json([
-                'message' => 'No pudimos confirmar la reserva en este momento. No se realizó ningún cargo ni reserva.',
+                'message' => 'No pudimos verificar la reserva en este momento. Consulta el estado antes de iniciar otro pago.',
                 'unavailable' => true,
             ], 503);
         }
@@ -35,8 +47,15 @@ class MeetingRoomReservationController extends Controller
         $reservation = $result->value;
         assert($reservation instanceof Reservation);
 
+        $payment = $reservation->payments()->first();
+        if ($payment) {
+            $payment = $this->payments->start($payment);
+            PaymentController::remember($request, $payment);
+        }
+
         return response()->json([
-            'message' => 'Tu reserva fue confirmada correctamente.',
+            'redirect_url' => $payment ? route('payments.redirect', $payment) : null,
+            'message' => $payment ? 'Continúa a Webpay para pagar tu reserva.' : 'Tu reserva fue confirmada correctamente.',
             'reservation' => $this->summary($reservation),
         ], 201);
     }

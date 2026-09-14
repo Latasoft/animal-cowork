@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ConfirmContractRequest;
 use App\Http\Resources\PlanResource;
 use App\Models\Client;
+use App\Models\Payment;
 use App\Models\Plan;
+use App\Models\Purchase;
 use App\Services\Contracts\ContractConfirmationService;
+use App\Services\Payments\PurchaseService;
 use App\Support\DatabaseQueryResult;
 use App\Support\SafeDatabaseQuery;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +23,7 @@ class CheckoutController extends Controller
     public function __construct(
         private SafeDatabaseQuery $database,
         private ContractConfirmationService $contractService,
+        private PurchaseService $purchases,
     ) {}
 
     /**
@@ -41,8 +45,7 @@ class CheckoutController extends Controller
     /**
      * Paso 1: valida los datos previos al pago.
      *
-     * Temporalmente simula el pago como confirmado y redirige
-     * al Paso 2. Más adelante aquí se conectará la pasarela.
+     * Crea una compra pendiente y dirige al usuario a Webpay.
      */
     public function processPayment(
         Request $request,
@@ -151,50 +154,13 @@ class CheckoutController extends Controller
             ],
         );
 
-        /*
-         * El precio se obtiene siempre desde Laravel.
-         * Nunca se utiliza un precio enviado desde React.
-         */
-        $subtotal = $selectedPlan->total_price;
         $flow = $this->checkoutFlow($request);
+        $operation = PaymentController::operation($request, 'plan_'.$selectedPlan->id);
+        $payment = $this->purchases->start($selectedPlan, $validated['representative_email'], $validated['representative_whatsapp'], $operation, $flow);
+        PaymentController::remember($request, $payment);
+        $request->session()->put('checkout', ['purchase_id' => $payment->payable_id]);
 
-        /*
-         * El cupón todavía no aplica descuentos reales.
-         * Más adelante se validará desde la base de datos.
-         */
-        $discountCode = $validated['discount_code'] ?? null;
-        $discountAmount = 0;
-        $total = $subtotal - $discountAmount;
-
-        /*
-         * Simulación temporal del pago confirmado.
-         *
-         * Cuando se integre la pasarela:
-         *
-         * 1. Crear una orden pendiente.
-         * 2. Validar y aplicar el cupón.
-         * 3. Crear la transacción en la pasarela.
-         * 4. Redirigir al cliente hacia el pago.
-         * 5. Confirmar mediante webhook o retorno seguro.
-         * 6. Permitir el acceso al Paso 2.
-         */
-        $request->session()->put('checkout', [
-            'plan_id' => $selectedPlan->slug,
-            'email' => $validated['representative_email'],
-            'whatsapp' => $validated['representative_whatsapp'],
-            'discount_code' => $discountCode,
-            'subtotal' => $subtotal,
-            'discount_amount' => $discountAmount,
-            'total' => $total,
-
-            // Temporal para desarrollo.
-            'payment_confirmed' => true,
-        ]);
-
-        return redirect()->route('checkout.data', [
-            'plan' => $plan,
-            ...($flow === 'renewal' ? ['flow' => 'renewal'] : []),
-        ]);
+        return redirect()->route('payments.redirect', $payment);
     }
 
     /**
@@ -214,12 +180,11 @@ class CheckoutController extends Controller
         $selectedPlan = $planResult->value;
         assert($selectedPlan instanceof Plan);
 
-        $checkout = $request->session()->get('checkout');
+        $purchase = $this->paidPurchase($request, $plan);
+        $checkout = $purchase ? ['email' => $purchase->email, 'whatsapp' => $purchase->phone, 'subtotal' => $purchase->amount, 'total' => $purchase->amount] : null;
 
         $hasConfirmedPayment =
-            is_array($checkout) &&
-            ($checkout['plan_id'] ?? null) === $plan &&
-            ($checkout['payment_confirmed'] ?? false) === true;
+            $purchase !== null;
 
         if (! $hasConfirmedPayment) {
             return redirect()
@@ -233,7 +198,8 @@ class CheckoutController extends Controller
         }
 
         return Inertia::render('checkout-data', [
-            'plan' => (new PlanResource($selectedPlan))->resolve(),
+            'paymentConfirmed' => $request->session()->get('payment_confirmed_message', false),
+            'plan' => (new PlanResource($purchase->purchasedPlan()))->resolve(),
             'flow' => $this->checkoutFlow($request),
 
             'customer' => [
@@ -243,8 +209,8 @@ class CheckoutController extends Controller
 
             'payment' => [
                 'subtotal' => $checkout['subtotal'] ?? 0,
-                'discountCode' => $checkout['discount_code'] ?? null,
-                'discountAmount' => $checkout['discount_amount'] ?? 0,
+                'discountCode' => null,
+                'discountAmount' => 0,
                 'total' => $checkout['total'] ?? 0,
                 'confirmed' => true,
             ],
@@ -267,12 +233,11 @@ class CheckoutController extends Controller
         $selectedPlan = $planResult->value;
         assert($selectedPlan instanceof Plan);
 
-        $checkout = $request->session()->get('checkout');
+        $purchase = $this->paidPurchase($request, $plan);
+        $checkout = $purchase ? ['email' => $purchase->email, 'whatsapp' => $purchase->phone, 'subtotal' => $purchase->amount, 'total' => $purchase->amount] : null;
 
         $hasConfirmedPayment =
-            is_array($checkout) &&
-            ($checkout['plan_id'] ?? null) === $plan &&
-            ($checkout['payment_confirmed'] ?? false) === true;
+            $purchase !== null;
 
         if (! $hasConfirmedPayment) {
             return redirect()
@@ -286,7 +251,7 @@ class CheckoutController extends Controller
         }
 
         return Inertia::render('contract-preview', [
-            'plan' => (new PlanResource($selectedPlan))->resolve(),
+            'plan' => (new PlanResource($purchase->purchasedPlan()))->resolve(),
             'flow' => $this->checkoutFlow($request),
             'confirmation' => (bool) $request->session()->get('contract_confirmation'),
         ]);
@@ -311,12 +276,11 @@ class CheckoutController extends Controller
         $selectedPlan = $planResult->value;
         assert($selectedPlan instanceof Plan);
 
-        $checkout = $request->session()->get('checkout');
+        $purchase = $this->paidPurchase($request, $plan);
+        $checkout = $purchase ? ['email' => $purchase->email, 'whatsapp' => $purchase->phone, 'subtotal' => $purchase->amount, 'total' => $purchase->amount] : null;
 
         $hasConfirmedPayment =
-            is_array($checkout) &&
-            ($checkout['plan_id'] ?? null) === $plan &&
-            ($checkout['payment_confirmed'] ?? false) === true;
+            $purchase !== null;
 
         if (! $hasConfirmedPayment) {
             return redirect()
@@ -330,7 +294,8 @@ class CheckoutController extends Controller
         $result = $this->database->run(
             callback: fn (): array => $this->contractService->confirm(
                 $request->validated(),
-                $selectedPlan,
+                $purchase->purchasedPlan(),
+                $purchase,
             ),
             fallback: null,
             component: 'checkout.contract',
@@ -354,6 +319,21 @@ class CheckoutController extends Controller
             ->with('contract_confirmation', true);
     }
 
+    private function paidPurchase(Request $request, string $slug): ?Purchase
+    {
+        $purchaseId = $request->session()->get('checkout.purchase_id');
+        if (! is_int($purchaseId)) {
+            return null;
+        }
+        $purchase = Purchase::query()->find($purchaseId);
+        if (! $purchase || $purchase->product_type !== 'plan' || ($purchase->snapshot['plan']['slug'] ?? null) !== $slug) {
+            return null;
+        }
+        $payment = $purchase->payments()->where('status', Payment::PAID)->first();
+
+        return $payment && $request->session()->get('payment_access.'.$payment->public_id) === true ? $purchase : null;
+    }
+
     private function unavailableMessage(): string
     {
         return 'No fue posible completar la contratación en este momento. Por favor, inténtalo nuevamente.';
@@ -370,10 +350,19 @@ class CheckoutController extends Controller
     private function findActivePlan(string $slug, string $operation): DatabaseQueryResult
     {
         return $this->database->run(
-            callback: fn (): Plan => Plan::query()
-                ->active()
-                ->where('slug', $slug)
-                ->firstOrFail(),
+            callback: function () use ($slug, $operation): Plan {
+                if ($operation !== 'show_checkout' && $operation !== 'validate_checkout_payment') {
+                    $purchase = $this->paidPurchase(request(), $slug);
+                    if ($purchase) {
+                        return $purchase->purchasedPlan();
+                    }
+                }
+
+                return Plan::query()
+                    ->active()
+                    ->where('slug', $slug)
+                    ->firstOrFail();
+            },
             fallback: null,
             component: 'checkout.plan',
             model: Plan::class,

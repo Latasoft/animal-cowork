@@ -7,6 +7,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MeetingRoomBookingController;
 use App\Http\Controllers\MeetingRoomReservationController;
 use App\Http\Controllers\PatentManagementController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PrivateOfficeController;
 use App\Http\Controllers\RenewalController;
 use App\Http\Controllers\RoomAvailabilityController;
@@ -37,7 +38,7 @@ Route::post(
 Route::post(
     '/agendamiento-de-sala-de-reuniones/reservas',
     [MeetingRoomReservationController::class, 'store'],
-)->middleware('throttle:10,1')->name('meeting_rooms.reservations.store');
+)->middleware('throttle:10,1')->block(90, 30)->name('meeting_rooms.reservations.store');
 
 Route::get(
     '/checkout/{plan}/datos',
@@ -52,7 +53,7 @@ Route::get(
 Route::post(
     '/checkout/{plan}/payment',
     [CheckoutController::class, 'processPayment'],
-)->name('checkout.payment');
+)->middleware('throttle:10,1')->block(90, 30)->name('checkout.payment');
 
 Route::post(
     '/checkout/{plan}/confirm',
@@ -76,3 +77,10 @@ Route::get(
     '/oficinas-privadas',
     PrivateOfficeController::class,
 )->name('private_offices.index');
+
+Route::post('/payments/services/{type}/{slug}', [PaymentController::class, 'service'])->middleware('throttle:10,1')->block(90, 30)->name('payments.service');
+Route::match(['GET', 'POST'], '/payments/webpay/return', [PaymentController::class, 'returned'])->name('payments.return');
+Route::get('/payments/{payment}/redirect', [PaymentController::class, 'redirect'])->name('payments.redirect');
+Route::get('/payments/{payment}/result', [PaymentController::class, 'result'])->name('payments.result');
+Route::post('/payments/{payment}/status', [PaymentController::class, 'status'])->middleware('throttle:10,1')->name('payments.status');
+Route::post('/payments/{payment}/retry', [PaymentController::class, 'retry'])->middleware('throttle:10,1')->block(90, 30)->name('payments.retry');

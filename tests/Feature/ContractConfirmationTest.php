@@ -3,6 +3,8 @@
 use App\Mail\ContractConfirmedToClient;
 use App\Mail\ContractConfirmedToCompany;
 use App\Models\Client;
+use App\Models\PaymentNotification;
+use App\Models\Plan;
 use App\Models\Subscription;
 use Database\Seeders\PlanSeeder;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
@@ -43,14 +45,7 @@ function validLegalContract(array $overrides = []): array
 
 function confirmedCheckoutSession(string $plan = 'fenix'): array
 {
-    return [
-        'checkout' => [
-            'plan_id' => $plan,
-            'email' => 'cliente@example.com',
-            'whatsapp' => '+56 9 1234 5678',
-            'payment_confirmed' => true,
-        ],
-    ];
+    return paidCheckoutForTest($plan);
 }
 
 test('contract confirmation requires a confirmed payment', function () {
@@ -83,6 +78,7 @@ test('confirm contract persists a legal entity client, its subscription and send
         ->and($subscription->price_additional)->toBe(0)
         ->and($subscription->ends_at->greaterThan($subscription->starts_at))->toBeTrue();
 
+    deliverPaymentNotificationsForTest();
     Mail::assertSent(ContractConfirmedToCompany::class, function ($mail) {
         return $mail->hasTo(config('services.contracts.reception_email'))
             && count($mail->attachments()) === 1;
@@ -141,4 +137,25 @@ test('confirm contract normalizes the RUT format without enforcing the check dig
     expect($client)->not->toBeNull()
         ->and($client->representative_rut)->toBe('12345678-9')
         ->and($client->company_rut)->toBe('77123456-9');
+});
+
+test('contract confirmation is idempotent and preserves the paid plan snapshot', function () {
+    $session = confirmedCheckoutSession();
+    $plan = Plan::query()->where('slug', 'fenix')->firstOrFail();
+    $plan->update(['price_office' => 999999, 'contract_duration_months' => 1, 'is_active' => false]);
+    $this->withSession($session)->post(route('checkout.confirm', ['plan' => 'fenix']), validLegalContract())->assertRedirect();
+    $this->post(route('checkout.confirm', ['plan' => 'fenix']), validLegalContract())->assertRedirect();
+    deliverPaymentNotificationsForTest();
+    expect(Subscription::count())->toBe(1)->and(Subscription::firstOrFail()->price_office)->toBe(59990)
+        ->and(Subscription::firstOrFail()->purchase->subscription->id)->toBe(Subscription::firstOrFail()->id)
+        ->and(PaymentNotification::count())->toBe(2);
+    Mail::assertSent(ContractConfirmedToClient::class, 1);
+    Mail::assertSent(ContractConfirmedToCompany::class, 1);
+});
+
+test('legacy session flags cannot activate a plan', function () {
+    $this->withSession(['checkout' => ['plan_id' => 'fenix', 'payment_confirmed' => true]])
+        ->post(route('checkout.confirm', ['plan' => 'fenix']), validLegalContract())
+        ->assertRedirect(route('checkout.show', ['plan' => 'fenix']));
+    expect(Subscription::count())->toBe(0);
 });

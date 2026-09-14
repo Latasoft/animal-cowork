@@ -24,14 +24,7 @@ test('contract preview renders the selected plan after payment', function () {
     $this->withoutVite();
 
     $response = $this
-        ->withSession([
-            'checkout' => [
-                'plan_id' => 'fenix',
-                'email' => 'cliente@example.com',
-                'whatsapp' => '+56 9 1234 5678',
-                'payment_confirmed' => true,
-            ],
-        ])
+        ->withSession(paidCheckoutForTest())
         ->get(route('checkout.contract_preview', [
             'plan' => 'fenix',
         ]));

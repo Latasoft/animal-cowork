@@ -3,6 +3,7 @@
 use Illuminate\Support\Str;
 
 return [
+    'block_store' => env('SESSION_BLOCK_STORE', 'database'),
 
     /*
     |--------------------------------------------------------------------------

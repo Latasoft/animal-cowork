@@ -3,7 +3,6 @@ import {
     CalendarDays,
     CheckCircle2,
     Clock3,
-    CreditCard,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -115,15 +114,6 @@ export function ReservationSummary({
                     total.
                 </p>
             )}
-
-            <div className="mt-6 flex items-start gap-3 rounded-xl bg-deep-blue/4 p-4 text-xs leading-5 text-deep-blue/60">
-                <CreditCard
-                    className="mt-0.5 size-4 shrink-0 text-energy-blue"
-                    aria-hidden
-                />
-                El pago es simulado. El backend volverá a validar el horario y
-                el precio antes de confirmar.
-            </div>
 
             <Button
                 type="submit"

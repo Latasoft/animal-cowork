@@ -58,7 +58,8 @@ class CompanyLookupService
 
         $usedIncludedMinutes = (int) Reservation::query()
             ->where('subscription_id', $subscription->id)
-            ->whereIn('status', Reservation::CONSUMED_BENEFIT_STATUSES)
+            ->whereIn('status', [...Reservation::CONSUMED_BENEFIT_STATUSES, Reservation::STATUS_PENDING])
+            ->holding()
             ->whereBetween('starts_at', [$date->startOfMonth(), $date->endOfMonth()])
             ->sum('included_minutes_used');
 

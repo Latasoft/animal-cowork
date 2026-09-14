@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import { Footer } from '@/components/layout/footer';
-import { ButtonArrow } from '@/components/ui/button';
+import { ServicePaymentForm } from '@/components/service-payment-form';
 import { Container } from '@/components/ui/container';
 import { PublicLayout } from '@/layouts/public-layout';
 
@@ -107,9 +107,7 @@ function formatPhone(value: string): string {
  * =========================================================
  */
 
-export default function CompanyFormation({
-    service,
-}: CompanyFormationProps) {
+export default function CompanyFormation({ service }: CompanyFormationProps) {
     /**
      * El total ya no viene almacenado en BD.
      *
@@ -131,10 +129,7 @@ export default function CompanyFormation({
     return (
         <>
             <Head title="Constitución de Empresa + Oficina Virtual">
-                <meta
-                    name="description"
-                    content={service.description}
-                />
+                <meta name="description" content={service.description} />
             </Head>
 
             <PublicLayout>
@@ -174,22 +169,17 @@ export default function CompanyFormation({
                                 </div>
 
                                 <p className="mt-3 max-w-xl text-sm leading-6 text-muted">
-                                    {service.external_service_title} +
-                                    Oficina Virtual Animal Co-work por{' '}
+                                    {service.external_service_title} + Oficina
+                                    Virtual Animal Co-work por{' '}
                                     {service.virtual_office_duration}.
                                 </p>
 
                                 <div className="mt-8">
-                                    <ButtonArrow
-                                        href={
-                                            service.primary_action_href ??
-                                            '#contratar'
-                                        }
-                                        className="w-full sm:w-auto"
-                                    >
-                                        {service.primary_action_label ??
-                                            'CONTRATAR AHORA'}
-                                    </ButtonArrow>
+                                    <ServicePaymentForm
+                                        type="formation"
+                                        slug={service.slug}
+                                        amount={totalPrice}
+                                    />
                                 </div>
                             </div>
 
@@ -221,13 +211,13 @@ export default function CompanyFormation({
 
                                         <div>
                                             <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                                                {
-                                                    service.external_service_label
-                                                }
+                                                {service.external_service_label}
                                             </p>
 
                                             <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
-                                                {service.included_services_title}
+                                                {
+                                                    service.included_services_title
+                                                }
                                             </h2>
 
                                             <p className="mt-3 max-w-2xl text-sm leading-6 text-muted sm:text-base">
@@ -288,9 +278,7 @@ export default function CompanyFormation({
                                         />
 
                                         <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
-                                            {
-                                                service.service_section_eyebrow
-                                            }
+                                            {service.service_section_eyebrow}
                                         </p>
                                     </div>
 
@@ -425,15 +413,11 @@ export default function CompanyFormation({
                                 </div>
 
                                 <div className="mt-7 max-w-md">
-                                    <ButtonArrow
-                                        href={
-                                            service.primary_action_href ??
-                                            '#contratar'
-                                        }
-                                        className="w-full justify-center sm:w-auto"
-                                    >
-                                        PAGAR {formatClp(totalPrice)}
-                                    </ButtonArrow>
+                                    <ServicePaymentForm
+                                        type="formation"
+                                        slug={service.slug}
+                                        amount={totalPrice}
+                                    />
                                 </div>
                             </div>
 
@@ -449,16 +433,12 @@ export default function CompanyFormation({
                                             service.external_service_title ??
                                             'Servicio externo'
                                         }
-                                        value={formatClp(
-                                            externalServicePrice,
-                                        )}
+                                        value={formatClp(externalServicePrice)}
                                     />
 
                                     <CheckoutSummaryItem
                                         label={`${service.virtual_office_title ?? 'Oficina Virtual'} · ${service.virtual_office_duration ?? ''}`}
-                                        value={formatClp(
-                                            virtualOfficePrice,
-                                        )}
+                                        value={formatClp(virtualOfficePrice)}
                                     />
 
                                     <div className="border-t border-white/15 pt-5">
@@ -477,9 +457,7 @@ export default function CompanyFormation({
                                     />
 
                                     <p className="text-sm leading-6 text-white/60">
-                                        {
-                                            service.external_service_description
-                                        }
+                                        {service.external_service_description}
                                     </p>
                                 </div>
                             </div>
@@ -534,7 +512,6 @@ export default function CompanyFormation({
                                                 className="size-5"
                                                 aria-hidden
                                             />
-
                                             WhatsApp{' '}
                                             {formatPhone(
                                                 service.contact_whatsapp,

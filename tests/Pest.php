@@ -1,5 +1,10 @@
 <?php
 
+use App\Jobs\SendPaymentNotification;
+use App\Models\Payment;
+use App\Models\PaymentNotification;
+use App\Models\Plan;
+use App\Models\Purchase;
 use Tests\TestCase;
 
 /*
@@ -13,7 +18,9 @@ use Tests\TestCase;
 |
 */
 
-pest()->extend(TestCase::class)->in('Feature');
+pest()->extend(TestCase::class)->beforeEach(function () {
+    config(['payments.lock_store' => 'array', 'session.block_store' => 'array']);
+})->in('Feature');
 
 /*
 |--------------------------------------------------------------------------
@@ -44,4 +51,25 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/** @return array<string, mixed> */
+function paidCheckoutForTest(string $slug = 'fenix'): array
+{
+    $plan = Plan::query()->where('slug', $slug)->firstOrFail();
+    $purchase = Purchase::factory()->create([
+        'product_id' => $plan->id, 'amount' => $plan->total_price,
+        'snapshot' => ['name' => $plan->name, 'plan' => $plan->getAttributes()],
+        'email' => 'cliente@example.com', 'phone' => '+56912345678', 'status' => 'awaiting_contract',
+    ]);
+    $payment = Payment::factory()->create([
+        'payable_id' => $purchase->id, 'amount' => $purchase->amount, 'status' => 'paid', 'paid_at' => now(),
+    ]);
+
+    return ['checkout' => ['purchase_id' => $purchase->id], 'payment_access' => [$payment->public_id => true]];
+}
+
+function deliverPaymentNotificationsForTest(): void
+{
+    PaymentNotification::all()->each(fn ($notification) => (new SendPaymentNotification($notification->id))->handle());
 }
