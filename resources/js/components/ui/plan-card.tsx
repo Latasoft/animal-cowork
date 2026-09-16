@@ -122,18 +122,16 @@ export function PlanCard({ plan }: PlanCardProps) {
                             <span>{feature}</span>
                         </li>
                     ))}
-                </ul>
+                               </ul>
 
                 <div className="mt-7 text-center">
-                    <p className="text-sm font-bold text-deep-blue text-align-center sm:text-left">
-                        Desde 
-                    </p>
                     <p className="text-4xl font-bold tracking-[-0.04em] text-instinct sm:text-5xl text-center">
                         {formatClp(plan.totalPrice)}
                     </p>
-
-
                 </div>
+
+
+            
 
                 <ButtonLink
                     href={checkoutShow.url(plan.slug)}

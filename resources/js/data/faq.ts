@@ -1,6 +1,11 @@
 import type { FaqItem } from '@/types/faq';
 
 export const faqItems: FaqItem[] = [
+        {
+        id: 'que-es-oficina-virtual',
+        question: '¿Qué es una oficina virtual?',
+        answer: 'Es un servicio que te permite contar con una dirección comercial y tributaria formal, sin necesidad de arrendar un espacio físico. Incluye beneficios como recepción de correspondencia, acceso a salas de reunión y contrato 100% online con firma electrónica avanzada, ideal para emprendedores, personas naturales y empresas.',
+    },
     {
         id: 'contar-con-patente',
         question: '¿Es necesario contar con patente comercial si contrato una oficina virtual?',

@@ -60,13 +60,15 @@ export function PlansSection({ plans, plansUnavailable }: PlansSectionProps) {
                     </div>
                 )}
 
-                <div className="">
-                    <p className="mt-10 text-center text-lg font-semibold text-deep-blue">
-                        <ShieldCheck className="mr-2 inline-block" />
-                        Todos nuestros planes incluyen dirección aceptada por el
-                        SII, y contrato 100% online.
-                    </p>
-                </div>
+                <p className="mt-10 text-center text-lg font-semibold text-deep-blue">
+    <ShieldCheck className="mr-2 inline-block" />
+    Todos nuestros planes incluyen dirección aceptada por el
+    SII, y contrato 100% online.{' '}
+    <span className="font-extrabold text-instinct">
+        Puedes visualizar tu contrato en menos de cinco minutos.
+    </span>
+</p>
+            
 
                 <RenewalCard />
             </Container>

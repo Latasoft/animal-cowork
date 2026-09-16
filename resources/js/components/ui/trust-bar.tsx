@@ -1,5 +1,5 @@
 import {
-    BadgePercent,
+    Clock,
     FileSignature,
     Presentation,
     ShieldCheck,
@@ -32,8 +32,21 @@ function TrustBar() {
                     />
                 }
                 title="CONTRATO 100% ONLINE"
-                description="Firma electrónica"
+                description="Firma electrónica avanzada gratis"
                 theme="green"
+            />
+
+            <TrustItem
+                icon={
+                    <Clock
+                        className="size-5"
+                        strokeWidth={2}
+                        aria-hidden="true"
+                    />
+                }
+                title="VISUALIZA TU CONTRATO"
+                description="En menos de 5 minutos"
+                theme="blue"
             />
 
             <TrustItem
@@ -46,19 +59,6 @@ function TrustBar() {
                 }
                 title="ACCESO A SALAS DE REUNIÓN"
                 description="Incluido en todos los planes"
-                theme="blue"
-            />
-
-            <TrustItem
-                icon={
-                    <BadgePercent
-                        className="size-5"
-                        strokeWidth={2}
-                        aria-hidden="true"
-                    />
-                }
-                title="DESCUENTOS EXCLUSIVOS"
-                description="En horas adicionales"
                 theme="green"
             />
         </div>

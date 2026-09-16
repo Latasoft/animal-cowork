@@ -74,7 +74,7 @@ export const privateOfficesPageContent: PrivateOfficesPageContent = {
         description:
             'Trabaja en un espacio privado, equipado y listo para comenzar. Nuestras oficinas incluyen los principales servicios que necesitas para desarrollar tu actividad en un entorno profesional.',
 
-        image: '/images/plans/OFICINAS-PRIVADAS.jpg',
+        image: '/images/hero/fachada.webp',
 
         imageAlt:
             'Oficinas privadas y espacios comunes de Animal Co-work en Providencia',
