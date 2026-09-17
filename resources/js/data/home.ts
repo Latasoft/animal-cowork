@@ -11,8 +11,8 @@ const heroContent: Omit<HeroContent, 'price'> = {
         href: '#planes',
     },
     secondaryAction: {
-        label: 'CONOCE NUESTROS PLANES',
-        href: '#planes',
+        label: '¿QUÉ ES UNA OFICINA VIRTUAL?',
+        href: '#preguntas',
     },
     socialProof: 'Más de +6.000 emprendedores confían en nosotros',
     communityMessage: 'Únete a la manada de Animal Co-work.',

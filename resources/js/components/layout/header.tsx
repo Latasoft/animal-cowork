@@ -25,8 +25,8 @@ const navigation: NavigationItem[] = [
         href: "/agendamiento-de-sala-de-reuniones"
     },
     {
-        label: 'PREGUNTAS FRECUENTES',
-        href: '/#preguntas',
+    label: 'RENOVACIÓN',
+    href: '/renovar',
     },
     {
         label: 'CONTACTO',
