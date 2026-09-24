@@ -32,7 +32,7 @@ class TransbankService implements PaymentGateway
     protected function transaction(Payment $payment): Transaction
     {
         $environment = config('payments.environment');
-        if ($environment !== 'integration' || $payment->environment !== $environment) {
+        if (! in_array($environment, ['integration', 'production'], true) || $payment->environment !== $environment) {
             throw new RuntimeException('Payment environment is not available.');
         }
         $key = config('payments.api_key');
@@ -41,7 +41,7 @@ class TransbankService implements PaymentGateway
             throw new RuntimeException('Payment credentials are not configured.');
         }
 
-        return new Transaction(new Options($key, $code, Options::ENVIRONMENT_INTEGRATION, (int) config('payments.timeout_seconds')));
+        return new Transaction(new Options($key, $code, $environment === 'production' ? Options::ENVIRONMENT_PRODUCTION : Options::ENVIRONMENT_INTEGRATION, (int) config('payments.timeout_seconds')));
     }
 
     /** @return array{status: string, amount: int|float, buy_order: string, session_id: string, response_code: int|null, authorization_code: string|null, transaction_date: string|null} */
