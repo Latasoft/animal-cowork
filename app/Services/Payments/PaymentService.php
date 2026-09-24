@@ -30,7 +30,7 @@ class PaymentService
 
     public function pending(Model $payable, int $amount, string $operation): Payment
     {
-        if ($amount < 1 || config('payments.environment') !== 'integration') {
+        if ($amount < 1 || ! in_array(config('payments.environment'), ['integration', 'production'], true)) {
             throw ValidationException::withMessages(['payment' => 'El pago no está disponible.']);
         }
 
