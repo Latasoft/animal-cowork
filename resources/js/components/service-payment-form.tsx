@@ -13,9 +13,12 @@ export function ServicePaymentForm({
     amount: number;
 }) {
     const [open, setOpen] = useState(false);
+    const [acceptTerms, setAcceptTerms] = useState(false);
+    const [acceptDataPolicy, setAcceptDataPolicy] = useState(false);
     const id = useId();
     const form = useForm({ email: '', phone: '' });
     const errors = form.errors as Record<string, string>;
+    const canContinue = acceptTerms && acceptDataPolicy;
 
     if (!open) {
         return (
@@ -34,6 +37,9 @@ export function ServicePaymentForm({
             className="grid max-w-md gap-4 rounded-xl border border-deep-blue/10 bg-white p-5 text-deep-blue"
             onSubmit={(event) => {
                 event.preventDefault();
+                if (!canContinue) {
+                    return;
+                }
                 form.submit(payForService({ type, slug }));
             }}
         >
@@ -72,6 +78,60 @@ export function ServicePaymentForm({
                     {errors.phone}
                 </p>
             )}
+
+            <label
+                htmlFor={id + '-terms'}
+                className="flex items-start gap-3 text-sm leading-6 text-deep-blue/80"
+            >
+                <input
+                    id={id + '-terms'}
+                    type="checkbox"
+                    className="mt-1 size-4 shrink-0 accent-instinct"
+                    checked={acceptTerms}
+                    onChange={(event) => setAcceptTerms(event.target.checked)}
+                />
+                <span>
+                    He leído y acepto los{' '}
+                    
+                        href="/terminos-y-condiciones"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-bold text-instinct-dark underline"
+                    >
+                        Términos y Condiciones
+                    </a>{' '}
+                    del servicio.
+                </span>
+            </label>
+
+            <label
+                htmlFor={id + '-privacy'}
+                className="flex items-start gap-3 text-sm leading-6 text-deep-blue/80"
+            >
+                <input
+                    id={id + '-privacy'}
+                    type="checkbox"
+                    className="mt-1 size-4 shrink-0 accent-instinct"
+                    checked={acceptDataPolicy}
+                    onChange={(event) =>
+                        setAcceptDataPolicy(event.target.checked)
+                    }
+                />
+                <span>
+                    He leído y acepto la{' '}
+                    
+                        href="/politica-de-privacidad"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="font-bold text-instinct-dark underline"
+                    >
+                        Política de Privacidad
+                    </a>{' '}
+                    y autorizo el tratamiento de mis datos personales conforme a
+                    la Ley N.° 21.719.
+                </span>
+            </label>
+
             {errors.payment && (
                 <p role="alert" className="text-sm text-red-700">
                     {errors.payment}
@@ -81,7 +141,13 @@ export function ServicePaymentForm({
                 Después del pago, nuestro equipo te contactará para gestionar tu
                 solicitud.
             </p>
-            <Button type="submit" disabled={form.processing}>
+            {!canContinue && (
+                <p className="text-xs text-deep-blue/60">
+                    Debes aceptar los Términos y Condiciones y la Política de
+                    Privacidad para continuar.
+                </p>
+            )}
+            <Button type="submit" disabled={form.processing || !canContinue}>
                 {form.processing ? 'Preparando pago…' : 'Continuar a Webpay'}
             </Button>
         </form>
