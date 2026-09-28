@@ -55,7 +55,7 @@ export const officeSetupSteps: OfficeSetupStep[] = [
         step: 3,
         title: 'Revisa tu contrato.',
         description:
-            'Luego del pago, podrás visualizar el borrador de contrato y firmarlo para finalizar el proceso.',
+            'Luego del pago, podrás visualizar el borrador de tu contrato. Posteriormente, uno de nuestros ejecutivos te contactará para coordinar la firma y finalizar el proceso.',
         icon: 'review-contract',
     },
 ];
