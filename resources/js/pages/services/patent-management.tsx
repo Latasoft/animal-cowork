@@ -1,5 +1,5 @@
 import { Head } from '@inertiajs/react';
-import { FileCheck2, Scale, ShieldCheck } from 'lucide-react';
+import { FileCheck2, MessageCircle, Scale, ShieldCheck } from 'lucide-react';
 
 import { Footer } from '@/components/layout/footer';
 import { ServicePaymentForm } from '@/components/service-payment-form';
@@ -115,6 +115,26 @@ export default function PatentManagement({ service }: PatentManagementProps) {
                                         slug={service.slug}
                                         amount={servicePrice}
                                     />
+                                </div>
+                                <div className="mt-6 rounded-2xl border border-instinct/20 bg-instinct/5 p-5">
+                                    <p className="text-sm font-extrabold text-deep-blue">
+                                        ¿Tienes dudas antes de contratar?
+                                    </p>
+                                    <p className="mt-1 text-sm leading-6 text-deep-blue/70">
+                                        Escríbenos por WhatsApp y te ayudamos.
+                                    </p>
+                                   <a 
+                                        href="https://wa.me/56990556983"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="mt-4 inline-flex items-center gap-3 rounded-xl bg-instinct px-5 py-3 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
+                                    >
+                                        <MessageCircle
+                                            className="size-5"
+                                            aria-hidden
+                                        />
+                                        Escríbenos por WhatsApp
+                                    </a>
                                 </div>
                             </div>
 
