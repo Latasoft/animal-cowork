@@ -9,5 +9,4 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('payments:reconcile')->everyMinute()->withoutOverlapping();
-Schedule::command('queue:work database --stop-when-empty')->everyMinute()-
->withoutOverlapping();
+Schedule::command('queue:work database --stop-when-empty')->everyMinute()->withoutOverlapping();
