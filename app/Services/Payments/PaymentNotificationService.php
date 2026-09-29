@@ -6,6 +6,7 @@ use App\Jobs\SendPaymentNotification;
 use App\Models\Payment;
 use App\Models\PaymentNotification;
 use App\Models\Purchase;
+use App\Models\Reservation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -43,5 +44,63 @@ class PaymentNotificationService
             'reference' => $payment->buy_order,
             'continuation_url' => \Illuminate\Support\Facades\URL::temporarySignedRoute('payments.result', now()->addDay(), ['payment' => $payment]),
         ]);
+    }
+
+    /**
+     * Aviso interno por cada pago aprobado en Webpay, con los datos
+     * necesarios para cruzarlo con el portal de Transbank.
+     */
+    public function paymentReceived(Payment $payment): void
+    {
+        $date = $payment->transaction_date ?? $payment->paid_at ?? now();
+        $details = [
+            'kind' => 'Pago con Webpay',
+            'flow' => null,
+            'product' => '',
+            'amount' => $payment->amount,
+            'date' => $date->timezone('America/Santiago')->format('d/m/Y H:i'),
+            'buy_order' => $payment->buy_order,
+            'authorization_code' => (string) ($payment->authorization_code ?? ''),
+            'company' => null,
+            'rut' => null,
+            'name' => null,
+            'email' => null,
+            'phone' => null,
+            'note' => null,
+        ];
+
+        $payable = $payment->payable;
+        if ($payable instanceof Purchase) {
+            $details['kind'] = match ($payable->product_type) {
+                'plan' => 'Plan de oficina virtual',
+                'patent' => 'Gestión de patente',
+                'formation' => 'Constitución de empresa',
+                default => 'Servicio',
+            };
+            $details['product'] = (string) ($payable->snapshot['name'] ?? '');
+            $details['email'] = $payable->email;
+            $details['phone'] = $payable->phone;
+            if ($payable->product_type === 'plan') {
+                $details['flow'] = $payable->flow === 'renewal' ? 'Renovación' : 'Contratación nueva';
+            }
+            $client = $payable->client;
+            if ($client) {
+                $details['company'] = $client->company_name;
+                $details['rut'] = $client->company_rut;
+            } elseif ($payable->product_type === 'plan') {
+                $details['note'] = 'El nombre de la empresa y el RUT llegarán en el correo de contratación, cuando el cliente complete sus datos.';
+            }
+        } elseif ($payable instanceof Reservation) {
+            $payable->loadMissing(['room', 'client']);
+            $details['kind'] = 'Reserva de sala de reuniones';
+            $details['product'] = (string) ($payable->room?->name ?? 'Sala de reuniones');
+            $details['name'] = $payable->contact_name;
+            $details['email'] = $payable->contact_email;
+            $details['phone'] = $payable->contact_phone;
+            $details['company'] = $payable->client?->company_name;
+            $details['rut'] = $payable->client?->company_rut;
+        }
+
+        $this->record($payment, 'payment_received', 'internal', config('services.contracts.reception_email'), $details);
     }
 }
