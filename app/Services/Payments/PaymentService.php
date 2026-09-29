@@ -216,6 +216,12 @@ class PaymentService
                     $payment->update(['review_reason' => 'commercial_fulfillment_failed']);
                     $this->logFailure($payment, $exception);
                 }
+                // Aviso interno al equipo con los datos para el cruce con Transbank.
+                try {
+                    DB::transaction(fn () => $this->notifications->paymentReceived($payment->refresh()));
+                } catch (Throwable $exception) {
+                    $this->logFailure($payment, $exception);
+                }
             } elseif (in_array($status, [Payment::FAILED, Payment::EXPIRED, Payment::CANCELLED], true)) {
                 if ($payable instanceof Reservation) {
                     $payable->update(['status' => Reservation::STATUS_CANCELLED, 'cancelled_at' => now(), 'payment_status' => Reservation::PAYMENT_UNPAID]);
