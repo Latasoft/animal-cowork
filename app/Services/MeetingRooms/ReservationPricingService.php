@@ -43,4 +43,25 @@ class ReservationPricingService
             'total_amount' => $subtotalNet + $taxAmount,
         ];
     }
+
+    /**
+     * Cotización sin costo para quien declara ser cliente de Animal Co-work
+     * pero no tiene un plan activo registrado. Recepción valida después.
+     *
+     * @return array{rate_type: string, requested_minutes: int, included_minutes_used: int, billable_minutes: int, rate_per_hour_net: int, tax_rate: float, subtotal_net: int, tax_amount: int, total_amount: int}
+     */
+    public function unverifiedClientQuote(int $requestedMinutes): array
+    {
+        return [
+            'rate_type' => 'client',
+            'requested_minutes' => $requestedMinutes,
+            'included_minutes_used' => 0,
+            'billable_minutes' => 0,
+            'rate_per_hour_net' => 0,
+            'tax_rate' => 0.0,
+            'subtotal_net' => 0,
+            'tax_amount' => 0,
+            'total_amount' => 0,
+        ];
+    }
 }

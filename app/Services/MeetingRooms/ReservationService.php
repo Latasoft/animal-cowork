@@ -15,6 +15,8 @@ use Illuminate\Validation\ValidationException;
 
 class ReservationService
 {
+    public const UNVERIFIED_CLIENT_NOTE = 'Cliente sin plan activo registrado. Reserva sin costo pendiente de validación por recepción.';
+
     public function __construct(
         private RoomAvailabilityService $availabilityService,
         private CompanyLookupService $companyLookupService,
@@ -71,12 +73,17 @@ class ReservationService
             $subscription = $data['customer_type'] === 'plan'
                 ? $companyContext['subscription']
                 : null;
-            $quote = $this->pricingService->quote(
-                $room,
-                $selection['duration_minutes'],
-                $subscription,
-                $subscription ? $companyContext['available_included_minutes'] : 0,
-            );
+            // Declara ser cliente, pero no encontramos un plan activo:
+            // la reserva queda sin costo y recepción valida después.
+            $isUnverifiedClient = $data['customer_type'] === 'plan' && $subscription === null;
+            $quote = $isUnverifiedClient
+                ? $this->pricingService->unverifiedClientQuote($selection['duration_minutes'])
+                : $this->pricingService->quote(
+                    $room,
+                    $selection['duration_minutes'],
+                    $subscription,
+                    $subscription ? $companyContext['available_included_minutes'] : 0,
+                );
             $isPublicReservation = $subscription === null;
 
             if ($isPublicReservation) {
@@ -88,6 +95,14 @@ class ReservationService
             }
 
             $waived = $quote['total_amount'] === 0;
+
+            // Cliente sin registro previo: se guarda de inmediato en la base de datos.
+            if ($isUnverifiedClient && $companyContext['client'] === null) {
+                $companyContext['client'] = $this->createExternalClient(
+                    $data,
+                    'Registrado al reservar sala como cliente de Animal Co-work. Pendiente de validación por recepción.',
+                );
+            }
 
             return Reservation::query()->create([
                 'operation_key' => $operation,
@@ -118,9 +133,11 @@ class ReservationService
                 'confirmed_at' => $waived ? now() : null,
                 'terms_accepted_at' => $isPublicReservation ? now() : null,
                 'terms_version' => $isPublicReservation ? 'meeting-room-legal-2026-08' : null,
-                'notes' => $quote['total_amount'] === 0
-                    ? 'Reserva confirmada mediante horas incluidas del plan.'
-                    : 'Pendiente de confirmación de Webpay.',
+                'notes' => match (true) {
+                    $isUnverifiedClient => self::UNVERIFIED_CLIENT_NOTE,
+                    $quote['total_amount'] === 0 => 'Reserva confirmada mediante horas incluidas del plan.',
+                    default => 'Pendiente de confirmación de Webpay.',
+                },
             ]);
         }, attempts: 5);
 
@@ -210,7 +227,7 @@ class ReservationService
     }
 
     /** @param array<string, mixed> $data */
-    private function createExternalClient(array $data): Client
+    private function createExternalClient(array $data, ?string $notes = null): Client
     {
         return Client::query()->create([
             'contract_type' => $data['contract_type'],
@@ -224,7 +241,7 @@ class ReservationService
             'company_name' => $data['company_name'],
             'company_rut' => $data['company_rut'],
             'status' => Client::STATUS_ACTIVE,
-            'notes' => 'Cliente registrado mediante contratación de sala de reuniones. No posee plan de oficina virtual asignado.',
+            'notes' => $notes ?? 'Cliente registrado mediante contratación de sala de reuniones. No posee plan de oficina virtual asignado.',
         ]);
     }
 }
