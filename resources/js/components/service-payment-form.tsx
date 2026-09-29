@@ -92,7 +92,7 @@ export function ServicePaymentForm({
                 />
                 <span>
                     He leído y acepto los{' '}
-                    
+                    <a
                         href="/terminos-y-condiciones"
                         target="_blank"
                         rel="noreferrer"
@@ -119,7 +119,7 @@ export function ServicePaymentForm({
                 />
                 <span>
                     He leído y acepto la{' '}
-                    
+                    <a
                         href="/politica-de-privacidad"
                         target="_blank"
                         rel="noreferrer"
