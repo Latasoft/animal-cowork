@@ -11,7 +11,6 @@ import {
 } from 'lucide-react';
 
 import { Footer } from '@/components/layout/footer';
-import { ServicePaymentForm } from '@/components/service-payment-form';
 import { Container } from '@/components/ui/container';
 import { PublicLayout } from '@/layouts/public-layout';
 
@@ -126,6 +125,22 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
     const requirements = service.requirements ?? [];
     const includedServices = service.included_services ?? [];
 
+    /**
+     * Enlace de WhatsApp para iniciar la contratación.
+     * El pago con Webpay se retiró de este servicio a pedido del cliente:
+     * ahora la contratación se coordina directamente por WhatsApp.
+     */
+    const whatsappNumber = (service.contact_whatsapp ?? '+56990556983').replace(
+        /\D/g,
+        '',
+    );
+
+    const whatsappMessage = encodeURIComponent(
+        'Hola, quiero información para contratar la Constitución de Empresa + Inicio de Actividades + Oficina Virtual.',
+    );
+
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
     return (
         <>
             <Head title="Constitución de Empresa + Oficina Virtual">
@@ -174,12 +189,26 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                                     {service.virtual_office_duration}.
                                 </p>
 
-                                <div className="mt-8">
-                                    <ServicePaymentForm
-                                        type="formation"
-                                        slug={service.slug}
-                                        amount={totalPrice}
-                                    />
+                                <div className="mt-8 flex flex-wrap gap-3">
+                                    <a
+                                        href={whatsappUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="inline-flex items-center gap-3 rounded-xl bg-instinct px-6 py-3.5 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
+                                    >
+                                        <MessageCircle
+                                            className="size-5"
+                                            aria-hidden
+                                        />
+                                        Contratar por WhatsApp
+                                    </a>
+
+                                    <a
+                                        href="#contratar"
+                                        className="inline-flex items-center rounded-xl border border-deep-blue/15 px-6 py-3.5 text-sm font-extrabold text-deep-blue transition hover:border-instinct hover:text-instinct-dark"
+                                    >
+                                        Ver detalle y valores
+                                    </a>
                                 </div>
                             </div>
 
@@ -192,105 +221,74 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                 </section>
 
                 {/* =========================================================
-                 * RESUMEN DEL SERVICIO
+                 * SERVICIOS Y QUÉ INCLUYE
                  * ======================================================= */}
                 <section className="bg-background py-10 sm:py-12 lg:py-14">
                     <Container>
                         <div className="mx-auto max-w-6xl">
-                            <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-                                {/* Información principal */}
-                                <article className="rounded-card border border-deep-blue/10 bg-white p-6 shadow-card sm:p-8">
-                                    <div className="flex items-start gap-4">
-                                        <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-instinct-light text-instinct-dark">
-                                            <FileCheck2
-                                                className="size-5"
-                                                strokeWidth={2}
-                                                aria-hidden
-                                            />
-                                        </span>
-
-                                        <div>
-                                            <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
-                                                {service.external_service_label}
-                                            </p>
-
-                                            <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
-                                                {
-                                                    service.included_services_title
-                                                }
-                                            </h2>
-
-                                            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted sm:text-base">
-                                                {
-                                                    service.service_section_description
-                                                }
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Qué incluye */}
-                                    <div className="mt-6 border-t border-deep-blue/8 pt-6">
-                                        <p className="text-sm font-extrabold text-deep-blue">
-                                            ¿Qué incluye?
-                                        </p>
-
-                                        <div className="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">
-                                            {includedServices.map((item) => (
-                                                <div
-                                                    key={item}
-                                                    className="flex items-start gap-2 text-sm leading-5 text-deep-blue/70"
-                                                >
-                                                    <CheckCircle2
-                                                        className="mt-0.5 size-4 shrink-0 text-instinct"
-                                                        strokeWidth={2.3}
-                                                        aria-hidden
-                                                    />
-
-                                                    <span>{item}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Servicio externo */}
-                                    <div className="mt-6 flex items-start gap-3 rounded-xl bg-energy-blue/5 p-4">
-                                        <ShieldCheck
-                                            className="mt-0.5 size-5 shrink-0 text-energy-blue"
+                            <article className="rounded-card border border-deep-blue/10 bg-white p-6 shadow-card sm:p-8">
+                                <div className="flex items-start gap-4">
+                                    <span className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-instinct-light text-instinct-dark">
+                                        <FileCheck2
+                                            className="size-5"
                                             strokeWidth={2}
                                             aria-hidden
                                         />
+                                    </span>
 
-                                        <p className="text-sm leading-6 text-deep-blue/65">
+                                    <div>
+                                        <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
+                                            {service.service_section_eyebrow}
+                                        </p>
+
+                                        <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.035em] text-deep-blue sm:text-3xl">
+                                            {service.service_section_title}
+                                        </h2>
+
+                                        <p className="mt-3 max-w-3xl text-sm leading-6 text-muted sm:text-base">
                                             {
-                                                service.external_service_description
+                                                service.service_section_description
                                             }
                                         </p>
                                     </div>
-                                </article>
+                                </div>
 
-                                {/* Requisitos + precio */}
-                                <article className="rounded-card bg-deep-blue p-6 text-white shadow-card sm:p-8">
-                                    <div className="flex items-center gap-3">
-                                        <IdCard
-                                            className="size-6 text-instinct"
-                                            strokeWidth={2}
-                                            aria-hidden
-                                        />
+                                {/* Los dos servicios */}
+                                <div className="mt-6 grid gap-4 border-t border-deep-blue/8 pt-6 md:grid-cols-2">
+                                    <div className="rounded-xl border border-deep-blue/10 p-5">
+                                        <p className="text-xs font-extrabold tracking-[0.12em] text-instinct-dark uppercase">
+                                            {service.external_service_label}
+                                        </p>
 
-                                        <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
-                                            {service.service_section_eyebrow}
+                                        <p className="mt-2 text-lg font-extrabold text-deep-blue">
+                                            {service.external_service_title}
                                         </p>
                                     </div>
 
-                                    <h3 className="mt-4 text-xl font-extrabold tracking-[-0.025em] sm:text-2xl">
-                                        {service.service_section_title}
-                                    </h3>
+                                    <div className="rounded-xl border border-deep-blue/10 p-5">
+                                        <p className="text-xs font-extrabold tracking-[0.12em] text-instinct-dark uppercase">
+                                            {service.virtual_office_label}
+                                        </p>
 
-                                    <div className="mt-5 space-y-3">
-                                        {requirements.map((requirement) => (
+                                        <p className="mt-2 text-lg font-extrabold text-deep-blue">
+                                            {service.virtual_office_title} por{' '}
+                                            {service.virtual_office_duration}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Qué incluye */}
+                                <div className="mt-6 border-t border-deep-blue/8 pt-6">
+                                    <p className="text-sm font-extrabold text-deep-blue">
+                                        {service.included_services_title ??
+                                            '¿Qué incluye?'}
+                                    </p>
+
+                                    <div className="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">
+                                        {includedServices.map((item) => (
                                             <div
-                                                key={requirement}
-                                                className="flex items-start gap-2"
+                                                key={item}
+                                                className="flex items-start gap-2 text-sm leading-5 text-deep-blue/70"
                                             >
                                                 <CheckCircle2
                                                     className="mt-0.5 size-4 shrink-0 text-instinct"
@@ -298,81 +296,18 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                                                     aria-hidden
                                                 />
 
-                                                <p className="text-sm leading-5 text-white/70">
-                                                    {requirement}
-                                                </p>
+                                                <span>{item}</span>
                                             </div>
                                         ))}
                                     </div>
-
-                                    <div className="mt-5 border-t border-white/10 pt-5">
-                                        <p className="text-xs font-extrabold tracking-[0.12em] text-white/45 uppercase">
-                                            Personas extranjeras
-                                        </p>
-
-                                        <p className="mt-2 text-xs leading-5 text-white/55">
-                                            {service.foreigner_notice}
-                                        </p>
-                                    </div>
-
-                                    {/* Precio compacto */}
-                                    <div className="mt-6 border-t border-white/10 pt-5">
-                                        <div className="flex items-center justify-between gap-4">
-                                            <div>
-                                                <p className="text-xs font-bold text-white/45">
-                                                    {
-                                                        service.external_service_title
-                                                    }
-                                                </p>
-
-                                                <p className="mt-1 font-extrabold">
-                                                    {formatClp(
-                                                        externalServicePrice,
-                                                    )}
-                                                </p>
-                                            </div>
-
-                                            <span className="text-xl font-extrabold text-white/30">
-                                                +
-                                            </span>
-
-                                            <div className="text-right">
-                                                <p className="text-xs font-bold text-white/45">
-                                                    {
-                                                        service.virtual_office_title
-                                                    }{' '}
-                                                    ·{' '}
-                                                    {
-                                                        service.virtual_office_duration
-                                                    }
-                                                </p>
-
-                                                <p className="mt-1 font-extrabold">
-                                                    {formatClp(
-                                                        virtualOfficePrice,
-                                                    )}
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <div className="mt-5 flex items-end justify-between gap-4 border-t border-white/10 pt-5">
-                                            <span className="text-sm font-extrabold">
-                                                Total
-                                            </span>
-
-                                            <span className="text-3xl font-extrabold tracking-[-0.045em] text-instinct">
-                                                {formatClp(totalPrice)}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </article>
-                            </div>
+                                </div>
+                            </article>
                         </div>
                     </Container>
                 </section>
 
                 {/* =========================================================
-                 * CTA / PAGO
+                 * VALORES, REQUISITOS Y CONTRATACIÓN POR WHATSAPP
                  * ======================================================= */}
                 <section
                     id="contratar"
@@ -380,7 +315,7 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                 >
                     <Container>
                         <div className="mx-auto grid max-w-6xl overflow-hidden rounded-card bg-deep-blue shadow-card lg:grid-cols-[1fr_0.8fr]">
-                            {/* CTA principal */}
+                            {/* Valores + WhatsApp */}
                             <div className="p-7 text-white sm:p-9 lg:p-10">
                                 <div className="flex items-center gap-3">
                                     <BadgeCheck
@@ -390,7 +325,7 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                                     />
 
                                     <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
-                                        {service.eyebrow}
+                                        Valores
                                     </p>
                                 </div>
 
@@ -398,36 +333,7 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                                     Comienza hoy la constitución de tu empresa
                                 </h2>
 
-                                <p className="mt-4 max-w-2xl text-base leading-7 text-white/70">
-                                    {service.description}
-                                </p>
-
-                                <div className="mt-7 flex flex-wrap items-end gap-x-3">
-                                    <span className="text-5xl font-extrabold tracking-[-0.055em] text-instinct sm:text-6xl">
-                                        {formatClp(totalPrice)}
-                                    </span>
-
-                                    <span className="pb-2 text-sm font-bold text-white/55">
-                                        total paquete
-                                    </span>
-                                </div>
-
-                                <div className="mt-7 max-w-md">
-                                    <ServicePaymentForm
-                                        type="formation"
-                                        slug={service.slug}
-                                        amount={totalPrice}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Resumen */}
-                            <div className="border-t border-white/10 bg-white/[0.06] p-7 sm:p-9 lg:border-t-0 lg:border-l lg:p-10">
-                                <p className="text-xs font-extrabold tracking-[0.14em] text-white/55 uppercase">
-                                    Resumen
-                                </p>
-
-                                <div className="mt-6 space-y-5">
+                                <div className="mt-7 max-w-md space-y-5">
                                     <CheckoutSummaryItem
                                         label={
                                             service.external_service_title ??
@@ -450,16 +356,99 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                                     </div>
                                 </div>
 
-                                <div className="mt-7 flex items-start gap-3 rounded-2xl bg-white/8 p-4">
-                                    <ReceiptText
-                                        className="mt-0.5 size-5 shrink-0 text-instinct"
+                                {/* Condición del precio convenio */}
+                                {service.external_service_description && (
+                                    <div className="mt-6 flex max-w-md items-start gap-3 rounded-2xl bg-white/8 p-4">
+                                        <ReceiptText
+                                            className="mt-0.5 size-5 shrink-0 text-instinct"
+                                            aria-hidden
+                                        />
+
+                                        <p className="text-sm leading-6 text-white/70">
+                                            {
+                                                service.external_service_description
+                                            }
+                                        </p>
+                                    </div>
+                                )}
+
+                                {/* Contratación por WhatsApp */}
+                                <div className="mt-8 border-t border-white/10 pt-7">
+                                    <p className="text-lg font-extrabold">
+                                        ¿Quieres iniciar tu contratación?
+                                    </p>
+
+                                    <p className="mt-2 max-w-md text-sm leading-6 text-white/70">
+                                        Resuelve todas tus dudas a través del
+                                        siguiente botón de WhatsApp.
+                                    </p>
+
+                                    <a
+                                        href={whatsappUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="mt-5 inline-flex items-center gap-3 rounded-xl bg-instinct px-6 py-3.5 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
+                                    >
+                                        <MessageCircle
+                                            className="size-5"
+                                            aria-hidden
+                                        />
+                                        Escríbenos por WhatsApp
+                                    </a>
+                                </div>
+                            </div>
+
+                            {/* Requisitos */}
+                            <div className="border-t border-white/10 bg-white/[0.06] p-7 text-white sm:p-9 lg:border-t-0 lg:border-l lg:p-10">
+                                <div className="flex items-center gap-3">
+                                    <IdCard
+                                        className="size-6 text-instinct"
+                                        strokeWidth={2}
                                         aria-hidden
                                     />
 
-                                    <p className="text-sm leading-6 text-white/60">
-                                        {service.external_service_description}
+                                    <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
+                                        Requisitos
                                     </p>
                                 </div>
+
+                                <div className="mt-5 space-y-3">
+                                    {requirements.map((requirement) => (
+                                        <div
+                                            key={requirement}
+                                            className="flex items-start gap-2"
+                                        >
+                                            <CheckCircle2
+                                                className="mt-0.5 size-4 shrink-0 text-instinct"
+                                                strokeWidth={2.3}
+                                                aria-hidden
+                                            />
+
+                                            <p className="text-sm leading-5 text-white/70">
+                                                {requirement}
+                                            </p>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {service.foreigner_notice && (
+                                    <div className="mt-6 border-t border-white/10 pt-5">
+                                        <div className="flex items-center gap-2">
+                                            <ShieldCheck
+                                                className="size-4 text-instinct"
+                                                aria-hidden
+                                            />
+
+                                            <p className="text-xs font-extrabold tracking-[0.12em] text-white/55 uppercase">
+                                                Personas extranjeras
+                                            </p>
+                                        </div>
+
+                                        <p className="mt-2 text-sm leading-6 text-white/60">
+                                            {service.foreigner_notice}
+                                        </p>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </Container>
@@ -501,23 +490,22 @@ export default function CompanyFormation({ service }: CompanyFormationProps) {
                                         </a>
                                     )}
 
-                                    {service.contact_whatsapp && (
-                                        <a
-                                            href={`https://wa.me/${service.contact_whatsapp.replace(/\D/g, '')}`}
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="flex items-center gap-3 rounded-xl bg-instinct px-5 py-3 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
-                                        >
-                                            <MessageCircle
-                                                className="size-5"
-                                                aria-hidden
-                                            />
-                                            WhatsApp{' '}
-                                            {formatPhone(
-                                                service.contact_whatsapp,
-                                            )}
-                                        </a>
-                                    )}
+                                    <a
+                                        href={whatsappUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="flex items-center gap-3 rounded-xl bg-instinct px-5 py-3 text-sm font-extrabold text-white transition hover:bg-instinct-dark"
+                                    >
+                                        <MessageCircle
+                                            className="size-5"
+                                            aria-hidden
+                                        />
+                                        WhatsApp{' '}
+                                        {formatPhone(
+                                            service.contact_whatsapp ??
+                                                '+56990556983',
+                                        )}
+                                    </a>
                                 </div>
                             </div>
                         </div>

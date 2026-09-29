@@ -4,6 +4,8 @@
 Tu reserva de sala de reuniones fue confirmada correctamente.
 
 **Cliente:** {{ $reservation->contact_name }}  
+**Correo:** {{ $reservation->contact_email }}  
+**Teléfono:** {{ $reservation->contact_phone }}  
 **Empresa:** {{ $reservation->client?->company_name ?? 'Cliente externo' }}  
 **RUT empresa:** {{ $reservation->client?->company_rut ?? 'No informado' }}
 
@@ -22,6 +24,12 @@ Tu reserva de sala de reuniones fue confirmada correctamente.
 **Total pagado:** ${{ number_format($reservation->total_amount, 0, ',', '.') }} CLP  
 **Estado:** Confirmada
 
-Thanks,<br>
+@if ($reservation->notes === \App\Services\MeetingRooms\ReservationService::UNVERIFIED_CLIENT_NOTE)
+<x-mail::panel>
+Esta reserva se realizó como cliente de Animal Co-work sin un plan activo registrado. Recepción validará la condición de cliente.
+</x-mail::panel>
+@endif
+
+Saludos,<br>
 {{ config('app.name') }}
 </x-mail::message>
