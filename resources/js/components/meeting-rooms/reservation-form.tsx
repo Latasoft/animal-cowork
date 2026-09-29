@@ -48,6 +48,16 @@ export function ReservationForm({
     const isExternal = customerType === 'external';
     const hasRecognizedPlan =
         customerType === 'plan' && lookup?.company.has_active_plan === true;
+    // Dice ser cliente, pero no encontramos un plan activo asociado al RUT.
+    const isUnverifiedClient =
+        customerType === 'plan' &&
+        lookup !== null &&
+        !lookup.company.has_active_plan;
+    // Si además la empresa no existe, se piden todos sus datos.
+    const needsCompanyData =
+        isExternal ||
+        (isUnverifiedClient && lookup?.company.client_found === false);
+    const needsLegalAcceptance = isExternal || isUnverifiedClient;
 
     return (
         <section aria-labelledby="reservation-data-heading">
@@ -133,7 +143,7 @@ export function ReservationForm({
                 </div>
             )}
 
-            {(isExternal || hasRecognizedPlan) && (
+            {(isExternal || hasRecognizedPlan || isUnverifiedClient) && (
                 <div className="mt-7 grid gap-5 sm:grid-cols-2">
                     <TextField
                         id="company-name"
@@ -177,10 +187,12 @@ export function ReservationForm({
                 </div>
             )}
 
-            {isExternal && (
+            {needsCompanyData && (
                 <div className="mt-7 rounded-2xl border border-deep-blue/10 bg-deep-blue/3 p-5">
                     <p className="font-extrabold text-deep-blue">
-                        Datos para tu reserva sin plan
+                        {isExternal
+                            ? 'Datos para tu reserva sin plan'
+                            : 'Datos de tu empresa'}
                     </p>
                     <div className="mt-5 grid gap-5 sm:grid-cols-2">
                         <div>
@@ -255,7 +267,7 @@ export function ReservationForm({
                 </div>
             )}
 
-            {isExternal && (
+            {needsLegalAcceptance && (
                 <div className="mt-7 space-y-4 rounded-2xl border border-instinct/25 bg-instinct-light p-5">
                     <LegalCheckbox
                         checked={data.acceptsTerms}
@@ -413,8 +425,9 @@ function LookupNotice({
                         a este RUT.
                     </p>
                     <p className="mt-2 text-sm leading-6 text-deep-blue/70">
-                        Puedes revisar el RUT ingresado o continuar como cliente
-                        sin plan utilizando la tarifa general.
+                        Si eres cliente de Animal Co-work, completa tus datos
+                        para continuar. Tu reserva quedará sin costo y recepción
+                        validará tu condición de cliente.
                     </p>
                     <Button
                         type="button"
@@ -422,7 +435,7 @@ function LookupNotice({
                         onClick={onContinueWithoutPlan}
                         className="mt-4 h-11 justify-center px-5"
                     >
-                        Continuar sin plan
+                        No soy cliente, usar tarifa general
                     </Button>
                 </>
             )}
