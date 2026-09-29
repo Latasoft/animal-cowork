@@ -401,7 +401,7 @@ export default function MeetingRoomBooking({
             return;
         }
 
-        const errors = validateForm(formData, customerType);
+        const errors = validateForm(formData, customerType, lookup);
 
         if (Object.keys(errors).length > 0) {
             setLocalErrors(errors);
@@ -598,11 +598,7 @@ export default function MeetingRoomBooking({
                                         lookup={lookup}
                                         canSubmit={
                                             Boolean(customerType && lookup) &&
-                                            !lookupUnavailable &&
-                                            !(
-                                                customerType === 'plan' &&
-                                                !lookup?.company.has_active_plan
-                                            )
+                                            !lookupUnavailable
                                         }
                                         processing={
                                             reservationRequest.processing
@@ -775,8 +771,18 @@ function buildReservationData(
 function validateForm(
     data: ReservationFormData,
     customerType: CustomerType,
+    lookup: CompanyLookupResult,
 ): ReservationFormErrors {
     const errors: ReservationFormErrors = {};
+    // Dice ser cliente, pero no encontramos un plan activo asociado al RUT.
+    const isUnverifiedClient =
+        customerType === 'plan' && !lookup.company.has_active_plan;
+    // Si además la empresa no existe, se piden todos sus datos.
+    const needsCompanyData =
+        customerType === 'external' ||
+        (isUnverifiedClient && !lookup.company.client_found);
+    const needsLegalAcceptance =
+        customerType === 'external' || isUnverifiedClient;
 
     if (!data.companyRut) {
         errors.company_rut = 'Ingresa el RUT de la empresa.';
@@ -798,7 +804,7 @@ function validateForm(
         errors.phone = 'Ingresa un teléfono válido.';
     }
 
-    if (customerType === 'external') {
+    if (needsCompanyData) {
         if (!data.contractType) {
             errors.contract_type = 'Selecciona el tipo de empresa.';
         }
@@ -820,7 +826,7 @@ function validateForm(
         }
     }
 
-    if (customerType === 'external') {
+    if (needsLegalAcceptance) {
         if (!data.acceptsTerms) {
             errors.accepts_terms = 'Debes aceptar los Términos y Condiciones.';
         }
