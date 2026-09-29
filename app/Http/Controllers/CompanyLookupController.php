@@ -51,12 +51,15 @@ class CompanyLookupController extends Controller
                         'available_included_minutes' => 0,
                         'used_included_minutes' => 0,
                     ];
-                $quote = $this->pricingService->quote(
-                    $room,
-                    $selection['duration_minutes'],
-                    $companyContext['subscription'],
-                    $companyContext['available_included_minutes'],
-                );
+                // Declara ser cliente, pero no tiene plan activo: se muestra sin costo.
+                $quote = $validated['customer_type'] === 'plan' && $companyContext['subscription'] === null
+                    ? $this->pricingService->unverifiedClientQuote($selection['duration_minutes'])
+                    : $this->pricingService->quote(
+                        $room,
+                        $selection['duration_minutes'],
+                        $companyContext['subscription'],
+                        $companyContext['available_included_minutes'],
+                    );
 
                 return [
                     'company' => $this->companyLookupService->publicSummary($companyContext),
