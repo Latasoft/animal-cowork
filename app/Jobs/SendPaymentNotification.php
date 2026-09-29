@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Mail\ContractConfirmedToClient;
 use App\Mail\ContractConfirmedToCompany;
 use App\Mail\MeetingRoomReservationConfirmed;
+use App\Mail\PaymentReceivedInternal;
 use App\Mail\ServicePaymentConfirmed;
 use App\Mail\PlanPaymentConfirmed;
 use App\Models\Client;
@@ -55,6 +56,8 @@ class SendPaymentNotification implements ShouldQueue
                 $mail = new MeetingRoomReservationConfirmed(Reservation::query()->findOrFail($notification->notifiable_id));
             } elseif ($notification->event === 'plan_paid') {
                 $mail = new PlanPaymentConfirmed($payload);
+            } elseif ($notification->event === 'payment_received') {
+                $mail = new PaymentReceivedInternal($payload);
             } else {
                 $mail = new ServicePaymentConfirmed($payload, $notification->recipient_type === 'internal');
             }
