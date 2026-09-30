@@ -11,17 +11,24 @@ use Illuminate\Mail\Mailables\Envelope;
 
 class ContractConfirmedToCompany extends Mailable
 {
+    /**
+     * @param  array<string, string>|null  $payment
+     */
     public function __construct(
         public Client $client,
         public Plan $plan,
         private string $pdfBytes,
         private string $pdfName,
+        private ?array $payment = null,
+        private bool $isRenewal = false,
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Nueva contratación de Oficina Virtual',
+            subject: $this->isRenewal
+                ? 'Renovación de Oficina Virtual'
+                : 'Nueva contratación de Oficina Virtual',
         );
     }
 
@@ -35,6 +42,8 @@ class ContractConfirmedToCompany extends Mailable
                 'rut' => $this->rut(),
                 'companyName' => $this->companyName(),
                 'priceOffice' => $this->plan->price_office,
+                'payment' => $this->payment,
+                'isRenewal' => $this->isRenewal,
             ],
         );
     }
