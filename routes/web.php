@@ -78,6 +78,12 @@ Route::get(
     PrivateOfficeController::class,
 )->name('private_offices.index');
 
+Route::inertia('/terminos-y-condiciones', 'terminos-y-condiciones')
+    ->name('legal.terms');
+
+Route::inertia('/politica-de-privacidad', 'politica-de-privacidad')
+    ->name('legal.privacy');
+
 Route::post('/payments/services/{type}/{slug}', [PaymentController::class, 'service'])->middleware('throttle:10,1')->block(90, 30)->name('payments.service');
 Route::match(['GET', 'POST'], '/payments/webpay/return', [PaymentController::class, 'returned'])->name('payments.return');
 Route::get('/payments/{payment}/redirect', [PaymentController::class, 'redirect'])->name('payments.redirect');
