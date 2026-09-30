@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Clients\Tables;
 
+use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use Filament\Actions\BulkActionGroup;
@@ -211,6 +212,81 @@ class ClientsTable
                             );
                         }
                     ),
+
+                /*
+                |--------------------------------------------------------------------------
+                | Tipo de contratación
+                |--------------------------------------------------------------------------
+                |
+                | Se obtiene desde la compra asociada a la suscripción actual.
+                | Si el cliente fue creado a mano en el panel, no tiene compra.
+                |
+                */
+
+                TextColumn::make('contract_flow')
+                    ->label('Tipo')
+                    ->state(function ($record): ?string {
+                        $subscription = $record->subscriptions
+                            ->sortByDesc('ends_at')
+                            ->first();
+
+                        if (! $subscription) {
+                            return null;
+                        }
+
+                        if (! $subscription->purchase) {
+                            return 'Registro manual';
+                        }
+
+                        return $subscription->purchase->flow === 'renewal'
+                            ? 'Renovación'
+                            : 'Contratación nueva';
+                    })
+                    ->badge()
+                    ->color(fn ($state): string => match ($state) {
+                        'Renovación' => 'warning',
+                        'Contratación nueva' => 'success',
+                        default => 'gray',
+                    })
+                    ->placeholder('—'),
+
+                /*
+                |--------------------------------------------------------------------------
+                | Datos de Transbank (orden de compra y código de autorización)
+                |--------------------------------------------------------------------------
+                |
+                | Permiten cruzar cada cliente con el portal de Transbank.
+                | Se pueden buscar desde el buscador de la tabla.
+                |
+                */
+
+                TextColumn::make('transbank_buy_order')
+                    ->label('Orden de compra')
+                    ->state(fn ($record): ?string => self::paidPayment($record)?->buy_order)
+                    ->placeholder('—')
+                    ->copyable()
+                    ->toggleable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('subscriptions.purchase.payments', function (Builder $paymentQuery) use ($search): void {
+                            $paymentQuery
+                                ->where('status', Payment::PAID)
+                                ->where('buy_order', 'like', "%{$search}%");
+                        });
+                    }),
+
+                TextColumn::make('transbank_authorization_code')
+                    ->label('Cód. autorización')
+                    ->state(fn ($record): ?string => self::paidPayment($record)?->authorization_code)
+                    ->placeholder('—')
+                    ->copyable()
+                    ->toggleable()
+                    ->searchable(query: function (Builder $query, string $search): Builder {
+                        return $query->whereHas('subscriptions.purchase.payments', function (Builder $paymentQuery) use ($search): void {
+                            $paymentQuery
+                                ->where('status', Payment::PAID)
+                                ->where('authorization_code', 'like', "%{$search}%");
+                        });
+                    }),
 
                 /*
                 |--------------------------------------------------------------------------
@@ -623,6 +699,71 @@ class ClientsTable
 
                 /*
                 |--------------------------------------------------------------------------
+                | Tipo de contratación (nueva o renovación)
+                |--------------------------------------------------------------------------
+                |
+                | Solo se considera la suscripción actual del cliente.
+                |
+                */
+
+                SelectFilter::make('contract_flow')
+                    ->label('Tipo')
+                    ->options([
+                        'checkout' => 'Contratación nueva',
+                        'renewal' => 'Renovación',
+                    ])
+                    ->query(function (
+                        Builder $query,
+                        array $data
+                    ): Builder {
+                        $flow = $data['value'] ?? null;
+
+                        if (! $flow) {
+                            return $query;
+                        }
+
+                        return $query->whereHas(
+                            'subscriptions',
+                            function (
+                                Builder $subscriptionQuery
+                            ) use (
+                                $flow
+                            ): void {
+                                $subscriptionQuery
+                                    ->whereHas(
+                                        'purchase',
+                                        function (Builder $purchaseQuery) use ($flow): void {
+                                            if ($flow === 'renewal') {
+                                                $purchaseQuery->where('flow', 'renewal');
+                                            } else {
+                                                $purchaseQuery->where('flow', '!=', 'renewal');
+                                            }
+                                        }
+                                    )
+                                    ->whereNotExists(
+                                        function ($subQuery) {
+                                            $subQuery
+                                                ->selectRaw('1')
+                                                ->from(
+                                                    'subscriptions as newer_subscription'
+                                                )
+                                                ->whereColumn(
+                                                    'newer_subscription.client_id',
+                                                    'subscriptions.client_id'
+                                                )
+                                                ->whereColumn(
+                                                    'newer_subscription.ends_at',
+                                                    '>',
+                                                    'subscriptions.ends_at'
+                                                );
+                                        }
+                                    );
+                            }
+                        );
+                    }),
+
+                /*
+                |--------------------------------------------------------------------------
                 | Eliminados
                 |--------------------------------------------------------------------------
                 */
@@ -672,7 +813,7 @@ class ClientsTable
 
                 $query->with([
                     'subscriptions' => fn ($subscriptionQuery) => $subscriptionQuery
-                        ->with('plan')
+                        ->with(['plan', 'purchase.payments'])
                         ->orderByDesc('ends_at'),
                 ]);
 
@@ -890,5 +1031,20 @@ class ClientsTable
 
                 return $query;
             });
+    }
+
+    /**
+     * Pago aprobado de la suscripción actual del cliente (si existe).
+     */
+    private static function paidPayment($record): ?Payment
+    {
+        $subscription = $record->subscriptions
+            ->sortByDesc('ends_at')
+            ->first();
+
+        return $subscription?->purchase?->payments
+            ->where('status', Payment::PAID)
+            ->sortByDesc('id')
+            ->first();
     }
 }
