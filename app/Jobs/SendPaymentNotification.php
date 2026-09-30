@@ -50,7 +50,7 @@ class SendPaymentNotification implements ShouldQueue
                     throw new \RuntimeException('Invalid stored contract.');
                 }
                 $mail = $notification->recipient_type === 'internal'
-                    ? new ContractConfirmedToCompany($client, $plan, $pdf, $payload['pdf_name'])
+                    ? new ContractConfirmedToCompany($client, $plan, $pdf, $payload['pdf_name'], $payload['payment'] ?? null, ($payload['flow'] ?? 'checkout') === 'renewal')
                     : new ContractConfirmedToClient($client, $plan);
             } elseif ($notification->event === 'reservation_confirmed') {
                 $mail = new MeetingRoomReservationConfirmed(Reservation::query()->findOrFail($notification->notifiable_id));
