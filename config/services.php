@@ -43,4 +43,8 @@ return [
         'reception_email' => env('CONTRACT_SEND_MAIL'),
     ],
 
+    'renewals' => [
+        'reception_email' => env('RENEWAL_SEND_MAIL'),
+    ],
+
 ];
