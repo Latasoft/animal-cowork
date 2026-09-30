@@ -1,5 +1,6 @@
 import { Head } from '@inertiajs/react';
 
+import { Footer } from '@/components/layout/footer';
 import { Container } from '@/components/ui/container';
 import { PublicLayout } from '@/layouts/public-layout';
 
@@ -365,6 +366,8 @@ export default function TerminosYCondiciones() {
                     </div>
                 </Container>
             </section>
+
+            <Footer />
         </PublicLayout>
     );
 }
