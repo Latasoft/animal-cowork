@@ -1,6 +1,7 @@
 import { Head, Link } from '@inertiajs/react';
 import { Check, Plus } from 'lucide-react';
 
+import { Footer } from '@/components/layout/footer';
 import { Container } from '@/components/ui/container';
 import { DataStateCard } from '@/components/ui/data-state-card';
 import { PlanImage } from '@/components/ui/plan-image';
@@ -108,6 +109,8 @@ export default function RenewContract({
                     </div>
                 </Container>
             </section>
+
+            <Footer />
         </PublicLayout>
     );
 }
