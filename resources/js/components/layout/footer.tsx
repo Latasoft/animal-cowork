@@ -189,14 +189,14 @@ export function Footer() {
 
                     <div className="flex gap-6">
                         <a
-                            href="#"
+                            href="/politica-de-privacidad"
                             className="transition-colors hover:text-instinct"
                         >
                             Política de privacidad
                         </a>
 
                         <a
-                            href="#"
+                            href="/terminos-y-condiciones"
                             className="transition-colors hover:text-instinct"
                         >
                             Términos y condiciones
