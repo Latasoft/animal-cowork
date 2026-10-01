@@ -28,11 +28,19 @@ Se registró una nueva contratación de Oficina Virtual con los siguientes antec
 **Precio del plan:** ${{ number_format($priceOffice, 0, ',', '.') }} CLP
 
 @if ($payment)
+@if (($payment['method'] ?? 'webpay') === 'transfer')
+## Datos del pago (transferencia)
+
+**Código interno:** {{ $payment['buy_order'] }}
+
+**Referencia de la transferencia:** {{ $payment['authorization_code'] ?: 'No informada' }}
+@else
 ## Datos del pago (Transbank)
 
 **Orden de compra:** {{ $payment['buy_order'] }}
 
 **Código de autorización:** {{ $payment['authorization_code'] ?: 'No informado' }}
+@endif
 
 **Fecha del pago:** {{ $payment['date'] ?: 'No informada' }}
 
