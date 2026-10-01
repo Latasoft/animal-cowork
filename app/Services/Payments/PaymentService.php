@@ -3,6 +3,7 @@
 namespace App\Services\Payments;
 
 use App\Contracts\PaymentGateway;
+use App\Models\Coupon;
 use App\Models\Payment;
 use App\Models\Purchase;
 use App\Models\Reservation;
@@ -205,6 +206,10 @@ class PaymentService
                             }
                         } elseif ($payable instanceof Purchase) {
                             $payable->update(['status' => $payable->product_type === 'plan' ? 'awaiting_contract' : 'paid']);
+                            // El uso del cupón se cuenta solo cuando el pago queda aprobado.
+                            if ($payable->coupon_id) {
+                                Coupon::query()->whereKey($payable->coupon_id)->increment('used_count');
+                            }
                             if ($payable->product_type !== 'plan') {
                                 $this->notifications->service($payable, $payment);
                             } else {

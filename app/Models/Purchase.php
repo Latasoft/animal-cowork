@@ -16,7 +16,7 @@ class Purchase extends Model
     /** @use HasFactory<PurchaseFactory> */
     use HasFactory;
 
-    protected $fillable = ['operation_key', 'request_hash', 'product_type', 'product_id', 'client_id', 'email', 'phone', 'amount', 'snapshot', 'status', 'flow'];
+    protected $fillable = ['operation_key', 'request_hash', 'product_type', 'product_id', 'client_id', 'coupon_id', 'coupon_code', 'email', 'phone', 'subtotal_amount', 'discount_amount', 'amount', 'snapshot', 'status', 'flow'];
 
     protected $hidden = ['operation_key', 'request_hash'];
 
@@ -24,7 +24,7 @@ class Purchase extends Model
 
     protected function casts(): array
     {
-        return ['snapshot' => 'array', 'amount' => 'integer'];
+        return ['snapshot' => 'array', 'amount' => 'integer', 'subtotal_amount' => 'integer', 'discount_amount' => 'integer'];
     }
 
     /** @return MorphTo<Model, $this> */
@@ -43,6 +43,12 @@ class Purchase extends Model
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);
+    }
+
+    /** @return BelongsTo<Coupon, $this> */
+    public function coupon(): BelongsTo
+    {
+        return $this->belongsTo(Coupon::class);
     }
 
     /** @return HasOne<Subscription, $this> */

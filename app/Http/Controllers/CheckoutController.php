@@ -9,12 +9,15 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Purchase;
 use App\Services\Contracts\ContractConfirmationService;
+use App\Services\Payments\CouponService;
 use App\Services\Payments\PurchaseService;
 use App\Support\DatabaseQueryResult;
 use App\Support\SafeDatabaseQuery;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,6 +27,7 @@ class CheckoutController extends Controller
         private SafeDatabaseQuery $database,
         private ContractConfirmationService $contractService,
         private PurchaseService $purchases,
+        private CouponService $coupons,
     ) {}
 
     /**
@@ -156,11 +160,41 @@ class CheckoutController extends Controller
 
         $flow = $this->checkoutFlow($request);
         $operation = PaymentController::operation($request, 'plan_'.$selectedPlan->id);
-        $payment = $this->purchases->start($selectedPlan, $validated['representative_email'], $validated['representative_whatsapp'], $operation, $flow);
+        $payment = $this->purchases->start($selectedPlan, $validated['representative_email'], $validated['representative_whatsapp'], $operation, $flow, (string) ($validated['discount_code'] ?? ''));
         PaymentController::remember($request, $payment);
         $request->session()->put('checkout', ['purchase_id' => $payment->payable_id]);
 
         return redirect()->route('payments.redirect', $payment);
+    }
+
+    /**
+     * Paso 1: revisa un cupón y devuelve el descuento, sin crear la compra.
+     */
+    public function applyCoupon(Request $request, string $plan): JsonResponse
+    {
+        $validated = $request->validate(
+            ['discount_code' => ['required', 'string', 'max:30']],
+            [
+                'discount_code.required' => 'Ingresa un cupón.',
+                'discount_code.string' => 'El cupón ingresado no es válido.',
+                'discount_code.max' => 'El cupón no puede superar los 30 caracteres.',
+            ],
+        );
+
+        $selectedPlan = Plan::query()->active()->where('slug', $plan)->first();
+        if (! $selectedPlan) {
+            throw ValidationException::withMessages(['discount_code' => 'El plan seleccionado no está disponible.']);
+        }
+
+        $result = $this->coupons->evaluate($validated['discount_code'], $selectedPlan, $this->checkoutFlow($request));
+
+        return response()->json([
+            'code' => $result['coupon']->code,
+            'description' => $result['coupon']->description,
+            'subtotal' => $result['subtotal'],
+            'discount' => $result['discount'],
+            'total' => $result['total'],
+        ]);
     }
 
     /**
@@ -181,7 +215,7 @@ class CheckoutController extends Controller
         assert($selectedPlan instanceof Plan);
 
         $purchase = $this->paidPurchase($request, $plan);
-        $checkout = $purchase ? ['email' => $purchase->email, 'whatsapp' => $purchase->phone, 'subtotal' => $purchase->amount, 'total' => $purchase->amount] : null;
+        $checkout = $purchase ? ['email' => $purchase->email, 'whatsapp' => $purchase->phone, 'subtotal' => $purchase->subtotal_amount ?? $purchase->amount, 'total' => $purchase->amount] : null;
 
         $hasConfirmedPayment =
             $purchase !== null;
@@ -209,8 +243,8 @@ class CheckoutController extends Controller
 
             'payment' => [
                 'subtotal' => $checkout['subtotal'] ?? 0,
-                'discountCode' => null,
-                'discountAmount' => 0,
+                'discountCode' => $purchase->coupon_code,
+                'discountAmount' => $purchase->discount_amount ?? 0,
                 'total' => $checkout['total'] ?? 0,
                 'confirmed' => true,
             ],

@@ -1,4 +1,5 @@
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, useHttp } from '@inertiajs/react';
+import { useState } from 'react';
 import type { ComponentProps } from 'react';
 
 import { CheckoutForm } from '@/components/form/checkout-form';
@@ -7,8 +8,12 @@ import { Container } from '@/components/ui/container';
 import { DataStateCard } from '@/components/ui/data-state-card';
 import { NoticeCard } from '@/components/ui/notice-card';
 import { SummaryCard } from '@/components/ui/summary-card';
+import type { AppliedCoupon } from '@/components/ui/summary-card';
 import { PublicLayout } from '@/layouts/public-layout';
-import { payment as checkoutPayment } from '@/routes/checkout';
+import {
+    coupon as checkoutCoupon,
+    payment as checkoutPayment,
+} from '@/routes/checkout';
 
 import type { CheckoutFormData, CheckoutFlow } from '@/types/checkout';
 import type { Plan } from '@/types/plan';
@@ -72,6 +77,49 @@ function AvailableCheckout({ plan, flow }: AvailableCheckoutProps) {
             accept_terms: false,
             accept_data_policy: false,
         });
+
+    const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(
+        null,
+    );
+    const couponRequest = useHttp<{ discount_code: string }, AppliedCoupon>({
+        discount_code: '',
+    });
+
+    function applyCoupon(): void {
+        const code = data.discount_code.trim();
+
+        if (code.length === 0) {
+            return;
+        }
+
+        clearErrors('discount_code');
+        couponRequest.transform(() => ({ discount_code: code }));
+        void couponRequest
+            .submit(
+                checkoutCoupon(plan.slug, {
+                    query: flow === 'renewal' ? { flow } : {},
+                }),
+                {
+                    onSuccess: (response) => {
+                        setAppliedCoupon(response);
+                    },
+                    onError: () => {
+                        setAppliedCoupon(null);
+                    },
+                    onNetworkError: () => {
+                        setAppliedCoupon(null);
+                    },
+                },
+            )
+            .catch(() => undefined);
+    }
+
+    function removeCoupon(): void {
+        setAppliedCoupon(null);
+        setData('discount_code', '');
+        clearErrors('discount_code');
+        couponRequest.clearErrors();
+    }
 
     /*
      * El botón depende únicamente de que el cliente acepte
@@ -181,12 +229,21 @@ function AvailableCheckout({ plan, flow }: AvailableCheckoutProps) {
                             <SummaryCard
                                 plan={plan}
                                 discountCode={data.discount_code}
-                                discountError={errors.discount_code}
+                                discountError={
+                                    errors.discount_code ??
+                                    couponRequest.errors.discount_code
+                                }
                                 onDiscountCodeChange={(value) => {
                                     setData('discount_code', value);
+                                    setAppliedCoupon(null);
 
                                     clearErrors('discount_code');
+                                    couponRequest.clearErrors();
                                 }}
+                                appliedCoupon={appliedCoupon}
+                                applyingCoupon={couponRequest.processing}
+                                onApplyCoupon={applyCoupon}
+                                onRemoveCoupon={removeCoupon}
                                 acceptTerms={data.accept_terms}
                                 acceptDataPolicy={data.accept_data_policy}
                                 processing={processing}
