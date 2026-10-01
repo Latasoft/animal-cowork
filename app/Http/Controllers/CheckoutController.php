@@ -288,6 +288,11 @@ class CheckoutController extends Controller
         return Inertia::render('contract-preview', [
             'plan' => (new PlanResource($purchase->purchasedPlan()))->resolve(),
             'flow' => $this->checkoutFlow($request),
+            'discount' => $purchase->discount_amount > 0 ? [
+                'code' => $purchase->coupon_code,
+                'amount' => $purchase->discount_amount,
+                'total' => $purchase->amount,
+            ] : null,
             'confirmation' => (bool) $request->session()->get('contract_confirmation'),
         ]);
     }

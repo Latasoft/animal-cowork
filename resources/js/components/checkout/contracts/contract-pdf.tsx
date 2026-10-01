@@ -1,6 +1,9 @@
 import { pdf } from '@react-pdf/renderer';
 
-import type { ContractGenerationData } from '@/types/checkout';
+import type {
+    ContractDiscount,
+    ContractGenerationData,
+} from '@/types/checkout';
 import type { Plan } from '@/types/plan';
 import type { ContractLogoSource } from './contract-pdf-layout';
 import { LegalEntityContractPdf } from './legal-entity-contract-pdf';
@@ -65,30 +68,34 @@ async function getPdfLogoSource(): Promise<ContractLogoSource> {
 export async function generateContractPdf(
     data: ContractGenerationData,
     plan: Plan,
+    discount: ContractDiscount | null = null,
 ): Promise<Blob> {
     ensureImageBufferCompatibility();
 
     const logoSource = await getPdfLogoSource();
 
-    return renderContractPdf(data, plan, logoSource);
+    return renderContractPdf(data, plan, logoSource, discount);
 }
 
 export function renderContractPdf(
     data: ContractGenerationData,
     plan: Plan,
     logoSource: ContractLogoSource,
+    discount: ContractDiscount | null = null,
 ): Promise<Blob> {
     const document = data.is_natural_person ? (
         <NaturalPersonContractPdf
             data={data}
             plan={plan}
             logoSource={logoSource}
+            discount={discount}
         />
     ) : (
         <LegalEntityContractPdf
             data={data}
             plan={plan}
             logoSource={logoSource}
+            discount={discount}
         />
     );
 
