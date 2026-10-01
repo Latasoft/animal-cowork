@@ -40,6 +40,12 @@ export interface ContractDates {
     contract_end_date: string;
 }
 
+export interface ContractDiscount {
+    code: string | null;
+    amount: number;
+    total: number;
+}
+
 export type ContractGenerationData = Pick<
     CheckoutFormData,
     'plan_id' | 'representative_email' | 'representative_whatsapp'

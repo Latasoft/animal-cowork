@@ -26,7 +26,11 @@ import {
     data as checkoutData,
 } from '@/routes/checkout';
 
-import type { CheckoutFlow, ContractGenerationData } from '@/types/checkout';
+import type {
+    CheckoutFlow,
+    ContractDiscount,
+    ContractGenerationData,
+} from '@/types/checkout';
 import type { Plan } from '@/types/plan';
 
 type GenerationStatus =
@@ -36,26 +40,33 @@ interface ContractPreviewPageProps {
     plan: Plan;
     flow: CheckoutFlow;
     confirmation?: boolean;
+    discount?: ContractDiscount | null;
 }
 
 export default function ContractPreview({
     plan,
     flow,
     confirmation = false,
+    discount = null,
 }: ContractPreviewPageProps) {
     if (confirmation) {
         return <ContractConfirmation plan={plan} />;
     }
 
-    return <ContractPreviewFlow plan={plan} flow={flow} />;
+    return <ContractPreviewFlow plan={plan} flow={flow} discount={discount} />;
 }
 
 interface ContractPreviewFlowProps {
     plan: Plan;
     flow: CheckoutFlow;
+    discount: ContractDiscount | null;
 }
 
-function ContractPreviewFlow({ plan, flow }: ContractPreviewFlowProps) {
+function ContractPreviewFlow({
+    plan,
+    flow,
+    discount,
+}: ContractPreviewFlowProps) {
     const [status, setStatus] = useState<GenerationStatus>('loading');
     const [generationAttempt, setGenerationAttempt] = useState(0);
     const [contractData, setContractData] =
@@ -96,6 +107,7 @@ function ContractPreviewFlow({ plan, flow }: ContractPreviewFlowProps) {
                 const generatedBlob = await generateContractPdf(
                     generationData,
                     plan,
+                    discount,
                 );
 
                 if (!isActive) {
@@ -122,7 +134,7 @@ function ContractPreviewFlow({ plan, flow }: ContractPreviewFlowProps) {
         return () => {
             isActive = false;
         };
-    }, [generationAttempt, plan]);
+    }, [generationAttempt, plan, discount]);
 
     async function confirmContract(): Promise<void> {
         if (isConfirming || !pdfBlob || !contractData) {
