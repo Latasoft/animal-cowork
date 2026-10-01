@@ -28,19 +28,19 @@ export default function RenewContract({
         <PublicLayout>
             <Head title="Renovación de oficina virtual" />
 
-            <section className="bg-deep-blue py-10 sm:py-12 lg:py-16">
+            <section className="bg-white py-10 sm:py-12 lg:py-16">
                 <Container>
                     <div className="mx-auto max-w-6xl">
                         <header className="mx-auto max-w-3xl text-center">
-                            <p className="text-sm font-extrabold tracking-[0.16em] text-instinct uppercase">
+                            <p className="text-sm font-extrabold tracking-[0.16em] text-instinct-dark uppercase">
                                 Renovación
                             </p>
 
-                            <h1 className="mt-3 text-4xl leading-[1.03] font-extrabold tracking-[-0.05em] text-white sm:text-5xl">
+                            <h1 className="mt-3 text-4xl leading-[1.03] font-extrabold tracking-[-0.05em] text-deep-blue sm:text-5xl">
                                 Elige cómo quieres renovar
                             </h1>
 
-                            <p className="mt-5 text-base leading-7 text-white/75 sm:text-lg">
+                            <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
                                 Selecciona la alternativa que mejor se adapte a
                                 lo que necesitas para continuar.
                             </p>
@@ -64,13 +64,13 @@ export default function RenewContract({
                             <>
                                 <section className="mt-12 sm:mt-14">
                                     <div className="mb-6">
-                                        <p className="text-xs font-extrabold tracking-[0.14em] text-instinct uppercase">
+                                        <p className="text-xs font-extrabold tracking-[0.14em] text-instinct-dark uppercase">
                                             Opción principal
                                         </p>
-                                        <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-white sm:text-3xl">
+                                        <h2 className="mt-2 text-2xl font-extrabold tracking-[-0.03em] text-deep-blue sm:text-3xl">
                                             Renovación de oficina virtual
                                         </h2>
-                                        <p className="mt-5 text-base leading-7 text-white/75 sm:text-lg">
+                                        <p className="mt-5 text-base leading-7 text-deep-blue/65 sm:text-lg">
                                             Si solo necesitas renovar tu oficina
                                             virtual, esta es la opción indicada.
                                         </p>
@@ -85,11 +85,11 @@ export default function RenewContract({
                                     </div>
                                 </section>
 
-                                <section className="mt-14 border-t border-white/15 pt-12 sm:mt-16 sm:pt-14">
-                                    <span className="text-xs font-extrabold tracking-[0.14em] text-sky-300 uppercase">
+                                <section className="mt-14 border-t border-deep-blue/10 pt-12 sm:mt-16 sm:pt-14">
+                                    <span className="text-xs font-extrabold tracking-[0.14em] text-energy-blue-dark uppercase">
                                         Oficina virtual + patente
                                     </span>
-                                    <h2 className="max-w-4xl text-xl leading-8 font-extrabold tracking-[-0.02em] text-white sm:text-2xl">
+                                    <h2 className="max-w-4xl text-xl leading-8 font-extrabold tracking-[-0.02em] text-deep-blue sm:text-2xl">
                                         Si necesitas renovar tu oficina virtual
                                         y gestionar tu patente comercial, estas
                                         son las opciones que tenemos para ti:

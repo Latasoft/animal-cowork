@@ -2,6 +2,7 @@ import {
     Document,
     Font,
     Image,
+    Link,
     Page,
     StyleSheet,
     Text,
@@ -219,7 +220,12 @@ function ContractPageSection({
             <View style={styles.footer}>
                 <Text style={styles.authenticity}>
                     Verifica la autenticidad de este documento{' '}
-                    <Text style={styles.authenticityLink}>aquí</Text>
+                    <Link
+                        src="https://api.ecertchile.cl/WebSignValidator/public/signature-validator"
+                        style={styles.authenticityLink}
+                    >
+                        aquí
+                    </Link>
                 </Text>
                 <Text style={styles.pageNumber}>
                     Página {pageNumber} de {totalPages}
