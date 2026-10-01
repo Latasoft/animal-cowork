@@ -3,6 +3,7 @@
 namespace App\Services\Payments;
 
 use App\Models\CompanyFormationService;
+use App\Models\Coupon;
 use App\Models\PatentManagementService;
 use App\Models\Payment;
 use App\Models\Plan;
@@ -12,12 +13,13 @@ use Illuminate\Validation\ValidationException;
 
 class PurchaseService
 {
-    public function __construct(private PaymentService $payments) {}
+    public function __construct(private PaymentService $payments, private CouponService $coupons) {}
 
-    public function start(Plan|PatentManagementService|CompanyFormationService $product, string $email, string $phone, string $operation, string $flow = 'checkout'): Payment
+    public function start(Plan|PatentManagementService|CompanyFormationService $product, string $email, string $phone, string $operation, string $flow = 'checkout', string $couponCode = ''): Payment
     {
-        $hash = hash('sha256', json_encode([$product->getMorphClass(), $product->id, $email, $phone, $flow], JSON_THROW_ON_ERROR));
-        $payment = DB::transaction(function () use ($product, $email, $phone, $operation, $flow, $hash): Payment {
+        $couponCode = Coupon::normalizeCode($couponCode);
+        $hash = hash('sha256', json_encode([$product->getMorphClass(), $product->id, $email, $phone, $flow, $couponCode], JSON_THROW_ON_ERROR));
+        $payment = DB::transaction(function () use ($product, $email, $phone, $operation, $flow, $hash, $couponCode): Payment {
             $product = $product->newQuery()->whereKey($product->getKey())->lockForUpdate()->firstOrFail();
             $purchase = Purchase::query()->where('operation_key', $operation)->lockForUpdate()->first();
             if ($purchase) {
@@ -36,10 +38,24 @@ class PurchaseService
             if ($product instanceof PatentManagementService && $product->currency !== 'CLP') {
                 throw ValidationException::withMessages(['payment' => 'El servicio debe tener un precio en pesos chilenos.']);
             }
+            $subtotal = $amount;
+            $discount = 0;
+            $coupon = null;
+            // Los cupones aplican solo a los planes (contratación y renovación).
+            if ($couponCode !== '' && $product instanceof Plan) {
+                $result = $this->coupons->evaluate($couponCode, $product, $flow);
+                $coupon = $result['coupon'];
+                $discount = $result['discount'];
+                $amount = $result['total'];
+                $snapshot['coupon'] = ['code' => $coupon->code, 'discount' => $discount, 'subtotal' => $subtotal];
+            }
             $purchase = Purchase::query()->create([
                 'operation_key' => $operation, 'request_hash' => $hash,
                 'product_type' => $product->getMorphClass(), 'product_id' => $product->id,
-                'email' => $email, 'phone' => $phone, 'amount' => $amount, 'snapshot' => $snapshot, 'flow' => $flow,
+                'coupon_id' => $coupon?->id, 'coupon_code' => $coupon?->code,
+                'email' => $email, 'phone' => $phone,
+                'subtotal_amount' => $subtotal, 'discount_amount' => $discount,
+                'amount' => $amount, 'snapshot' => $snapshot, 'flow' => $flow,
             ]);
 
             return $this->payments->pending($purchase, $amount, $operation);

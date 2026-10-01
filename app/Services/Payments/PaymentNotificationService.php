@@ -67,6 +67,7 @@ class PaymentNotificationService
             'email' => null,
             'phone' => null,
             'note' => null,
+            'coupon' => null,
         ];
 
         $payable = $payment->payable;
@@ -82,6 +83,9 @@ class PaymentNotificationService
             $details['phone'] = $payable->phone;
             if ($payable->product_type === 'plan') {
                 $details['flow'] = $payable->flow === 'renewal' ? 'Renovación' : 'Contratación nueva';
+            }
+            if ($payable->coupon_code) {
+                $details['coupon'] = $payable->coupon_code.' (descuento de $'.number_format((int) $payable->discount_amount, 0, ',', '.').')';
             }
             $client = $payable->client;
             if ($client) {

@@ -6,12 +6,24 @@ import type { Plan } from '@/types/plan';
 import { formatClp } from '@/utils/currency';
 import { formatPlanDuration, getPlanTagline } from '@/utils/plans';
 
+export interface AppliedCoupon {
+    code: string;
+    description?: string | null;
+    subtotal: number;
+    discount: number;
+    total: number;
+}
+
 interface SummaryCardProps {
     plan: Plan;
 
     discountCode: string;
     discountError?: string;
     onDiscountCodeChange: (value: string) => void;
+    appliedCoupon: AppliedCoupon | null;
+    applyingCoupon: boolean;
+    onApplyCoupon: () => void;
+    onRemoveCoupon: () => void;
 
     acceptTerms: boolean;
     acceptDataPolicy: boolean;
@@ -31,6 +43,10 @@ export function SummaryCard({
     discountCode,
     discountError,
     onDiscountCodeChange,
+    appliedCoupon,
+    applyingCoupon,
+    onApplyCoupon,
+    onRemoveCoupon,
     acceptTerms,
     acceptDataPolicy,
     processing,
@@ -87,13 +103,25 @@ export function SummaryCard({
                     </span>
                 </div>
 
+                {appliedCoupon && (
+                    <div className="mt-3 flex items-center justify-between gap-4">
+                        <span className="text-sm font-semibold text-instinct-dark">
+                            Descuento ({appliedCoupon.code})
+                        </span>
+
+                        <span className="text-lg font-extrabold text-instinct-dark">
+                            −{formatClp(appliedCoupon.discount)}
+                        </span>
+                    </div>
+                )}
+
                 <div className="mt-5 flex items-end justify-between gap-4 border-t border-deep-blue/10 pt-5">
                     <span className="text-base font-extrabold text-deep-blue">
                         Total
                     </span>
 
                     <span className="text-4xl font-extrabold tracking-[-0.05em] text-instinct">
-                        {formatClp(plan.totalPrice)}
+                        {formatClp(appliedCoupon?.total ?? plan.totalPrice)}
                     </span>
                 </div>
             </div>
@@ -130,7 +158,7 @@ export function SummaryCard({
                         placeholder="Ingresa tu cupón"
                         autoComplete="off"
                         maxLength={30}
-                        disabled={processing}
+                        disabled={processing || applyingCoupon}
                         aria-invalid={Boolean(discountError)}
                         aria-describedby={
                             discountError
@@ -148,18 +176,42 @@ export function SummaryCard({
                         ].join(' ')}
                     />
 
-                    <Button
-                        type="button"
-                        variant="secondary"
-                        disabled={
-                            processing ||
-                            discountCode.trim().length === 0
-                        }
-                        className="h-12 shrink-0 justify-center px-5 text-sm"
-                    >
-                        Aplicar
-                    </Button>
+                    {appliedCoupon ? (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={onRemoveCoupon}
+                            disabled={processing}
+                            className="h-12 shrink-0 justify-center px-5 text-sm"
+                        >
+                            Quitar
+                        </Button>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={onApplyCoupon}
+                            disabled={
+                                processing ||
+                                applyingCoupon ||
+                                discountCode.trim().length === 0
+                            }
+                            className="h-12 shrink-0 justify-center px-5 text-sm"
+                        >
+                            {applyingCoupon ? 'Revisando…' : 'Aplicar'}
+                        </Button>
+                    )}
                 </div>
+
+                {appliedCoupon && !discountError && (
+                    <p
+                        role="status"
+                        className="mt-2 text-sm font-semibold text-instinct-dark"
+                    >
+                        Cupón aplicado: ahorras{' '}
+                        {formatClp(appliedCoupon.discount)}.
+                    </p>
+                )}
 
                 {discountError && (
                     <p

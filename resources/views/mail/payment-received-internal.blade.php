@@ -13,6 +13,10 @@ Se aprobó un pago con Webpay. Con estos datos puede compararlo con el portal de
 
 **Monto:** ${{ number_format((int) $details['amount'], 0, ',', '.') }} CLP
 
+@if (! empty($details['coupon']))
+**Cupón:** {{ $details['coupon'] }}
+
+@endif
 **Fecha y hora:** {{ $details['date'] }}
 
 ## Datos de Transbank

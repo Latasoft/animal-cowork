@@ -51,6 +51,11 @@ Route::get(
 )->name('checkout.contract_preview');
 
 Route::post(
+    '/checkout/{plan}/cupon',
+    [CheckoutController::class, 'applyCoupon'],
+)->middleware('throttle:20,1')->name('checkout.coupon');
+
+Route::post(
     '/checkout/{plan}/payment',
     [CheckoutController::class, 'processPayment'],
 )->middleware('throttle:10,1')->block(90, 30)->name('checkout.payment');
