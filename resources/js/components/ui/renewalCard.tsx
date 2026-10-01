@@ -43,21 +43,21 @@ function RenewalCard() {
 
             <div className="relative px-6 py-10 sm:px-10 lg:px-16 lg:py-8">
                 <div
-                    className="absolute inset-0 bg-white shadow-[0_18px_50px_rgba(13,27,61,0.12)]"
+                    className="absolute inset-0 bg-deep-blue shadow-[0_18px_50px_rgba(13,27,61,0.25)]"
                     style={{ filter: 'url(#renewal-paper-edge)' }}
                     aria-hidden="true"
                 />
 
                 <div
-                    className="absolute inset-x-0 top-2 h-px bg-deep-blue/8"
+                    className="absolute inset-x-0 top-2 h-px bg-white/10"
                     aria-hidden="true"
                 />
                 <div
-                    className="absolute inset-x-0 bottom-2 h-px bg-deep-blue/8"
+                    className="absolute inset-x-0 bottom-2 h-px bg-white/10"
                     aria-hidden="true"
                 />
 
-                <div className="relative mx-auto flex max-w-7xl flex-col gap-8 text-deep-blue lg:flex-row lg:items-stretch lg:justify-between lg:gap-12">
+                <div className="relative mx-auto flex max-w-7xl flex-col gap-8 text-white lg:flex-row lg:items-stretch lg:justify-between lg:gap-12">
                     <div className="flex flex-1 flex-col gap-6 sm:flex-row sm:items-stretch">
                         <div className="flex shrink-0 items-center justify-center sm:w-24">
                             <div className="flex size-16 items-center justify-center rounded-full border-2 border-instinct/20 bg-instinct-light text-instinct shadow-sm sm:size-20">
@@ -70,18 +70,18 @@ function RenewalCard() {
                         </div>
 
                         <div className="flex flex-col justify-center text-center sm:text-left">
-                            <p className="text-xs font-extrabold tracking-[0.18em] text-instinct-dark uppercase">
+                            <p className="text-xs font-extrabold tracking-[0.18em] text-instinct uppercase">
                                 Renovación
                             </p>
 
                             <h3
                                 id="renewal-title"
-                                className="mt-2 text-3xl leading-tight font-extrabold tracking-[-0.04em] text-deep-blue sm:text-4xl"
+                                className="mt-2 text-3xl leading-tight font-extrabold tracking-[-0.04em] text-white sm:text-4xl"
                             >
                                 ¿Necesitas renovar tu contrato?
                             </h3>
 
-                            <p className="mt-3 text-base leading-7 font-semibold text-deep-blue/70 sm:text-lg">
+                            <p className="mt-3 text-base leading-7 font-semibold text-white/75 sm:text-lg">
                                 Renueva aquí de forma más rápida.
                             </p>
                         </div>
