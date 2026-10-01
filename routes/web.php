@@ -50,6 +50,11 @@ Route::get(
     [CheckoutController::class, 'showContractPreview'],
 )->name('checkout.contract_preview');
 
+Route::get(
+    '/checkout/transferencia/{purchase}',
+    [CheckoutController::class, 'transferAccess'],
+)->middleware(['signed', 'throttle:20,1'])->name('checkout.transfer');
+
 Route::post(
     '/checkout/{plan}/cupon',
     [CheckoutController::class, 'applyCoupon'],

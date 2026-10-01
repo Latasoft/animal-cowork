@@ -7,6 +7,7 @@ use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
 use App\Services\Payments\PaymentNotificationService;
+use App\Services\Payments\TransferPurchaseService;
 
 class ContractNotificationService
 {
@@ -29,6 +30,7 @@ class ContractNotificationService
                 'buy_order' => $payment->buy_order,
                 'authorization_code' => (string) ($payment->authorization_code ?? ''),
                 'date' => $paymentDate?->timezone('America/Santiago')->format('d/m/Y H:i') ?? '',
+                'method' => TransferPurchaseService::isTransfer($payment) ? 'transfer' : 'webpay',
             ] : null,
         ];
 

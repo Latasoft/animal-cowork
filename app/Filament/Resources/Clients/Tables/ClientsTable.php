@@ -5,6 +5,7 @@ namespace App\Filament\Resources\Clients\Tables;
 use App\Models\Payment;
 use App\Models\Plan;
 use App\Models\Subscription;
+use App\Services\Payments\TransferPurchaseService;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -238,14 +239,18 @@ class ClientsTable
                             return 'Registro manual';
                         }
 
-                        return $subscription->purchase->flow === 'renewal'
+                        $type = $subscription->purchase->flow === 'renewal'
                             ? 'Renovación'
                             : 'Contratación nueva';
+
+                        return TransferPurchaseService::isTransfer(self::paidPayment($record))
+                            ? $type.' (transferencia)'
+                            : $type;
                     })
                     ->badge()
-                    ->color(fn ($state): string => match ($state) {
-                        'Renovación' => 'warning',
-                        'Contratación nueva' => 'success',
+                    ->color(fn ($state): string => match (true) {
+                        str_starts_with((string) $state, 'Renovación') => 'warning',
+                        str_starts_with((string) $state, 'Contratación nueva') => 'success',
                         default => 'gray',
                     })
                     ->placeholder('—'),

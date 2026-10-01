@@ -11,6 +11,7 @@ use App\Models\Purchase;
 use App\Services\Contracts\ContractConfirmationService;
 use App\Services\Payments\CouponService;
 use App\Services\Payments\PurchaseService;
+use App\Services\Payments\TransferPurchaseService;
 use App\Support\DatabaseQueryResult;
 use App\Support\SafeDatabaseQuery;
 use Illuminate\Http\JsonResponse;
@@ -351,6 +352,36 @@ class CheckoutController extends Controller
                 ...($flow === 'renewal' ? ['flow' => 'renewal'] : []),
             ])
             ->with('contract_confirmation', true);
+    }
+
+    /**
+     * Entrada desde el enlace de una contratación pagada por transferencia.
+     *
+     * Da acceso a los mismos pasos de siempre (datos y contrato), como si
+     * el pago se hubiera hecho con Webpay.
+     */
+    public function transferAccess(Request $request, Purchase $purchase): RedirectResponse
+    {
+        abort_unless($purchase->product_type === 'plan', 404);
+
+        $payment = $purchase->payments()->where('status', Payment::PAID)->latest('id')->first();
+        abort_unless(TransferPurchaseService::isTransfer($payment), 404);
+
+        if ($purchase->subscription()->exists()) {
+            return redirect()->route('home')->with('error', 'Esta contratación ya fue completada.');
+        }
+
+        $request->session()->put('checkout', ['purchase_id' => $purchase->id]);
+        PaymentController::remember($request, $payment);
+
+        $plan = (string) ($purchase->snapshot['plan']['slug'] ?? '');
+
+        return redirect()
+            ->route('checkout.data', [
+                'plan' => $plan,
+                ...($purchase->flow === 'renewal' ? ['flow' => 'renewal'] : []),
+            ])
+            ->with('payment_confirmed_message', true);
     }
 
     private function paidPurchase(Request $request, string $slug): ?Purchase
