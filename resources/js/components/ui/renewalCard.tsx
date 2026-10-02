@@ -5,7 +5,7 @@ import { Repeat } from 'lucide-react';
 function RenewalCard() {
     return (
         <section
-            className="relative left-1/2 mt-16 w-screen -translate-x-1/2"
+            className="relative left-1/2 mt-16 w-screen -translate-x-1/2 overflow-x-clip"
             aria-labelledby="renewal-title"
         >
             <svg
@@ -43,7 +43,7 @@ function RenewalCard() {
 
             <div className="relative px-6 py-10 sm:px-10 lg:px-16 lg:py-8">
                 <div
-                    className="absolute inset-0 bg-deep-blue shadow-[0_18px_50px_rgba(13,27,61,0.25)]"
+                    className="absolute -inset-x-6 inset-y-0 bg-deep-blue shadow-[0_18px_50px_rgba(13,27,61,0.25)]"
                     style={{ filter: 'url(#renewal-paper-edge)' }}
                     aria-hidden="true"
                 />
