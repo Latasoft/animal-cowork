@@ -43,8 +43,7 @@ function RenewalCard() {
 
             <div className="relative px-6 py-10 sm:px-10 lg:px-16 lg:py-8">
                 <div
-                    className="absolute -inset-x-6 inset-y-0 bg-deep-blue shadow-[0_18px_50px_rgba(13,27,61,0.25)]"
-                    style={{ filter: 'url(#renewal-paper-edge)' }}
+                    className="absolute -inset-x-6 inset-y-0 bg-deep-blue"
                     aria-hidden="true"
                 />
 
