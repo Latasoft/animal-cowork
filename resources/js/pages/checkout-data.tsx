@@ -2,6 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 
+import { DataAccuracyNotice } from '@/components/checkout/data-accuracy-notice';
 import { ContractDataForm } from '@/components/form/contract-data-form';
 import { CheckoutSteps } from '@/components/ui/checkout-steps';
 import { Container } from '@/components/ui/container';
@@ -49,6 +50,8 @@ export default function CheckoutData({
     const { data, setData, errors, setError, clearErrors } =
         useForm<ContractDataFormData>(emptyContractData);
     const [isNavigating, setIsNavigating] = useState(false);
+    // Aviso obligatorio: se muestra cada vez que se entra a este paso.
+    const [showDataNotice, setShowDataNotice] = useState(true);
     const restoredPlanId = useRef<string | null>(null);
 
     useEffect(() => {
@@ -188,6 +191,11 @@ export default function CheckoutData({
     return (
         <PublicLayout>
             <Head title={`Datos del contrato - ${plan.name}`} />
+
+            <DataAccuracyNotice
+                open={showDataNotice}
+                onAccept={() => setShowDataNotice(false)}
+            />
 
             <section className="bg-white py-8 sm:py-10 lg:py-12">
                 <Container>
