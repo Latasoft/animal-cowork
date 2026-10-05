@@ -42,7 +42,7 @@ class PaymentNotificationService
         $this->record($purchase, 'plan_paid', 'client', $purchase->email, [
             'name' => $purchase->snapshot['name'], 'amount' => $payment->amount,
             'reference' => $payment->buy_order,
-            'continuation_url' => \Illuminate\Support\Facades\URL::temporarySignedRoute('payments.result', now()->addDay(), ['payment' => $payment]),
+            'continuation_url' => \Illuminate\Support\Facades\URL::temporarySignedRoute('payments.result', now()->addDays(7), ['payment' => $payment]),
         ]);
     }
 
