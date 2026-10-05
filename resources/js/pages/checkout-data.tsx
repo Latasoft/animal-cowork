@@ -49,7 +49,6 @@ export default function CheckoutData({
     const { data, setData, errors, setError, clearErrors } =
         useForm<ContractDataFormData>(emptyContractData);
     const [isNavigating, setIsNavigating] = useState(false);
-    const [supportRequested, setSupportRequested] = useState(false);
     const restoredPlanId = useRef<string | null>(null);
 
     useEffect(() => {
@@ -157,16 +156,9 @@ export default function CheckoutData({
 
     function submit(event: FormEvent<HTMLFormElement>): void {
         event.preventDefault();
-        setSupportRequested(false);
 
         if (!validateForm()) {
             focusFirstError();
-
-            return;
-        }
-
-        if (data.company_in_progress && !data.is_natural_person) {
-            setSupportRequested(true);
 
             return;
         }
@@ -220,18 +212,6 @@ export default function CheckoutData({
                                 .
                             </p>
                         </header>
-
-                        {supportRequested && (
-                            <div
-                                role="status"
-                                className="mt-8 border-l-4 border-instinct bg-instinct/7 px-5 py-5 text-sm leading-6 text-deep-blue/70"
-                            >
-                                Tus antecedentes quedaron preparados para la
-                                revisión de un ejecutivo. Este flujo no genera
-                                un contrato convencional mientras la empresa no
-                                tenga RUT.
-                            </div>
-                        )}
 
                         <ContractDataForm
                             data={data}

@@ -87,9 +87,12 @@ class ContractConfirmationService
             ? $data['representative_name']
             : $data['company_name'];
 
-        $companyRut = $isNaturalPerson
-            ? $data['representative_rut']
-            : $data['company_rut'];
+        // Empresa con RUT en trámite: se guarda sin RUT y se completa después en el panel.
+        $companyRut = match (true) {
+            $isNaturalPerson => $data['representative_rut'],
+            (bool) ($data['company_in_progress'] ?? false) => null,
+            default => $data['company_rut'],
+        };
 
         $clientData = [
             'contract_type' => $data['contract_type'],
@@ -110,7 +113,7 @@ class ContractConfirmationService
             'status' => Client::STATUS_ACTIVE,
         ];
 
-        $client = Client::query()
+        $client = $companyRut === null ? null : Client::query()
             ->withTrashed()
             ->where('company_rut', $companyRut)
             ->first();

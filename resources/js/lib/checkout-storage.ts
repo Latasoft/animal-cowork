@@ -49,12 +49,13 @@ export function isCompleteContractData(
         return false;
     }
 
-    if (value.company_in_progress) {
-        return false;
-    }
-
     if (value.is_natural_person) {
         return true;
+    }
+
+    // Empresa con RUT en trámite: basta con la razón social.
+    if (value.company_in_progress) {
+        return hasRequiredString(value, 'company_name');
     }
 
     return (

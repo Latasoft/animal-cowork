@@ -26,7 +26,8 @@ class ClientInfolist
                             ->weight('bold'),
 
                         TextEntry::make('company_rut')
-                            ->label('RUT'),
+                            ->label('RUT')
+                            ->placeholder('En trámite'),
 
                         TextEntry::make('email')
                             ->label('Correo')

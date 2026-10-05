@@ -25,6 +25,12 @@ function uppercase(value: string): string {
     return value.trim().toLocaleUpperCase('es-CL');
 }
 
+function companyRutText(data: ContractGenerationData): string {
+    return data.company_in_progress
+        ? 'persona jurídica con rol único tributario en trámite'
+        : `persona jurídica con rol único tributario número: ${uppercase(data.company_rut)}`;
+}
+
 export function LegalEntityContractPdf({
     data,
     plan,
@@ -41,7 +47,7 @@ export function getLegalEntityContractContent(
     plan: Plan,
     discount: ContractDiscount | null = null,
 ): ContractContent {
-    const introduction = `En Santiago de Chile, ${formatContractDate(data.contract_date)}, entre don CRISTÓBAL VICENTE FIORI-LEGGERO VISLYON, chileno, soltero, cédula nacional de identidad N°16.660.000-6, en representación de ANIMAL COWORKING GROUP SpA, persona jurídica del giro de su denominación, rol único tributario número 77.188.172-6, ambos domiciliados en calle EULOGIA SANCHEZ # 065, comuna de Providencia, ciudad de Santiago, por una parte y como el “Sub-Arrendador”; y por la otra y como el “Sub-Arrendatario”: ${uppercase(data.company_name)}, persona jurídica con rol único tributario número: ${uppercase(data.company_rut)}, representada según se acreditará por: ${uppercase(data.representative_name)}, cédula nacional de identidad N° ${uppercase(data.representative_rut)} con domicilio ${uppercase(data.representative_address)}, comuna de ${uppercase(data.representative_commune)}, Región ${uppercase(data.representative_region)}, ambos comparecientes mayores de edad, quienes acreditan su identidad con las cédulas antes indicadas, exponen que vienen libre y voluntariamente en celebrar el siguiente contrato de Sub-arrendamiento:`;
+    const introduction = `En Santiago de Chile, ${formatContractDate(data.contract_date)}, entre don CRISTÓBAL VICENTE FIORI-LEGGERO VISLYON, chileno, soltero, cédula nacional de identidad N°16.660.000-6, en representación de ANIMAL COWORKING GROUP SpA, persona jurídica del giro de su denominación, rol único tributario número 77.188.172-6, ambos domiciliados en calle EULOGIA SANCHEZ # 065, comuna de Providencia, ciudad de Santiago, por una parte y como el “Sub-Arrendador”; y por la otra y como el “Sub-Arrendatario”: ${uppercase(data.company_name)}, ${companyRutText(data)}, representada según se acreditará por: ${uppercase(data.representative_name)}, cédula nacional de identidad N° ${uppercase(data.representative_rut)} con domicilio ${uppercase(data.representative_address)}, comuna de ${uppercase(data.representative_commune)}, Región ${uppercase(data.representative_region)}, ambos comparecientes mayores de edad, quienes acreditan su identidad con las cédulas antes indicadas, exponen que vienen libre y voluntariamente en celebrar el siguiente contrato de Sub-arrendamiento:`;
 
     const clauses: ContractClause[] = [
         {

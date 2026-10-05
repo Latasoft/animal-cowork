@@ -81,7 +81,12 @@ export function createContractConfirmationPayload(
 
     if (!data.is_natural_person) {
         payload.append('company_name', data.company_name);
-        payload.append('company_rut', data.company_rut);
+
+        if (data.company_in_progress) {
+            payload.append('company_in_progress', '1');
+        } else {
+            payload.append('company_rut', data.company_rut);
+        }
     }
 
     payload.append('contract_pdf_base64', pdfBase64);

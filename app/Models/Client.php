@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @property int $id
  * @property string $status
  * @property string $company_name
- * @property string $company_rut
+ * @property string|null $company_rut
  */
 class Client extends Model
 {
