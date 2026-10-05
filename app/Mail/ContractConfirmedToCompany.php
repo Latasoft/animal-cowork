@@ -75,7 +75,7 @@ class ContractConfirmedToCompany extends Mailable
 
     private function rut(): string
     {
-        return $this->client->company_rut;
+        return $this->client->company_rut ?: 'En trámite';
     }
 
     private function companyName(): ?string

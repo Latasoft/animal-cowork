@@ -303,9 +303,9 @@ export function ContractDataForm({
             {data.company_in_progress && !data.is_natural_person && (
                 <div className="mt-8 border-l-4 border-instinct bg-instinct/7 px-5 py-5">
                     <p className="text-sm leading-6 text-deep-blue/70">
-                        Como tu empresa aún no cuenta con RUT, no avanzarás a la
-                        previsualización del contrato. Un ejecutivo deberá
-                        revisar estos antecedentes para continuar el proceso.
+                        En el contrato, el RUT de tu empresa quedará como
+                        &quot;en trámite&quot;. Cuando lo tengas, avísanos para
+                        actualizarlo.
                     </p>
                 </div>
             )}
@@ -328,9 +328,7 @@ export function ContractDataForm({
                 >
                     {processing
                         ? 'Procesando...'
-                        : data.company_in_progress && !data.is_natural_person
-                          ? 'Enviar información'
-                          : 'Continuar a previsualización'}
+                        : 'Continuar a previsualización'}
                 </Button>
             </div>
         </form>

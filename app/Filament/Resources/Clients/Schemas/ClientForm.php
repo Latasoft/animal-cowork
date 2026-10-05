@@ -32,7 +32,7 @@ class ClientForm
 
                         TextInput::make('company_rut')
                             ->label('RUT empresa')
-                            ->required()
+                            ->helperText('Si la empresa tiene el RUT en trámite, déjalo vacío y agrégalo cuando lo tenga.')
                             ->maxLength(20),
 
                         Select::make('contract_type')

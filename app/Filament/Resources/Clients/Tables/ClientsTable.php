@@ -45,6 +45,7 @@ class ClientsTable
 
                 TextColumn::make('company_rut')
                     ->label('RUT')
+                    ->placeholder('En trámite')
                     ->searchable()
                     ->copyable(),
 

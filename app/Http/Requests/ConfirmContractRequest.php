@@ -48,8 +48,10 @@ class ConfirmContractRequest extends FormRequest
                 'max:255',
             ],
 
+            'company_in_progress' => ['sometimes', 'boolean'],
+
             'company_rut' => [
-                'required_if:contract_type,legal',
+                Rule::requiredIf(fn (): bool => $this->input('contract_type') === 'legal' && ! $this->boolean('company_in_progress')),
                 'nullable',
                 'string',
                 'max:20',
@@ -102,7 +104,7 @@ class ConfirmContractRequest extends FormRequest
             'company_name.required_if' => 'Debes ingresar la razón social o nombre de la empresa.',
             'company_name.max' => 'La razón social no puede superar los 255 caracteres.',
 
-            'company_rut.required_if' => 'Debes ingresar el RUT de la empresa.',
+            'company_rut.required' => 'Debes ingresar el RUT de la empresa.',
             'company_rut.max' => 'El RUT de la empresa no puede superar los 20 caracteres.',
 
             'contract_pdf_base64.required' => 'No fue posible generar el contrato. Vuelve a intentarlo.',
