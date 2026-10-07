@@ -160,7 +160,7 @@ class CheckoutController extends Controller
         );
 
         $flow = $this->checkoutFlow($request);
-        $operation = PaymentController::operation($request, 'plan_'.$selectedPlan->id);
+        $operation = PaymentController::operation($request, 'plan_'.$selectedPlan->id, PurchaseService::requestHash($selectedPlan, $validated['representative_email'], $validated['representative_whatsapp'], $flow, (string) ($validated['discount_code'] ?? '')));
         $payment = $this->purchases->start($selectedPlan, $validated['representative_email'], $validated['representative_whatsapp'], $operation, $flow, (string) ($validated['discount_code'] ?? ''));
         PaymentController::remember($request, $payment);
         $request->session()->put('checkout', ['purchase_id' => $payment->payable_id]);

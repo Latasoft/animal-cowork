@@ -15,10 +15,18 @@ class PurchaseService
 {
     public function __construct(private PaymentService $payments, private CouponService $coupons) {}
 
+    /**
+     * Huella de los datos de una compra. Si cambia, es otra compra.
+     */
+    public static function requestHash(Plan|PatentManagementService|CompanyFormationService $product, string $email, string $phone, string $flow = 'checkout', string $couponCode = ''): string
+    {
+        return hash('sha256', json_encode([$product->getMorphClass(), $product->id, $email, $phone, $flow, Coupon::normalizeCode($couponCode)], JSON_THROW_ON_ERROR));
+    }
+
     public function start(Plan|PatentManagementService|CompanyFormationService $product, string $email, string $phone, string $operation, string $flow = 'checkout', string $couponCode = ''): Payment
     {
         $couponCode = Coupon::normalizeCode($couponCode);
-        $hash = hash('sha256', json_encode([$product->getMorphClass(), $product->id, $email, $phone, $flow, $couponCode], JSON_THROW_ON_ERROR));
+        $hash = self::requestHash($product, $email, $phone, $flow, $couponCode);
         $payment = DB::transaction(function () use ($product, $email, $phone, $operation, $flow, $hash, $couponCode): Payment {
             $product = $product->newQuery()->whereKey($product->getKey())->lockForUpdate()->firstOrFail();
             $purchase = Purchase::query()->where('operation_key', $operation)->lockForUpdate()->first();
