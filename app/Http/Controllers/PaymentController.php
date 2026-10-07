@@ -30,21 +30,39 @@ class PaymentController extends Controller
             default => abort(404),
         };
         $product = $model::query()->where('slug', $slug)->where('is_active', true)->firstOrFail();
-        $operation = self::operation($request, $type.'_'.$product->id);
+        $operation = self::operation($request, $type.'_'.$product->id, PurchaseService::requestHash($product, $request->validated('email'), $request->validated('phone')));
         $payment = $this->purchases->start($product, $request->validated('email'), $request->validated('phone'), $operation);
         self::remember($request, $payment);
 
         return redirect()->route('payments.redirect', $payment);
     }
 
-    public static function operation(Request $request, string $scope): string
+    /**
+     * Número de operación guardado en la sesión para no cobrar dos veces.
+     *
+     * Si se indica la huella de los datos ($requestHash), se usa un número
+     * nuevo cuando el guardado pertenece a una compra con otros datos o a una
+     * compra ya terminada. Así el cliente puede volver a comprar desde el
+     * mismo navegador (por ejemplo, para otra empresa después de renovar).
+     */
+    public static function operation(Request $request, string $scope, ?string $requestHash = null): string
     {
         $key = 'payment_operations.'.$scope;
-        if (! $request->session()->has($key)) {
-            $request->session()->put($key, (string) Str::uuid());
+        $current = $request->session()->get($key);
+
+        if (is_string($current) && $requestHash !== null) {
+            $purchase = Purchase::query()->where('operation_key', $current)->first(['request_hash', 'status']);
+            if ($purchase && (! hash_equals($purchase->request_hash, $requestHash) || in_array($purchase->status, ['fulfilled', 'cancelled'], true))) {
+                $current = null;
+            }
         }
 
-        return $request->session()->get($key);
+        if (! is_string($current)) {
+            $current = (string) Str::uuid();
+            $request->session()->put($key, $current);
+        }
+
+        return $current;
     }
 
     public static function remember(Request $request, Payment $payment): void
