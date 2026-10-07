@@ -41,7 +41,7 @@ class ContractConfirmedToCompany extends Mailable
                 'displayName' => $this->displayName(),
                 'rut' => $this->rut(),
                 'companyName' => $this->companyName(),
-                'priceOffice' => $this->plan->price_office,
+                'paidAmount' => (int) ($this->payment['amount'] ?? $this->plan->total_price),
                 'payment' => $this->payment,
                 'isRenewal' => $this->isRenewal,
             ],

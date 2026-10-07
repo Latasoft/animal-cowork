@@ -25,7 +25,7 @@ Se registró una nueva contratación de Oficina Virtual con los siguientes antec
 @endif
 **Plan contratado:** {{ $plan->name }}
 
-**Precio del plan:** ${{ number_format($priceOffice, 0, ',', '.') }} CLP
+**Monto pagado:** ${{ number_format($paidAmount, 0, ',', '.') }} CLP
 
 @if ($payment)
 @if (($payment['method'] ?? 'webpay') === 'transfer')

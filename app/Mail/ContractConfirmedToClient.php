@@ -14,6 +14,7 @@ class ContractConfirmedToClient extends Mailable
     public function __construct(
         public Client $client,
         public Plan $plan,
+        private ?int $paidAmount = null,
     ) {}
 
     public function envelope(): Envelope
@@ -30,7 +31,7 @@ class ContractConfirmedToClient extends Mailable
             with: [
                 'displayName' => $this->client->representative_name,
                 'planName' => $this->plan->name,
-                'totalPrice' => $this->plan->total_price,
+                'totalPrice' => $this->paidAmount ?? $this->plan->total_price,
                 'durationMonths' => $this->plan->contract_duration_months,
             ],
         );
