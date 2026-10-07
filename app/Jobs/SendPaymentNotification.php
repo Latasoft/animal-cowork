@@ -51,7 +51,7 @@ class SendPaymentNotification implements ShouldQueue
                 }
                 $mail = $notification->recipient_type === 'internal'
                     ? new ContractConfirmedToCompany($client, $plan, $pdf, $payload['pdf_name'], $payload['payment'] ?? null, ($payload['flow'] ?? 'checkout') === 'renewal')
-                    : new ContractConfirmedToClient($client, $plan);
+                    : new ContractConfirmedToClient($client, $plan, isset($payload['payment']['amount']) ? (int) $payload['payment']['amount'] : null);
             } elseif ($notification->event === 'reservation_confirmed') {
                 $mail = new MeetingRoomReservationConfirmed(Reservation::query()->findOrFail($notification->notifiable_id));
             } elseif ($notification->event === 'plan_paid') {

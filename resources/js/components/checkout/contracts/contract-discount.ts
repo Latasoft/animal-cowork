@@ -1,22 +1,17 @@
 import type { ContractDiscount } from '@/types/checkout';
-import { formatClp } from '@/utils/currency';
 
 /**
- * Frase del contrato cuando la contratación tuvo descuento
- * (cupón o transferencia por un monto menor). Sin descuento, no se agrega nada.
+ * Renta que se escribe en el contrato: el precio de oficina del plan
+ * menos el descuento aplicado (cupón o transferencia por un monto menor).
+ * Así el contrato muestra el monto que el cliente realmente pagó.
  */
-export function contractDiscountParagraphs(
+export function contractRent(
+    priceOffice: number,
     discount: ContractDiscount | null | undefined,
-): string[] {
+): number {
     if (!discount || discount.amount <= 0) {
-        return [];
+        return priceOffice;
     }
 
-    const applied = discount.code
-        ? `el cupón de descuento ${discount.code} por ${formatClp(discount.amount)}`
-        : `un descuento de ${formatClp(discount.amount)}`;
-
-    return [
-        `En esta contratación se aplicó ${applied}, por lo que el monto total pagado fue de ${formatClp(discount.total)}.`,
-    ];
+    return Math.max(0, priceOffice - discount.amount);
 }

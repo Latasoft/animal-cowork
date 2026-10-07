@@ -28,6 +28,7 @@ class ContractNotificationService
             'flow' => $isRenewal ? 'renewal' : 'checkout',
             'payment' => $payment ? [
                 'buy_order' => $payment->buy_order,
+                'amount' => (int) $payment->amount,
                 'authorization_code' => (string) ($payment->authorization_code ?? ''),
                 'date' => $paymentDate?->timezone('America/Santiago')->format('d/m/Y H:i') ?? '',
                 'method' => TransferPurchaseService::isTransfer($payment) ? 'transfer' : 'webpay',

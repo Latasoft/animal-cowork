@@ -39,6 +39,7 @@ class ContractConfirmationService
                 return [$existing->client, $existing];
             }
             $client = $this->upsertClient($data);
+            [$priceOffice, $priceAdditional] = $this->paidPrices($plan, $purchase);
 
             $subscription = $client->subscriptions()->create([
                 'purchase_id' => $purchase->id,
@@ -49,8 +50,8 @@ class ContractConfirmationService
 
                 'status' => Subscription::STATUS_ACTIVE,
 
-                'price_office' => $plan->price_office,
-                'price_additional' => $plan->price_additional,
+                'price_office' => $priceOffice,
+                'price_additional' => $priceAdditional,
 
                 'includes_room_access' => $plan->includes_room_access,
                 'monthly_room_minutes_included' => $plan->monthly_room_minutes_included,
@@ -129,6 +130,25 @@ class ContractConfirmationService
         $client->update($clientData);
 
         return $client;
+    }
+
+    /**
+     * Precios que se guardan en la suscripción: los del plan menos el
+     * descuento de la compra (cupón o transferencia por un monto menor).
+     * Así el panel muestra lo que el cliente realmente pagó.
+     *
+     * @return array{0: int, 1: int}
+     */
+    private function paidPrices(Plan $plan, Purchase $purchase): array
+    {
+        $office = (int) $plan->price_office;
+        $additional = (int) $plan->price_additional;
+        $discount = max(0, (int) $purchase->discount_amount);
+
+        $fromOffice = min($discount, $office);
+        $fromAdditional = min($discount - $fromOffice, $additional);
+
+        return [$office - $fromOffice, $additional - $fromAdditional];
     }
 
     private function startsAt(): CarbonImmutable

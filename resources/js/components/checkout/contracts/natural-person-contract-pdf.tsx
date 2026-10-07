@@ -6,7 +6,7 @@ import type {
 } from '@/types/checkout';
 import type { Plan } from '@/types/plan';
 import { formatClp } from '@/utils/currency';
-import { contractDiscountParagraphs } from './contract-discount';
+import { contractRent } from './contract-discount';
 import type {
     ContractClause,
     ContractContent,
@@ -73,9 +73,8 @@ export function getNaturalPersonContractContent(
         {
             heading: 'QUINTO. Renta:',
             paragraphs: [
-                `La renta de arrendamiento será de ${formatClp(plan.priceOffice)}.-, cantidad que se pagará cada ${plan.contractDurationMonths} meses. Esta renta se pagará por anticipado, antes de la fecha de cada periodo de vencimiento mediante un depósito en:`,
+                `La renta de arrendamiento será de ${formatClp(contractRent(plan.priceOffice, discount))}.-, cantidad que se pagará cada ${plan.contractDurationMonths} meses. Esta renta se pagará por anticipado, antes de la fecha de cada periodo de vencimiento mediante un depósito en:`,
                 'CUENTA CORRIENTE N° 0-000-8438383-0\nBANCO SANTANDER.\nNOMBRE: ANIMAL COWORKING GROUP\nRUT: 77.188.172-6',
-                ...contractDiscountParagraphs(discount),
                 'En Su defecto el lugar de pago es calle EULOGIA SANCHEZ #065, comuna de Providencia. Si la renta de arrendamiento no se pagare dentro de los días indicados, se considerará como incumplimiento de contrato por parte del sub-Arrendatario y dará derecho al sub-Arrendador a poner término al mismo.',
                 'En caso de mora o simple retardo en el pago de la renta, el Sub-Arrendatario deberá pagar, además de la suma adeudada, un interés por mora equivalente al 0,04% diario sobre el monto impago, calculado desde la fecha de vencimiento hasta el pago efectivo.',
                 'Asimismo, se aplicará un cargo fijo único de $5.000 por concepto de gastos administrativos razonables derivados de la gestión de cobranza y regularización del pago.',
