@@ -2,7 +2,7 @@
 
 Plataforma web para la contratación y gestión de servicios de oficina virtual en Chile.
 
-Animal Co-work busca ofrecer una experiencia de contratación moderna, rápida y completamente digital, permitiendo que emprendedores, personas naturales y empresas seleccionen un plan, ingresen sus datos, revisen su contrato, realicen el pago y completen el proceso desde una misma plataforma. Tambien permitiendo reservas salas mediante el sistema de reservas de la aplicación
+Animal Co-work busca ofrecer una experiencia de contratación moderna, rápida y completamente digital, permitiendo que emprendedores, personas naturales y empresas seleccionen un plan, ingresen sus datos, revisen su contrato, realicen el pago y completen el proceso desde una misma plataforma. También permite reservar salas mediante el sistema de reservas de la aplicación.
 
 El proyecto se está desarrollando inicialmente como una landing page web autoadministrable con panel administrativo, gestión de clientes, contratos, pagos, contenido, servicios y sistema de reservas.
 
@@ -29,10 +29,15 @@ El proyecto se está desarrollando inicialmente como una landing page web autoad
 * [Gestión de contratos](#gestión-de-contratos)
 * [Panel administrativo](#panel-administrativo)
 * [Despliegue](#despliegue)
+* [Optimización de imágenes](#optimización-de-imágenes)
 * [Roadmap](#roadmap)
 * [Convenciones de desarrollo](#convenciones-de-desarrollo)
+* [Pruebas](#pruebas)
 * [Seguridad](#seguridad)
+* [Consideraciones legales](#consideraciones-legales)
 * [Repositorio](#repositorio)
+* [Autoría y desarrollo](#autoría-y-desarrollo)
+* [Licencia](#licencia)
 
 ---
 
@@ -53,8 +58,8 @@ La aplicación permitirá que personas naturales y jurídicas puedan:
 * Realizar el pago del servicio.
 * Recibir comunicaciones relacionadas con su contratación.
 * Gestionar posteriormente renovaciones y servicios asociados.
-* Reservar una sala disponible con la posibilidad de reclamar sus horas incluidas en el plan
-* Visualizar oficinas privadas
+* Reservar una sala disponible, con la posibilidad de utilizar las horas incluidas en su plan.
+* Visualizar oficinas privadas.
 
 La plataforma también contará con un sistema administrativo para gestionar el contenido de la página, planes, clientes, solicitudes, contratos y pagos.
 
@@ -77,7 +82,7 @@ Crear una plataforma digital que permita contratar una oficina virtual de manera
 * Centralizar la información de clientes y contratos.
 * Permitir que el contenido de la web sea administrado sin modificar código.
 * Mantener una experiencia visual coherente con la marca Animal Co-work.
-* Permitir reservar salas de manera virtual
+* Permitir reservar salas de manera virtual.
 
 ---
 
@@ -139,9 +144,9 @@ El formulario podrá incluir:
 
 * Nombre completo.
 * RUT.
-* RUT de representante legal
+* RUT de representante legal.
 * Razón social.
-* Dirección del representante legal
+* Dirección del representante legal.
 
 #### Persona jurídica
 
@@ -149,9 +154,9 @@ El formulario podrá incluir:
 
 * Nombre completo.
 * RUT.
-* RUT de representante legal
+* RUT de representante legal.
 * Razón social.
-* Dirección del representante legal
+* Dirección del representante legal.
 
 ### Paso 3: Previsualización y confirmación del contrato
 
@@ -170,14 +175,14 @@ La previsualización debe:
 * Reemplazar los campos dinámicos con los datos del cliente.
 * Mostrar los datos del plan seleccionado.
 * Mostrar la duración del servicio.
-* Mostrar el valor contratado (Solamente el valor referente a oficina virtual "Price ofice").
+* Mostrar el valor contratado (solamente el valor referente a oficina virtual, `price_office`).
 * Mostrar los datos de Animal Co-work.
 * Permitir revisar el contenido antes de confirmar.
 * Adaptarse correctamente a escritorio y dispositivos móviles.
 * Mantener una presentación clara y similar a un documento formal.
 * Mostrar páginas o secciones de forma legible.
 * Evitar modificar el contenido legal que no sea dinámico.
-* Evitar descargar la previsualización del contrato
+* Evitar la descarga de la previsualización del contrato.
 
 En la parte inferior de la página se mostrará el botón:
 
@@ -189,9 +194,9 @@ Al confirmar:
 2. Se registra la aceptación del documento.
 3. Se guarda la versión exacta del contrato aceptado.
 4. Se registra la fecha y hora de confirmación.
-5. Se registra el cliente en la base de datos
+5. Se registra el cliente en la base de datos.
 6. El contrato se envía al correo corporativo destinado a su procesamiento.
-7. Se informa al usuario que la solicitud fue recibida correctamente (Por correo).
+7. Se informa al usuario, por correo, que la solicitud fue recibida correctamente.
 8. Un ejecutivo toma contacto con el cliente.
 
 La confirmación del contrato debe evitar envíos duplicados.
@@ -212,8 +217,9 @@ El sistema deberá:
 
 ### Paso 5: Firma electrónica
 
-La gestionará un ejecutivo
+La firma electrónica es gestionada por un ejecutivo.
 
+---
 
 ## Planes disponibles
 
@@ -232,9 +238,9 @@ Incluye:
 * Escaneo de documentos.
 * Acceso a sala de reuniones.
 
-**Precio oficina (se muestra en contrato):** $59.990
-**Precio adicional:** $0
-**Precio total:** $59.990
+* **Precio oficina (se muestra en contrato):** $59.990
+* **Precio adicional:** $0
+* **Precio total:** $59.990
 
 ### LOBO
 
@@ -250,9 +256,9 @@ Incluye:
 * Escaneo de documentos.
 * Acceso a sala de reuniones.
 
-**Precio oficina (se muestra en contrato):** $47.580
-**Precio adicional:** $42.410
-**Precio total:** $89.990
+* **Precio oficina (se muestra en contrato):** $47.580
+* **Precio adicional:** $42.410
+* **Precio total:** $89.990
 
 ### LEÓN
 
@@ -265,9 +271,9 @@ Incluye:
 * Escaneo de documentos.
 * Acceso a sala de reuniones.
 
-**Precio oficina (se muestra en contrato):** $59.990
-**Precio adicional:** $38.010
-**Precio total:** $98.000
+* **Precio oficina (se muestra en contrato):** $59.990
+* **Precio adicional:** $38.010
+* **Precio total:** $98.000
 
 ### Renovación de contratos
 
@@ -277,7 +283,7 @@ Texto de referencia:
 
 > ¿Necesitas renovar tu contrato? Renueva aquí.
 
-Esta sección deberá dirigir al flujo normal de contratación y guardar el plan seleccionado. en esta sección siempre vamos a recomendar renovar el plan fenix
+Esta sección deberá dirigir al flujo normal de contratación y guardar el plan seleccionado. En esta sección siempre se recomendará renovar el plan Fénix.
 
 ---
 
@@ -313,7 +319,7 @@ Esta arquitectura evita mantener dos aplicaciones completamente separadas y perm
 * Preparar integraciones externas mediante servicios independientes.
 * Mantener control de versiones de los contratos.
 * Evitar dependencias innecesarias.
-* Priorizar compatibilidad con hosting tradicional (Ihost).
+* Priorizar compatibilidad con hosting tradicional (iHost).
 
 ---
 
@@ -329,7 +335,7 @@ Esta arquitectura evita mantener dos aplicaciones completamente separadas y perm
 * Laravel Mail.
 * Laravel Validation.
 * Laravel Queues para procesos que puedan ejecutarse de forma diferida.
-* Filament 4 para el panel administrativo. 
+* Filament 4 para el panel administrativo.
 
 ### Frontend
 
@@ -506,9 +512,9 @@ La página principal incluye o incluirá:
 * Indicador de más de 6.000 emprendedores.
 * Sección de planes.
 * Sección de renovación.
-* Sección de servicios
-* Pasos para contratar oficina virtual
-* Sección de servicios de salas
+* Sección de servicios.
+* Pasos para contratar oficina virtual.
+* Sección de servicios de salas.
 * Sección de preguntas frecuentes.
 * Footer.
 * Enlaces legales.
@@ -534,7 +540,7 @@ El header debe:
 
 El hero actual utiliza:
 * Fondo blanco.
-* Imagen principal a la derecha
+* Imagen principal a la derecha.
 * Texto principal.
 * Mensaje comunitario.
 * Llamado a la acción.
@@ -701,7 +707,7 @@ app/
 * Imágenes conceptuales de Fénix, Lobo y León.
 * Optimización de imágenes a WebP.
 * Repositorio Git configurado.
-* Pruebas iniciales de despliegue (En railway).
+* Pruebas iniciales de despliegue (en Railway).
 * Flujo completo de contratación.
 * Formulario para persona natural.
 * Formulario para persona jurídica.
@@ -710,20 +716,20 @@ app/
 * Sección de renovación.
 * Gestión de planes.
 * Gestión de clientes.
-* Gestión de oficinas privadas
-* Gestión de salas de reuniones
-* Gestión de reservas (Bloqueo de fechas y horarios)
+* Gestión de oficinas privadas.
+* Gestión de salas de reuniones.
+* Gestión de reservas (bloqueo de fechas y horarios).
 * Control de errores en frontend.
 * Previsualización de contratos.
 * Envío automático por correo.
-* Registro de cliente al contratar un plan
+* Registro de cliente al contratar un plan.
 
 ### En desarrollo
 
 ### Pendiente
 
-* Convertir landing en CMS
-* Sistema de cupones de descuento
+* Convertir la landing en CMS.
+* Sistema de cupones de descuento.
 * Validaciones del backend.
 * Persistencia de solicitudes.
 * Pasarela de pagos.
@@ -863,7 +869,7 @@ También se puede utilizar:
 php artisan migrate --seed
 ```
 
-### 8. Crear el enlace de almacenamiento (Siempre hacerlo en cada despliegue de railway)
+### 8. Crear el enlace de almacenamiento (hacerlo siempre en cada despliegue en Railway)
 
 ```bash
 php artisan storage:link
@@ -876,8 +882,11 @@ En una terminal:
 ```bash
 php artisan serve
 ```
+
+O bien, para levantar todo junto:
+
 ```bash
-Composer run dev
+composer run dev
 ```
 
 En otra terminal:
@@ -1036,7 +1045,8 @@ php artisan route:list
 ## Base de datos
 
 La base de datos debe diseñarse de manera modular y normalizada.
-# Modelo de Base de Datos
+
+### Modelo de base de datos
 
 La base de datos de **Animal Co-work** está diseñada para soportar la gestión de planes de oficina virtual, clientes, suscripciones, usuarios administrativos, salas de reuniones y reservas.
 
@@ -1050,8 +1060,8 @@ Actualmente, el modelo principal está compuesto por las siguientes tablas:
 - `rooms_blocks`
 - `reservations`
 - `private_offices`
-- `CompanyFormationService`
-- `PatentManagementService`
+- `company_formation_services`
+- `patent_management_services`
 
 ## Diagrama Entidad-Relación
 
@@ -1219,41 +1229,41 @@ erDiagram
         timestamp updated_at
     }
 
-    COMPANY_FORMATION_SERVICES (
-        id bigint PRIMARY KEY,
-        slug string UNIQUE,
-        eyebrow string,
-        title string,
-        description text,
-        external_service_label string,
-        external_service_title string,
-        external_service_price int,
-        external_service_description text,
-        virtual_office_label string,
-        virtual_office_title string,
-        virtual_office_price int,
-        virtual_office_duration string,
-        service_section_eyebrow string,
-        service_section_title string,
-        service_section_description text,
-        requirements json,
-        foreigner_notice text,
-        included_services_title string,
-        included_services json,
-        contact_title string,
-        contact_description text,
-        contact_email string,
-        contact_whatsapp string,
-        image string,
-        image_alt string,
-        primary_action_label string,
-        primary_action_href string,
-        is_active boolean,
-        sort_order int,
-        created_at timestamp,
-        updated_at timestamp,
-        deleted_at timestamp
-    );
+    COMPANY_FORMATION_SERVICES {
+        bigint id PK
+        string slug UK
+        string eyebrow
+        string title
+        text description
+        string external_service_label
+        string external_service_title
+        int external_service_price
+        text external_service_description
+        string virtual_office_label
+        string virtual_office_title
+        int virtual_office_price
+        string virtual_office_duration
+        string service_section_eyebrow
+        string service_section_title
+        text service_section_description
+        json requirements
+        text foreigner_notice
+        string included_services_title
+        json included_services
+        string contact_title
+        text contact_description
+        string contact_email
+        string contact_whatsapp
+        string image
+        string image_alt
+        string primary_action_label
+        string primary_action_href
+        boolean is_active
+        int sort_order
+        timestamp created_at
+        timestamp updated_at
+        timestamp deleted_at
+    }
 
     PATENT_MANAGEMENT_SERVICES {
         bigint id PK
@@ -1261,27 +1271,19 @@ erDiagram
         string eyebrow
         string title
         text description
-
         string service_section_title
         text service_section_description
-
         text legal_notice
-
         int service_price
         string currency
-
         text municipal_payment_detail
         text exclusive_notice
-
         string image
         string image_alt
-
         string primary_action_label
         string primary_action_href
-
         boolean is_active
         int sort_order
-
         timestamp created_at
         timestamp updated_at
         timestamp deleted_at
@@ -1986,9 +1988,9 @@ Estos permiten disponer de:
 * Salas configuradas.
 * Reservas gratuitas y pagadas.
 * Reservas de público general.
-* Page de manejo de patente
-* Oficinas privadas
-* Page de formacion de empresa
+* Página de gestión de patente.
+* Oficinas privadas.
+* Página de formación de empresa.
 
 Los datos ficticios utilizan dominios como:
 
@@ -2063,7 +2065,7 @@ Los contratos pueden incluir variables como:
 * Permitir exportar a PDF en una etapa posterior.
 * Permitir descargar o enviar el documento.
 * Mantener trazabilidad.
-* Solamente usar el precio price_office en el contraro, pero mostrar el total al cliente
+* Usar solamente el precio `price_office` en el contrato, pero mostrar el total al cliente.
 
 ### Estados sugeridos
 
@@ -2092,10 +2094,9 @@ El panel administrativo permitirá gestionar el contenido y la operación del ne
 * Roles y permisos.
 * Dashboard.
 * Gestión de planes.
-* Gestión de salas
+* Gestión de salas de reuniones.
 * Gestión de clientes.
 * Gestión de oficinas privadas.
-* Gestión de sala de reuniones.
 * Gestión de reservas y bloqueo de reservas.
 * Gestión de contenido de la landing.
 * Filtros y búsquedas.
@@ -2196,11 +2197,13 @@ Ejemplo de cron:
 ```bash
 * * * * * cd /ruta/al/proyecto && php artisan schedule:run >> /dev/null 2>&1
 ```
-11. Envío de correos
-Actualmente la aplicación utiliza Laravel Mail + SMTP de Gmail.
+11. Configurar el envío de correos.
+
+Actualmente la aplicación utiliza Laravel Mail con SMTP de Gmail.
 
 Configuración:
 
+```env
 MAIL_MAILER=smtp
 MAIL_SCHEME=null
 MAIL_HOST=smtp.gmail.com
@@ -2212,52 +2215,58 @@ MAIL_FROM_NAME="Animal Coworking"
 
 CONTRACT_SEND_MAIL=ejemplo@gmail.com
 RESERVATION_RECEPTION_EMAIL=ejemplo@gmail.com
+```
 
-MAIL_PASSWORD corresponde a una contraseña de aplicación de Google, no a la contraseña normal de Gmail.
+`MAIL_PASSWORD` corresponde a una contraseña de aplicación de Google, no a la contraseña normal de Gmail.
 
-Railway
+**Railway**
 
-El envío funciona correctamente en local, pero en Railway falla por bloqueo/restricción de SMTP saliente.
+El envío funciona correctamente en local, pero en Railway falla por bloqueo o restricción de SMTP saliente.
 
 Se comprobó directamente desde el contenedor:
 
+```text
 fsockopen("smtp.gmail.com", 587)
 # Connection timed out
 
 fsockopen("smtp.gmail.com", 465)
 # Connection timed out
+```
 
 El error de Laravel:
 
+```text
 Maximum execution time of 30 seconds exceeded
 Symfony\Component\Mailer\Transport\Smtp\Stream\SocketStream.php
+```
 
 es consecuencia del timeout de conexión SMTP y no de un problema con las credenciales o el código de Laravel.
 
-Producción
+**Producción en Railway**
 
-En Railway se debe mantener:
+Se debe mantener:
 
+```env
 APP_ENV=production
 APP_DEBUG=false
 BOOST_ENABLED=false
+```
 
 para evitar que Laravel Boost quede activo en producción.
 
-Migración futura
+**Migración futura a iHost**
 
-Recomendación de envío de correos en iHost
-
-Para el despliegue definitivo en iHost, se recomienda utilizar el mismo método implementado en INV Paredones: envío mediante la función nativa mail() de PHP, utilizando el servicio de correo del propio hosting.
+Para el despliegue definitivo en iHost, se recomienda utilizar el mismo método implementado en INV Paredones: envío mediante la función nativa `mail()` de PHP, utilizando el servicio de correo del propio hosting.
 
 De esta forma, se elimina la dependencia de:
 
-SMTP de Gmail.
-Contraseñas de aplicación.
-Puertos SMTP externos.
+* SMTP de Gmail.
+* Contraseñas de aplicación.
+* Puertos SMTP externos.
 
 El flujo será:
 
+```text
 Laravel / PHP
     ↓
 mail()
@@ -2265,8 +2274,9 @@ mail()
 Servidor de correo de iHost
     ↓
 Correo del destinatario
+```
 
-La configuración SMTP de Gmail utilizada actualmente se mantiene únicamente para el entorno donde funciona correctamente. Al migrar a iHost, se deberá adaptar el envío para utilizar mail() como en INV Paredones.
+La configuración SMTP de Gmail utilizada actualmente se mantiene únicamente para el entorno donde funciona correctamente. Al migrar a iHost, se deberá adaptar el envío para utilizar `mail()`, como en INV Paredones.
 
 12. Configurar procesamiento de colas si el hosting lo permite.
 
@@ -2296,7 +2306,7 @@ Cuando exista un proxy inverso, Laravel debe confiar correctamente en los encabe
 
 Se realizaron pruebas de despliegue en Railway.
 
-* La aplicación se encuentra funcional, con el dallo en envio de correos del paso 11 (SMPT funciona en local) y se dea una recomendacion para despliegue en ihost
+* La aplicación se encuentra funcional, con la excepción del envío de correos descrito en el paso 11 (SMTP funciona en local). Se deja una recomendación para el despliegue en iHost.
 
 Railway se utilizó como entorno de prueba, pero el objetivo final continúa siendo iHost.
 
@@ -2383,9 +2393,9 @@ Antes de eliminar archivos originales se recomienda verificar que los WebP se ha
 * [x] Crear roles.
 * [x] Crear permisos.
 * [x] Gestionar planes.
-* [x] Gestionar salas de reuniones
-* [x] Gestionar oficinas privadas
-* [x] Gestionar reservas
+* [x] Gestionar salas de reuniones.
+* [x] Gestionar oficinas privadas.
+* [x] Gestionar reservas.
 * [x] Gestionar clientes.
 * [ ] Crear dashboard.
 * [ ] Gestionar contenidos de la landing.
@@ -2494,8 +2504,8 @@ Se deben implementar pruebas para las funcionalidades críticas.
 * Envío de correo.
 * Estados de pago.
 * Permisos administrativos.
-* Reservas
-* CRUD de paneles administrativos
+* Reservas.
+* CRUD de paneles administrativos.
 
 ### Pruebas de frontend
 
