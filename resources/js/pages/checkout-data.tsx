@@ -32,6 +32,12 @@ interface CheckoutDataPageProps {
 
 const emptyContractData: ContractDataFormData = {
     representative_name: '',
+    first_name: '',
+    second_name: '',
+    has_no_second_name: false,
+    first_last_name: '',
+    second_last_name: '',
+    has_no_second_last_name: false,
     representative_rut: '',
     company_name: '',
     company_rut: '',
@@ -41,6 +47,24 @@ const emptyContractData: ContractDataFormData = {
     company_in_progress: false,
     is_natural_person: false,
 };
+
+/**
+ * Une las partes del nombre en un solo texto para el contrato.
+ * Ejemplo: "Camila Fernanda Armijo Silva".
+ * Si la persona marcó que no tiene segundo nombre o apellido,
+ * esa parte se omite.
+ */
+function buildFullName(data: ContractDataFormData): string {
+    return [
+        data.first_name,
+        data.has_no_second_name ? '' : data.second_name,
+        data.first_last_name,
+        data.has_no_second_last_name ? '' : data.second_last_name,
+    ]
+        .map((part) => part.trim())
+        .filter(Boolean)
+        .join(' ');
+}
 
 export default function CheckoutData({
     plan,
@@ -69,6 +93,15 @@ export default function CheckoutData({
 
         setData({
             representative_name: storedData.representative_name,
+            // Las sesiones guardadas antes de este cambio no tienen
+            // el nombre separado; en ese caso los campos quedan vacíos.
+            first_name: storedData.first_name ?? '',
+            second_name: storedData.second_name ?? '',
+            has_no_second_name: storedData.has_no_second_name ?? false,
+            first_last_name: storedData.first_last_name ?? '',
+            second_last_name: storedData.second_last_name ?? '',
+            has_no_second_last_name:
+                storedData.has_no_second_last_name ?? false,
             representative_rut: storedData.representative_rut,
             company_name: storedData.company_name,
             company_rut: storedData.company_rut,
@@ -91,8 +124,12 @@ export default function CheckoutData({
             message: string;
         }> = [
             {
-                field: 'representative_name',
-                message: 'Debes ingresar el nombre completo.',
+                field: 'first_name',
+                message: 'Debes ingresar el primer nombre.',
+            },
+            {
+                field: 'first_last_name',
+                message: 'Debes ingresar el primer apellido.',
             },
             {
                 field: 'representative_rut',
@@ -121,6 +158,24 @@ export default function CheckoutData({
                 setError(field, message);
                 isValid = false;
             }
+        }
+
+        // Segundo nombre: obligatorio, salvo que marque "No tengo segundo nombre".
+        if (!data.has_no_second_name && !data.second_name.trim()) {
+            setError(
+                'second_name',
+                'Ingresa el segundo nombre o marca "No tengo segundo nombre".',
+            );
+            isValid = false;
+        }
+
+        // Segundo apellido: obligatorio, salvo que marque "No tengo segundo apellido".
+        if (!data.has_no_second_last_name && !data.second_last_name.trim()) {
+            setError(
+                'second_last_name',
+                'Ingresa el segundo apellido o marca "No tengo segundo apellido".',
+            );
+            isValid = false;
         }
 
         if (!data.is_natural_person && !data.company_name.trim()) {
@@ -168,6 +223,8 @@ export default function CheckoutData({
 
         const contractData: ContractGenerationData = {
             ...data,
+            // El contrato y el servidor siguen recibiendo un solo nombre completo.
+            representative_name: buildFullName(data),
             company_in_progress:
                 flow === 'renewal' ? false : data.company_in_progress,
             ...createAutomaticContractDates(plan.contractDurationMonths),

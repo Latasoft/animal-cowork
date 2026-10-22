@@ -72,6 +72,27 @@ export function ContractDataForm({
         }
     }
 
+    /**
+     * Si la persona indica que no tiene segundo nombre
+     * o segundo apellido, se limpia el campo para que
+     * no quede texto escrito por error.
+     */
+    function handleNoSecondNameChange(checked: boolean) {
+        setData('has_no_second_name', checked);
+
+        if (checked) {
+            setData('second_name', '');
+        }
+    }
+
+    function handleNoSecondLastNameChange(checked: boolean) {
+        setData('has_no_second_last_name', checked);
+
+        if (checked) {
+            setData('second_last_name', '');
+        }
+    }
+
     return (
         <form
             id="contract-data-form"
@@ -151,17 +172,80 @@ export function ContractDataForm({
                 >
                     <div className="grid gap-x-6 gap-y-6 md:grid-cols-2">
                         <FormField
-                            label="Nombre completo"
-                            name="representative_name"
-                            value={data.representative_name}
-                            onChange={(value) =>
-                                setData('representative_name', value)
-                            }
-                            placeholder="Nombre y apellidos"
-                            autoComplete="name"
-                            error={errors.representative_name}
+                            label="Primer nombre"
+                            name="first_name"
+                            value={data.first_name}
+                            onChange={(value) => setData('first_name', value)}
+                            placeholder="Ej: Camila"
+                            autoComplete="given-name"
+                            error={errors.first_name}
                             disabled={processing}
                         />
+
+                        <div>
+                            <FormField
+                                label="Segundo nombre"
+                                name="second_name"
+                                value={data.second_name}
+                                onChange={(value) =>
+                                    setData('second_name', value)
+                                }
+                                placeholder="Ej: Fernanda"
+                                autoComplete="additional-name"
+                                error={errors.second_name}
+                                disabled={
+                                    processing || data.has_no_second_name
+                                }
+                                required={!data.has_no_second_name}
+                            />
+
+                            <CheckboxOption
+                                name="has_no_second_name"
+                                label="No tengo segundo nombre"
+                                checked={data.has_no_second_name}
+                                onChange={handleNoSecondNameChange}
+                                disabled={processing}
+                            />
+                        </div>
+
+                        <FormField
+                            label="Primer apellido"
+                            name="first_last_name"
+                            value={data.first_last_name}
+                            onChange={(value) =>
+                                setData('first_last_name', value)
+                            }
+                            placeholder="Ej: Armijo"
+                            autoComplete="family-name"
+                            error={errors.first_last_name}
+                            disabled={processing}
+                        />
+
+                        <div>
+                            <FormField
+                                label="Segundo apellido"
+                                name="second_last_name"
+                                value={data.second_last_name}
+                                onChange={(value) =>
+                                    setData('second_last_name', value)
+                                }
+                                placeholder="Ej: Silva"
+                                autoComplete="off"
+                                error={errors.second_last_name}
+                                disabled={
+                                    processing || data.has_no_second_last_name
+                                }
+                                required={!data.has_no_second_last_name}
+                            />
+
+                            <CheckboxOption
+                                name="has_no_second_last_name"
+                                label="No tengo segundo apellido"
+                                checked={data.has_no_second_last_name}
+                                onChange={handleNoSecondLastNameChange}
+                                disabled={processing}
+                            />
+                        </div>
 
                         <FormField
                             label={
@@ -372,6 +456,37 @@ function FormSection({
 
             {children}
         </section>
+    );
+}
+
+interface CheckboxOptionProps {
+    name: string;
+    label: string;
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+    disabled?: boolean;
+}
+
+function CheckboxOption({
+    name,
+    label,
+    checked,
+    onChange,
+    disabled = false,
+}: CheckboxOptionProps) {
+    return (
+        <label className="mt-3 flex cursor-pointer items-center gap-3 text-sm font-semibold text-deep-blue/70">
+            <input
+                type="checkbox"
+                name={name}
+                checked={checked}
+                onChange={(event) => onChange(event.target.checked)}
+                disabled={disabled}
+                className="size-4 shrink-0 cursor-pointer rounded border-deep-blue/25 accent-instinct focus:ring-instinct disabled:cursor-not-allowed"
+            />
+
+            {label}
+        </label>
     );
 }
 
