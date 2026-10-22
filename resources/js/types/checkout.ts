@@ -24,6 +24,13 @@ export type SetCheckoutFormData = <Key extends keyof CheckoutFormData>(
 
 export interface ContractDataFormData {
     representative_name: string;
+    // Nombre separado en partes. Se unen en representative_name al enviar.
+    first_name: string;
+    second_name: string;
+    has_no_second_name: boolean;
+    first_last_name: string;
+    second_last_name: string;
+    has_no_second_last_name: boolean;
     representative_rut: string;
     company_name: string;
     company_rut: string;
