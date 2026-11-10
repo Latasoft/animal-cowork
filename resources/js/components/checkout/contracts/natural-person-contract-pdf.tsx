@@ -1,6 +1,7 @@
 import { formatContractDate } from '@/lib/contract-dates';
 
 import type {
+    CheckoutFlow,
     ContractDiscount,
     ContractGenerationData,
 } from '@/types/checkout';
@@ -13,12 +14,14 @@ import type {
     ContractLogoSource,
 } from './contract-pdf-layout';
 import { ContractPdfLayout } from './contract-pdf-layout';
+import { contractRepresentative } from './contract-representative';
 
 interface NaturalPersonContractPdfProps {
     data: ContractGenerationData;
     plan: Plan;
     logoSource: ContractLogoSource;
     discount?: ContractDiscount | null;
+    flow?: CheckoutFlow;
 }
 
 function uppercase(value: string): string {
@@ -30,8 +33,9 @@ export function NaturalPersonContractPdf({
     plan,
     logoSource,
     discount = null,
+    flow = 'checkout',
 }: NaturalPersonContractPdfProps) {
-    const content = getNaturalPersonContractContent(data, plan, discount);
+    const content = getNaturalPersonContractContent(data, plan, discount, flow);
 
     return <ContractPdfLayout {...content} logoSource={logoSource} />;
 }
@@ -40,8 +44,10 @@ export function getNaturalPersonContractContent(
     data: ContractGenerationData,
     plan: Plan,
     discount: ContractDiscount | null = null,
+    flow: CheckoutFlow = 'checkout',
 ): ContractContent {
-    const introduction = `En Santiago de Chile, ${formatContractDate(data.contract_date)}, entre don CAMILO ALONSO MC-WOLFF MUÑOZ, chileno, soltero, cédula nacional de identidad N°16.146.030-3, en representación de ANIMAL COWORKING GROUP SpA, persona jurídica del giro de su denominación, rol único tributario número 77.188.172-6, ambos domiciliados en calle EULOGIA SANCHEZ # 065, comuna de Providencia, ciudad de Santiago, por una parte y como el “Sub-Arrendador”; y por la otra y como el “Sub-Arrendatario”: ${uppercase(data.representative_name)}, cédula nacional de identidad N° ${uppercase(data.representative_rut)}, para efectos tributarios es PERSONA NATURAL DE PRIMERA CATEGORÍA, con domicilio en ${uppercase(data.representative_address)}, comuna de ${uppercase(data.representative_commune)}, Región de ${uppercase(data.representative_region)}, ambos comparecientes mayores de edad, quienes acreditan su identidad con las cédulas antes indicadas, exponen que vienen libre y voluntariamente en celebrar el siguiente contrato de Sub-arrendamiento:`;
+    const representative = contractRepresentative(flow);
+    const introduction = `En Santiago de Chile, ${formatContractDate(data.contract_date)}, entre don ${representative.name}, chileno, soltero, cédula nacional de identidad N°${representative.rut}, en representación de ANIMAL COWORKING GROUP SpA, persona jurídica del giro de su denominación, rol único tributario número 77.188.172-6, ambos domiciliados en calle EULOGIA SANCHEZ # 065, comuna de Providencia, ciudad de Santiago, por una parte y como el “Sub-Arrendador”; y por la otra y como el “Sub-Arrendatario”: ${uppercase(data.representative_name)}, cédula nacional de identidad N° ${uppercase(data.representative_rut)}, para efectos tributarios es PERSONA NATURAL DE PRIMERA CATEGORÍA, con domicilio en ${uppercase(data.representative_address)}, comuna de ${uppercase(data.representative_commune)}, Región de ${uppercase(data.representative_region)}, ambos comparecientes mayores de edad, quienes acreditan su identidad con las cédulas antes indicadas, exponen que vienen libre y voluntariamente en celebrar el siguiente contrato de Sub-arrendamiento:`;
 
     const clauses: ContractClause[] = [
         {
