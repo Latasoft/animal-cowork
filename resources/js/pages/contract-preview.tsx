@@ -108,6 +108,7 @@ function ContractPreviewFlow({
                     generationData,
                     plan,
                     discount,
+                    flow,
                 );
 
                 if (!isActive) {
@@ -134,7 +135,7 @@ function ContractPreviewFlow({
         return () => {
             isActive = false;
         };
-    }, [generationAttempt, plan, discount]);
+    }, [generationAttempt, plan, discount, flow]);
 
     async function confirmContract(): Promise<void> {
         if (isConfirming || !pdfBlob || !contractData) {

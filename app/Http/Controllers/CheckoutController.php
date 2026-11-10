@@ -287,7 +287,9 @@ class CheckoutController extends Controller
 
         return Inertia::render('contract-preview', [
             'plan' => (new PlanResource($purchase->purchasedPlan()))->resolve(),
-            'flow' => $this->checkoutFlow($request),
+            // El tipo de contrato (venta o renovación) se toma de la compra,
+            // no de la URL, para que el contrato use el representante correcto.
+            'flow' => $purchase->flow === 'renewal' ? 'renewal' : 'checkout',
             'discount' => $purchase->discount_amount > 0 ? [
                 'code' => $purchase->coupon_code,
                 'amount' => $purchase->discount_amount,
